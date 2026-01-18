@@ -41,32 +41,4 @@ public class MemberController {
         memberCommandService.deleteMe(principal.getId());
         return ResponseEntity.noContent().build();
     }
-
-    //판매자 등록
-    @Operation(
-            summary = "판매자 등록",
-            description = "판매자를 등록합니다."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "판매자 등록 완료"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 판매자 데이터"
-            )
-    })
-    @PostMapping("/me/seller")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Long> registerSeller(@AuthenticationPrincipal MemberDetails principal,
-                                                         @RequestBody @Valid SellerUpsertRequest request) {
-
-        Long sellerId = memberCommandService.registerSeller(principal.getId(), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(sellerId);
-    }
 }

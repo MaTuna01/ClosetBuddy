@@ -1,7 +1,7 @@
 package io.codebuddy.userservice.domain.common.config;
 
 
-import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthFailureHandler;
+import io.codebuddy.userservice.domain.form.login.security.config.CustomAuthenticationFailureHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthSuccessHandler;
 import io.codebuddy.userservice.domain.form.logout.config.ApiLogoutSuccessHandler;
 import io.codebuddy.userservice.domain.form.logout.config.JwtLogoutHandler;
@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
@@ -29,7 +30,7 @@ public class SecurityConfig {
 
 
     private final MemberAuthSuccessHandler memberAuthSuccessHandler;
-    private final MemberAuthFailureHandler memberAuthFailureHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final JwtLogoutHandler jwtLogoutHandler;
 
     private final ApiLogoutSuccessHandler apiLogoutSuccessHandler;
@@ -75,7 +76,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginProcessingUrl("/api/v1/auth/login")
                         .successHandler(memberAuthSuccessHandler)
-                        .failureHandler(memberAuthFailureHandler)
+                        .failureHandler((AuthenticationFailureHandler) customAuthenticationFailureHandler)
                         .usernameParameter("memberId")
                         .passwordParameter("password")
                         .permitAll()
