@@ -22,7 +22,7 @@ public class Seller {
     @Column(name = "seller_id")
     private Long sellerId;
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     @Column(name = "seller_name")
     private String sellerName;

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "Refresh_Table")
+@Table(name = "refresh_Table")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken {
 

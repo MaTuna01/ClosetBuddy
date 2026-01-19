@@ -26,6 +26,7 @@ public class AccountHistory {
 
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type")
     private TransactionType type;
 
     @Column(name = "account_amount")

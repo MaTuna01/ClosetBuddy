@@ -33,8 +33,9 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_item_id")
+    //    @OneToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "order_item_id")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItem = new ArrayList<>();
 
     private LocalDateTime createdAt;

@@ -22,7 +22,7 @@ public class Account {
     private Long balance;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false, unique = true)
+    @JoinColumn(name = "member_id", nullable = false, unique = true)
     private Member member;
 
     @Builder

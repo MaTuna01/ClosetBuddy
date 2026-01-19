@@ -138,16 +138,54 @@ CREATE TABLE IF NOT EXISTS `payment` (
 
 
 CREATE TABLE IF NOT EXISTS `settlement` (
-                                            settle_id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-                                            fee_amount        BIGINT NOT NULL,
-                                            settle_status     ENUM('SCHEDULED','SETTLED','FAILED') NOT NULL DEFAULT 'SCHEDULED',
-    total_amount      BIGINT NOT NULL,
-    payout_amount     BIGINT NOT NULL,
-    created_at        DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    settlement_date   DATETIME(6) NOT NULL,
-    store_id          BIGINT UNSIGNED NOT NULL,
-    PRIMARY KEY (settle_id),
-    KEY idx_settlement_store_date (store_id, settlement_date),
-    KEY idx_settlement_status_date (settle_status, settlement_date)
+                                            `settle_id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    -- [관계 정보]
+                                            `store_id`           BIGINT UNSIGNED NOT NULL,
+                                            `seller_id`          BIGINT UNSIGNED NOT NULL, -- 나중에 예치금 입금해줄 대상(Seller) 식별용
+
+    -- [집계 정보]
+                                            `total_sales_amount` BIGINT NOT NULL DEFAULT 0, -- 총 매출액
+                                            `fee_amount`         BIGINT NOT NULL DEFAULT 0, -- 수수료 총액
+                                            `payout_amount`      BIGINT NOT NULL DEFAULT 0, -- 최종 지급액 (매출 - 수수료)
+
+    -- [상태 및 기준]
+                                            `settle_status`      ENUM('SCHEDULED', 'CALCULATING', 'SETTLED', 'FAILED') NOT NULL DEFAULT 'SCHEDULED',
+    `settlement_date`    DATE NOT NULL,        -- 정산 기준일
+
+    `created_at`         DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    `completed_at`       DATETIME(6) NULL,     -- 예치금 지급 완료 시간
+
+    PRIMARY KEY (`settle_id`),
+    KEY `idx_settlement_store_date` (`store_id`, `settlement_date`),
+    KEY `idx_settlement_status` (`settle_status`)
+    );
+
+CREATE TABLE IF NOT EXISTS `settlement_detail` (
+                                                   `settle_detail_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                                                   `settle_id`        BIGINT UNSIGNED NOT NULL, -- settlement 테이블의 settle_id 참조
+
+    -- [원천 데이터 추적용]
+                                                   `order_id`         BIGINT UNSIGNED NOT NULL,
+                                                   `order_item_id`    BIGINT UNSIGNED NOT NULL,
+                                                   `product_id`       BIGINT UNSIGNED NOT NULL,
+                                                   `payment_id`       BIGINT UNSIGNED NOT NULL, -- 결제(예치금 사용) 내역 연결
+
+    -- [스냅샷 데이터]
+                                                   `product_name`     VARCHAR(255) NOT NULL,
+    `product_price`    BIGINT NOT NULL,      -- 판매 당시 가격
+    `quantity`         INT NOT NULL,         -- 판매 수량
+
+-- [금액 계산]
+    `total_amount`     BIGINT NOT NULL,      -- 상품별 총 매출 (price * quantity)
+    `fee_rate`         DECIMAL(5, 2) NOT NULL, -- 적용된 수수료율
+    `fee_amount`       BIGINT NOT NULL,      -- 수수료 금액
+    `payout_amount`    BIGINT NOT NULL,      -- 지급 예정 금액
+
+    `created_at`       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+
+    PRIMARY KEY (`settle_detail_id`),
+    KEY `idx_detail_settle_id` (`settle_id`),
+    KEY `idx_detail_order_item` (`order_item_id`) -- 중복 정산 방지용
     );
 
