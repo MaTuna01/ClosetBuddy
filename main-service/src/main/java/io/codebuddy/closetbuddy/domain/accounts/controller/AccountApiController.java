@@ -40,7 +40,6 @@ public class AccountApiController {
             @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser
     ){
         AccountResponse accountResponse = accountService.getAccountBalance(Long.parseLong(currentUser.userId()));
-        AccountResponse accountResponse = accountService.getAccountBalance(memberId);
         return ResponseEntity.ok(accountResponse);
     }
 
