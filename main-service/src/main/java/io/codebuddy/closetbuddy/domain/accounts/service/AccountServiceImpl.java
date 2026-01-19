@@ -13,8 +13,6 @@ import io.codebuddy.closetbuddy.domain.accounts.model.vo.*;
 import io.codebuddy.closetbuddy.domain.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.accounts.repository.DepositChargeRepository;
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
-import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +37,6 @@ import java.util.Optional;
 public class AccountServiceImpl implements AccountService{
 
     private final ObjectMapper om;
-    private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
     private final DepositChargeRepository depositChargeRepository;
@@ -62,13 +59,7 @@ public class AccountServiceImpl implements AccountService{
     @Transactional(readOnly=true)
     public AccountResponse getAccountBalance(Long memberId) {
 
-        Optional<Member> memberOptional=memberRepository.findById(memberId);
-
-        Member foundMember=memberOptional.orElseThrow(
-                ()->new IllegalArgumentException("존재하지 않는 회원입니다.")
-        );
-
-        Account account = accountRepository.findByMember(foundMember).orElse(Account.createAccount(foundMember));
+        Account account = accountRepository.findByMemberId(memberId).orElse(Account.createAccount(memberId));
 
         return AccountMapper.toResponse(account, "조회가 완료되었습니다.");
     }
@@ -100,14 +91,10 @@ public class AccountServiceImpl implements AccountService{
             throw new IllegalStateException("요청 금액과 실제 결제 금액이 일치하지 않습니다.");
         }
 
-        // 회원 검증
-        Member foundMember = memberRepository.findById(command.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
         // 계좌 조회
-        Account account = accountRepository.findByMember(foundMember)
+        Account account = accountRepository.findByMemberId(command.getMemberId())
                 .orElseGet(() -> {
-                    Account newAccount = Account.createAccount(foundMember);
+                    Account newAccount = Account.createAccount(command.getMemberId());
                     return accountRepository.save(newAccount);
                 });
 
@@ -122,7 +109,7 @@ public class AccountServiceImpl implements AccountService{
 
         //pg 결제 내역 저장
         DepositCharge charge = DepositCharge.builder()
-                .member(foundMember)
+                .memberId(command.getMemberId())
                 .pgPaymentKey(paymentSuccessDto.getPaymentKey())
                 .pgOrderId(command.getOrderId())
                 .chargeAmount(command.getAmount())
@@ -157,15 +144,10 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional(readOnly = true)
     public List<AccountHistoryResponse> getHistoryAll(Long memberId) {
-        Optional<Member> memberOptional=memberRepository.findById(memberId);
-
-        Member foundMember=memberOptional.orElseThrow(
-                ()->new IllegalArgumentException("존재하지 않는 회원입니다.")
-        );
 
         // 계좌 조회
         // 계좌가 아예 없다면 -> 내역도 없음 -> 빈 리스트 반환
-        Account account = accountRepository.findByMember(foundMember)
+        Account account = accountRepository.findByMemberId(memberId)
                 .orElse(null);
 
         if (account == null) {
@@ -195,10 +177,7 @@ public class AccountServiceImpl implements AccountService{
     @Transactional(readOnly = true)
     public AccountHistoryResponse getHistory(Long memberId, Long historyId) {
 
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        Account account = accountRepository.findByMember(foundMember)
+        Account account = accountRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌가 존재하지 않습니다."));
 
         // 내역 단건 조회
@@ -229,12 +208,9 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional
     public AccountHistoryResponse deleteHistory(Long memberId, Long historyId,String reason) {
-        // 멤버 검증
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         // 계좌 검증
-        Account account = accountRepository.findByMember(foundMember)
+        Account account = accountRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌가 존재하지 않습니다."));
 
         // 내역 조회 (내 계좌의 내역인지 확인)
