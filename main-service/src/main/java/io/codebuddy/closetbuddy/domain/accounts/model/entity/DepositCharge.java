@@ -1,7 +1,6 @@
 package io.codebuddy.closetbuddy.domain.accounts.model.entity;
 
 import io.codebuddy.closetbuddy.domain.accounts.model.vo.ChargeStatus;
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,9 +20,8 @@ public class DepositCharge {
     @Column(name = "charge_id")
     private Long chargeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(name = "member_id")
+    private Long memberId;
 
     @Column(name = "pg_payment_key")
     private String pgPaymentKey;
@@ -45,9 +43,9 @@ public class DepositCharge {
     private LocalDateTime createdAt;
 
     @Builder
-    public DepositCharge(Long chargeId, Member member, String pgPaymentKey, String pgOrderId, Long chargeAmount, ChargeStatus status, LocalDateTime createdAt, LocalDateTime approvedAt){
+    public DepositCharge(Long chargeId, Long memberId, String pgPaymentKey, String pgOrderId, Long chargeAmount, ChargeStatus status, LocalDateTime createdAt, LocalDateTime approvedAt){
         this.chargeId=chargeId;
-        this.member=member;
+        this.memberId=memberId;
         this.pgPaymentKey=pgPaymentKey;
         this.pgOrderId=pgOrderId;
         this.chargeAmount=chargeAmount;

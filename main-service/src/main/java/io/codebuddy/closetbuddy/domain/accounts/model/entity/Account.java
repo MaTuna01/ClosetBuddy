@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.accounts.model.entity;
 
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,19 +20,18 @@ public class Account {
     @Column(name = "balance")
     private Long balance;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false, unique = true)
-    private Member member;
+    @Column(name = "member_id", nullable = false, unique = true)
+    private Long memberId;
 
     @Builder
-    public Account(Long accountId,Long balance,Member member){
+    public Account(Long accountId,Long balance,Long memberId){
         this.accountId=accountId;
         this.balance=0L;
-        this.member=member;
+        this.memberId=memberId;
     }
-    public static Account createAccount(Member member) {
+    public static Account createAccount(Long memberId) {
         return Account.builder()
-                .member(member)
+                .memberId(memberId)
                 .balance(0L)
                 .build();
     }

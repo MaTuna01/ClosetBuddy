@@ -13,8 +13,6 @@ import io.codebuddy.closetbuddy.domain.accounts.model.vo.*;
 import io.codebuddy.closetbuddy.domain.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.accounts.repository.DepositChargeRepository;
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
-import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +37,6 @@ import java.util.Optional;
 public class AccountServiceImpl implements AccountService{
 
     private final ObjectMapper om;
-    private final MemberRepository memberRepository;
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
     private final DepositChargeRepository depositChargeRepository;
@@ -62,13 +59,10 @@ public class AccountServiceImpl implements AccountService{
     @Transactional(readOnly=true)
     public AccountResponse getAccountBalance(Long memberId) {
 
-        Optional<Member> memberOptional=memberRepository.findById(memberId);
+        // Member 조회 로직 제거 -> memberId로 바로 Account 조회
+        //memberId는 컨트롤러에서 currentUser.userId()를 통해 가져온 값이므로 보안 작업 넣지 않음.
 
-        Member foundMember=memberOptional.orElseThrow(
-                ()->new IllegalArgumentException("존재하지 않는 회원입니다.")
-        );
-
-        Account account = accountRepository.findByMember(foundMember).orElse(Account.createAccount(foundMember));
+        Account account = accountRepository.findByMemberId(memberId).orElse(Account.createAccount(memberId));
 
         return AccountMapper.toResponse(account, "조회가 완료되었습니다.");
     }
@@ -100,14 +94,12 @@ public class AccountServiceImpl implements AccountService{
             throw new IllegalStateException("요청 금액과 실제 결제 금액이 일치하지 않습니다.");
         }
 
-        // 회원 검증
-        Member foundMember = memberRepository.findById(command.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        // 3. 회원 검증 (MemberRepository 제거됨) -> 회원검증은 GateWay에서 진행하므로 별다른 검증 진행 X
 
         // 계좌 조회
-        Account account = accountRepository.findByMember(foundMember)
+        Account account = accountRepository.findByMemberId(command.getMemberId())
                 .orElseGet(() -> {
-                    Account newAccount = Account.createAccount(foundMember);
+                    Account newAccount = Account.createAccount(command.getMemberId());
                     return accountRepository.save(newAccount);
                 });
 
@@ -122,7 +114,7 @@ public class AccountServiceImpl implements AccountService{
 
         //pg 결제 내역 저장
         DepositCharge charge = DepositCharge.builder()
-                .member(foundMember)
+                .memberId(command.getMemberId())
                 .pgPaymentKey(paymentSuccessDto.getPaymentKey())
                 .pgOrderId(command.getOrderId())
                 .chargeAmount(command.getAmount())
@@ -157,23 +149,14 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional(readOnly = true)
     public List<AccountHistoryResponse> getHistoryAll(Long memberId) {
-        Optional<Member> memberOptional=memberRepository.findById(memberId);
 
-        Member foundMember=memberOptional.orElseThrow(
-                ()->new IllegalArgumentException("존재하지 않는 회원입니다.")
-        );
-
-        // 계좌 조회
-        // 계좌가 아예 없다면 -> 내역도 없음 -> 빈 리스트 반환
-        Account account = accountRepository.findByMember(foundMember)
-                .orElse(null);
-
-        if (account == null) {
+        // 계좌 존재 여부 확인
+        if (accountRepository.findByMemberId(memberId).isEmpty()) {
             return Collections.emptyList();
         }
 
         // 예치 내역 전체 조회 (최신순)
-        List<AccountHistory> historyList = accountHistoryRepository.findByAccountOrderByCreatedAtDesc(account);
+        List<AccountHistory> historyList = accountHistoryRepository.findByAccount_MemberIdOrderByCreatedAtDesc(memberId);
 
         return AccountMapper.toHistoryResponseList(historyList);
     }
@@ -194,16 +177,9 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional(readOnly = true)
     public AccountHistoryResponse getHistory(Long memberId, Long historyId) {
-
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        Account account = accountRepository.findByMember(foundMember)
-                .orElseThrow(() -> new IllegalArgumentException("계좌가 존재하지 않습니다."));
-
         // 내역 단건 조회
         // 계좌 객체(account)를 조건으로 넣어서, 남의 내역을 조회하는 것을 차단
-        AccountHistory history = accountHistoryRepository.findByAccountAndAccountHistoryId(account, historyId)
+        AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 본인의 내역이 아닙니다."));
 
         return AccountMapper.toHistoryResponse(history);
@@ -229,22 +205,18 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional
     public AccountHistoryResponse deleteHistory(Long memberId, Long historyId,String reason) {
-        // 멤버 검증
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        // 계좌 검증
-        Account account = accountRepository.findByMember(foundMember)
-                .orElseThrow(() -> new IllegalArgumentException("계좌가 존재하지 않습니다."));
-
-        // 내역 조회 (내 계좌의 내역인지 확인)
-        AccountHistory history = accountHistoryRepository.findByAccountAndAccountHistoryId(account, historyId)
+        // History랑 연결된 계좌(Account)의 주인(MemberId)이 요청한 사람(memberId)과 같은지 + 요청한 내역 번호가 맞는지 검증
+        AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 본인의 내역이 아닙니다."));
 
         // 충전 건인지 확인
         if (history.getType() != TransactionType.CHARGE) {
             throw new IllegalStateException("충전 내역만 취소 가능합니다.");
         }
+
+        //계좌 객체
+        Account account = history.getAccount();
 
         // pg 결제 내역 조회
         DepositCharge depositCharge = depositChargeRepository.findById(history.getRefId())

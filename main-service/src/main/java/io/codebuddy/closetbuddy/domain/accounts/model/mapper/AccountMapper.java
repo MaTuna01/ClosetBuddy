@@ -14,7 +14,7 @@ public class AccountMapper {
     // Account(entity) -> AccountResponse(vo)
     public static AccountResponse toResponse(Account account, String message) {
         return new AccountResponse(
-                account.getMember().getId(),
+                account.getMemberId(),
                 account.getBalance(),
                 message
         );
