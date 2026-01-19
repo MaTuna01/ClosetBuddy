@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.sellers.model.entity;
 
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import io.codebuddy.closetbuddy.domain.stores.model.entity.Store;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -21,9 +20,7 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seller_id")
     private Long sellerId;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
-    private Member member;
+    private Long memberId;
     @Column(name = "seller_name")
     private String sellerName;
     //연속 cascade 추후 구현
@@ -31,9 +28,9 @@ public class Seller {
     private List<Store> stores = new ArrayList<>();
 
     @Builder
-    public Seller(Long sellerId, Member member, String sellerName) {
+    public Seller(Long sellerId, Long memberId, String sellerName) {
         this.sellerId = sellerId;
-        this.member = member;
+        this.memberId = memberId;
         this.sellerName = sellerName;
     }
 

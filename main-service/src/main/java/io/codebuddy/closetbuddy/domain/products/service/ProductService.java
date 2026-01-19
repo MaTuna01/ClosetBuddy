@@ -95,14 +95,14 @@ public class ProductService {
 
     // (상점 주인 확인용) 검증 로직
     private void validateStoreOwner(Long memberId, Store store) {
-        if (!store.getSeller().getMember().getId().equals(memberId)) {
+        if (!store.getSeller().getMemberId().equals(memberId)) {
             throw new IllegalStateException("본인의 상점에만 상품을 등록할 수 있습니다.");
         }
     }
 
     // (상품 주인 확인용) 검증로직
     private void validateProductOwner(Long memberId, Product product) {
-        Long ownerId = product.getStore().getSeller().getMember().getId();
+        Long ownerId = product.getStore().getSeller().getMemberId();
         if (!ownerId.equals(memberId)) {
             throw new IllegalStateException("본인의 상품만 관리할 수 있습니다.");
         }

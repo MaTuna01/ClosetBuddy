@@ -98,7 +98,7 @@ public class StoreService {
     private void validateOwner(Long memberId, Store store) {
         // 현재 가게의 주인(Member) ID를 찾습니다.
         // Store -> Seller -> Member -> ID 순서로 타고 들어갑니다.
-        Long ownerMemberId = store.getSeller().getMember().getId();
+        Long ownerMemberId = store.getSeller().getMemberId();
 
         // 로그인한 사람(memberId)과 가게 주인(ownerMemberId)이 다르면 에러
         if (!ownerMemberId.equals(memberId)) {

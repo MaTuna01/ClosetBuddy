@@ -1,7 +1,5 @@
 package io.codebuddy.closetbuddy.domain.sellers.service;
 
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
-import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
 import io.codebuddy.closetbuddy.domain.sellers.model.dto.SellerResponse;
 import io.codebuddy.closetbuddy.domain.sellers.model.dto.SellerUpsertRequest;
 import io.codebuddy.closetbuddy.domain.sellers.model.entity.Seller;
@@ -15,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SellerService {
 
     private final SellerJpaRepository sellerJpaRepository;
-    private final MemberRepository memberRepository;
 
     //판매자 정보 조회 (Read)
     @Transactional(readOnly = true)
