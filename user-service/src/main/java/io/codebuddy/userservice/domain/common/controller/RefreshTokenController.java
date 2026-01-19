@@ -1,6 +1,6 @@
 package io.codebuddy.userservice.domain.common.controller;
 
-import io.codebuddy.userservice.domain.common.app.JwtTokenProvider;
+import io.codebuddy.userservice.domain.common.service.TokenRefreshService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class RefreshTokenController {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenRefreshService tokenRefreshService;
 
     /*
     클라이언트가 보내는 요청 JSON 바디를 매핑하기 위한 DTO
@@ -32,7 +32,7 @@ public class RefreshTokenController {
 
     @PostMapping("/refresh")
     public ResponseEntity<AccessResponse> refresh(@RequestBody RefreshRequest req) {
-        String newAccess = jwtTokenProvider.reissueAccessTokenByRefresh(req.refreshToken());
+        String newAccess = tokenRefreshService.refreshAccessToken(req.refreshToken());
         return ResponseEntity.ok(new AccessResponse(newAccess));
     }
 }
