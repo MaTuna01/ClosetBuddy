@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.payments.controller;
 
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.payments.model.vo.PaymentRequest;
 import io.codebuddy.closetbuddy.domain.payments.model.vo.PaymentResponse;
 import io.codebuddy.closetbuddy.domain.payments.service.PaymentService;
@@ -9,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,11 +42,10 @@ public class PaymentController {
     })
     @PostMapping
     public ResponseEntity<PaymentResponse> payOrder(
-            @AuthenticationPrincipal MemberDetails principal,
+            @CurrentUser CurrentUserInfo currentUser,
             @RequestBody PaymentRequest request
     ) {
-        Long memberId = principal.getMember().getId();
-        return ResponseEntity.ok(paymentService.payOrder(memberId, request));
+        return ResponseEntity.ok(paymentService.payOrder(Long.parseLong(currentUser.userId()), request));
     }
 
     // 결제 취소
@@ -70,11 +69,10 @@ public class PaymentController {
     })
     @PostMapping("/cancel")
     public ResponseEntity<PaymentResponse> cancelPayment(
-            @AuthenticationPrincipal MemberDetails principal,
+            @CurrentUser CurrentUserInfo currentUser,
             @RequestBody PaymentRequest request
     ) {
-        Long memberId = principal.getMember().getId();
-        return ResponseEntity.ok(paymentService.payCancel(memberId, request));
+        return ResponseEntity.ok(paymentService.payCancel(Long.parseLong(currentUser.userId()), request));
     }
 
     // 결제 단건 조회
@@ -98,11 +96,10 @@ public class PaymentController {
     })
     @GetMapping("/{orderId}")
     public ResponseEntity<PaymentResponse> getPaymentDetail(
-            @AuthenticationPrincipal MemberDetails principal,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long orderId
     ) {
-        Long memberId = principal.getMember().getId();
-        return ResponseEntity.ok(paymentService.getPayment(memberId, orderId));
+        return ResponseEntity.ok(paymentService.getPayment(Long.parseLong(currentUser.userId()), orderId));
     }
 
     // 결제 내역 전체 조회
@@ -126,9 +123,9 @@ public class PaymentController {
     })
     @GetMapping
     public ResponseEntity<List<PaymentResponse>> getPaymentList(
-            @AuthenticationPrincipal MemberDetails principal
+            @CurrentUser CurrentUserInfo currentUser
     ) {
-        return ResponseEntity.ok(paymentService.getPayments(principal.getMember().getId()));
+        return ResponseEntity.ok(paymentService.getPayments(Long.parseLong(currentUser.userId())));
     }
 
 }

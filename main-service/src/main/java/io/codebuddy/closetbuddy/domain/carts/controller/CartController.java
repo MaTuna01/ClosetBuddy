@@ -3,14 +3,14 @@ package io.codebuddy.closetbuddy.domain.carts.controller;
 import io.codebuddy.closetbuddy.domain.carts.dto.request.CartCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.carts.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,10 +53,10 @@ public class CartController {
     })
     @PostMapping
     public ResponseEntity<Long> createCart(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @Valid @RequestBody CartCreateRequestDto request
     ) {
-        Long cartItemId = cartService.createCart(memberPrincipalDetails.getMember().getId(), request);
+        Long cartItemId = cartService.createCart(Long.parseLong(currentUser.userId()), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemId);
     }
 
@@ -86,10 +86,9 @@ public class CartController {
     })
     @GetMapping
     public ResponseEntity<List<CartGetResponseDto>> getCart(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails
+            @CurrentUser CurrentUserInfo currentUser
     ) {
-        Long memberId = memberPrincipalDetails.getMember().getId();
-        List<CartGetResponseDto> cartList = cartService.getCartList(memberId);
+        List<CartGetResponseDto> cartList = cartService.getCartList(Long.parseLong(currentUser.userId()));
 
         return ResponseEntity.ok(cartList);
     }
@@ -123,7 +122,7 @@ public class CartController {
     })
     @PatchMapping("/items/{cartItemId}")
     public ResponseEntity<Void> updateCartItem(
-            @AuthenticationPrincipal MemberDetails memberPrincipal,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long cartItemId,
             @RequestParam Integer cartCount
     ) {
@@ -131,9 +130,7 @@ public class CartController {
             throw new IllegalArgumentException("수량은 최소 1개 이상이어야 합니다.");
         }
 
-        Long memberId = memberPrincipal.getMember().getId();
-
-        cartService.updateCart(memberId, cartItemId, cartCount);
+        cartService.updateCart(Long.parseLong(currentUser.userId()), cartItemId, cartCount);
 
         return ResponseEntity.ok().build();
     }
@@ -165,12 +162,10 @@ public class CartController {
     })
     @DeleteMapping("/items/{cartItemId}")
     public ResponseEntity<Void> deleteCartItem(
-            @AuthenticationPrincipal MemberDetails memberPrincipal,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long cartItemId
     ) {
-        Long memberId = memberPrincipal.getMember().getId();
-
-        cartService.deleteCartItem(memberPrincipal.getMember().getId(), cartItemId);
+        cartService.deleteCartItem(Long.parseLong(currentUser.userId()), cartItemId);
 
         return ResponseEntity.noContent().build();
     }

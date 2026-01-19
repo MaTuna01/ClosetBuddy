@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.products.controller;
 
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.products.model.dto.ProductResponse;
 import io.codebuddy.closetbuddy.domain.products.model.dto.UpdateProductRequest;
 import io.codebuddy.closetbuddy.domain.products.model.dto.ProductCreateRequest;
@@ -12,7 +13,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,11 +46,11 @@ public class ProductApiController {
     @PostMapping("/stores/{storeId}/products")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Long> create(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long storeId,
             @RequestBody @Valid ProductCreateRequest request
     ) {
-        Long productId = productService.createProduct(memberPrincipalDetails.getId(), storeId, request);
+        Long productId = productService.createProduct(Long.parseLong(currentUser.userId()), storeId, request);
         return ResponseEntity.ok(productId);
     }
 
@@ -121,11 +121,11 @@ public class ProductApiController {
     })
     @PutMapping("products/{productId}")
     public ResponseEntity<ProductResponse> updateProduct(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long productId,
             @RequestBody @Valid UpdateProductRequest request
     ) {
-        productService.updateProduct(memberPrincipalDetails.getId(), productId, request);
+        productService.updateProduct(Long.parseLong(currentUser.userId()), productId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -147,10 +147,10 @@ public class ProductApiController {
     @DeleteMapping("products/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteProduct(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long productId
     ) {
-        productService.deleteProduct(memberPrincipalDetails.getId(), productId);
+        productService.deleteProduct(Long.parseLong(currentUser.userId()), productId);
         return ResponseEntity.noContent().build();
     }
 

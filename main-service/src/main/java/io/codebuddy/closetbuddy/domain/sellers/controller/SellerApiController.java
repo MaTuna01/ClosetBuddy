@@ -1,7 +1,8 @@
 package io.codebuddy.closetbuddy.domain.sellers.controller;
 
 
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.sellers.model.dto.SellerResponse;
 import io.codebuddy.closetbuddy.domain.sellers.model.dto.SellerUpsertRequest;
 import io.codebuddy.closetbuddy.domain.sellers.service.SellerService;
@@ -12,7 +13,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,9 +39,9 @@ public class SellerApiController {
     })
     @GetMapping("/me")
     public ResponseEntity<SellerResponse> getMyInfo(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails
+            @CurrentUser CurrentUserInfo currentUser
     ) {
-        SellerResponse response = sellerService.getSellerInfo(memberPrincipalDetails.getId());
+        SellerResponse response = sellerService.getSellerInfo(Long.parseLong(currentUser.userId()));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -62,10 +62,10 @@ public class SellerApiController {
     })
     @PutMapping("/me")
     public ResponseEntity<Void> update(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @RequestBody @Valid SellerUpsertRequest request
     ) {
-        sellerService.updateSeller(memberPrincipalDetails.getId(), request);
+        sellerService.updateSeller(Long.parseLong(currentUser.userId()), request);
         return ResponseEntity.ok().build();
     }
 
@@ -86,9 +86,9 @@ public class SellerApiController {
     })
     @DeleteMapping("/me")
     public ResponseEntity<Void> unregister(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails
+            @CurrentUser CurrentUserInfo currentUser
     ) {
-        sellerService.unregisterSeller(memberPrincipalDetails.getId());
+        sellerService.unregisterSeller(Long.parseLong(currentUser.userId()));
         return ResponseEntity.noContent().build();
     }
 

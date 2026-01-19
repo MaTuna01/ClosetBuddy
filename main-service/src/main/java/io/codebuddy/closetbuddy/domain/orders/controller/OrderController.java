@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.orders.controller;
 
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderDetailResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderResponseDto;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -77,10 +77,9 @@ public class OrderController {
     })
     @GetMapping("/orderList")
     public ResponseEntity<List<OrderResponseDto>> getOrder(
-            @AuthenticationPrincipal MemberDetails memberPrincipal
+            @CurrentUser CurrentUserInfo currentUser
     ){
-        Long memberId = memberPrincipal.getMember().getId();
-        List<OrderResponseDto> orderResponseDto = orderService.getOrder(memberId);
+        List<OrderResponseDto> orderResponseDto = orderService.getOrder(Long.parseLong(currentUser.userId()));
 
         return ResponseEntity.ok(orderResponseDto);
     }
@@ -145,10 +144,10 @@ public class OrderController {
     })
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<Void> canceledOrder(
-            @PathVariable Long orderId,
-            @PathVariable Long memberId
+            @CurrentUser CurrentUserInfo currentUser,
+            @PathVariable Long orderId
     ){
-        orderService.cancelledOrder(memberId, orderId);
+        orderService.cancelledOrder(Long.parseLong(currentUser.userId()), orderId);
         return ResponseEntity.ok().build();
     }
 }

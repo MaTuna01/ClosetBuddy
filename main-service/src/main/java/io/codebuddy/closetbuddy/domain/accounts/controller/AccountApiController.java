@@ -3,7 +3,8 @@ package io.codebuddy.closetbuddy.domain.accounts.controller;
 import io.codebuddy.closetbuddy.domain.accounts.model.dto.AccountCommand;
 import io.codebuddy.closetbuddy.domain.accounts.model.vo.*;
 import io.codebuddy.closetbuddy.domain.accounts.service.AccountService;
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -15,7 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,10 +37,9 @@ public class AccountApiController {
     })
     @GetMapping("/me")
     public ResponseEntity<AccountResponse> getAccountBalance(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser
     ){
-        // principal에서 Member 객체를 꺼내고 -> ID를 가져옴
-        Long memberId = principal.getMember().getId();
+        AccountResponse accountResponse = accountService.getAccountBalance(Long.parseLong(currentUser.userId()));
         AccountResponse accountResponse = accountService.getAccountBalance(memberId);
         return ResponseEntity.ok(accountResponse);
     }
@@ -54,14 +53,12 @@ public class AccountApiController {
     })
     @PostMapping("/charge")
     public ResponseEntity<AccountHistoryResponse> chargeAccount(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal,
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser,
             @RequestBody PaymentConfirmRequest request
     ) {
 
-        Long memberId = principal.getMember().getId();
-
         AccountCommand command = new AccountCommand(
-                memberId,
+                Long.parseLong(currentUser.userId()),
                 request.amount(),
                 request.orderId(),
                 request.paymentKey()
@@ -79,11 +76,9 @@ public class AccountApiController {
     })
     @GetMapping("/history")
     public ResponseEntity<List<AccountHistoryResponse>> getAccountHistory(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser
     ) {
-        Long memberId = principal.getMember().getId();
-
-        List<AccountHistoryResponse> historyList = accountService.getHistoryAll(memberId);
+        List<AccountHistoryResponse> historyList = accountService.getHistoryAll(Long.parseLong(currentUser.userId()));
 
         return ResponseEntity.ok(historyList);
     }
@@ -97,13 +92,11 @@ public class AccountApiController {
     })
     @GetMapping("/history/{accountHistoryId}")
     public ResponseEntity<AccountHistoryResponse> getAccountHistoryDetail(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal,
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser,
             @Parameter(description = "예치금 내역 PK", example = "101") @PathVariable Long accountHistoryId
     ) {
 
-        Long memberId = principal.getMember().getId();
-
-        AccountHistoryResponse response = accountService.getHistory(memberId, accountHistoryId);
+        AccountHistoryResponse response = accountService.getHistory(Long.parseLong(currentUser.userId()), accountHistoryId);
 
         return ResponseEntity.ok(response);
     }
@@ -121,14 +114,16 @@ public class AccountApiController {
     })
     @PostMapping("/history/{accountHistoryId}/cancel")
     public ResponseEntity<AccountHistoryResponse> cancelHistory(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal,
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser,
             @Parameter(description = "취소할 내역 PK", example = "101") @PathVariable Long accountHistoryId,
             @RequestBody @Valid TossCancelRequest request
     ) {
 
-        Long memberId = principal.getMember().getId();
-
-        AccountHistoryResponse response=accountService.deleteHistory(memberId, accountHistoryId, request.cancelReason());
+        AccountHistoryResponse response=accountService.deleteHistory(
+                Long.parseLong(currentUser.userId()),
+                accountHistoryId,
+                request.cancelReason()
+        );
 
         return ResponseEntity.ok(response);
     }

@@ -1,7 +1,8 @@
 package io.codebuddy.closetbuddy.domain.stores.contorller;
 
 
-import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.stores.model.dto.StoreResponse;
 import io.codebuddy.closetbuddy.domain.stores.model.dto.UpdateStoreRequest;
 import io.codebuddy.closetbuddy.domain.stores.model.dto.UpsertStoreRequest;
@@ -13,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,10 +47,10 @@ public class StoreApiController {
     @PostMapping("/stores")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Long> create(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @RequestBody @Valid UpsertStoreRequest request
             ) {
-        Long storeId = storeService.createStore(memberPrincipalDetails.getId(), request);
+        Long storeId = storeService.createStore(Long.parseLong(currentUser.userId()), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(storeId);
     }
 
@@ -81,9 +81,9 @@ public class StoreApiController {
     // /stores/me
     @GetMapping("/me")
     public ResponseEntity<List<StoreResponse>> getMyStores(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails
+            @CurrentUser CurrentUserInfo currentUser
     ) {
-        List<StoreResponse> response = storeService.getMyStores(memberPrincipalDetails.getId());
+        List<StoreResponse> response = storeService.getMyStores(Long.parseLong(currentUser.userId()));
         return ResponseEntity.ok(response);
     }
 
@@ -121,11 +121,11 @@ public class StoreApiController {
     })
     @PutMapping("stores/{store_id}")
     public ResponseEntity<StoreResponse> updateStore(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long store_id,
             @RequestBody @Valid UpdateStoreRequest request
             ) {
-        storeService.updateStore(memberPrincipalDetails.getId(), store_id, request);
+        storeService.updateStore(Long.parseLong(currentUser.userId()), store_id, request);
         return ResponseEntity.ok().build();
     }
 
@@ -147,10 +147,10 @@ public class StoreApiController {
     @DeleteMapping("stores/{store_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteStore(
-            @AuthenticationPrincipal MemberDetails memberPrincipalDetails,
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long store_id
     ) {
-        storeService.deleteStore(memberPrincipalDetails.getId(), store_id);
+        storeService.deleteStore(Long.parseLong(currentUser.userId()), store_id);
         return ResponseEntity.noContent().build();
     }
 }
