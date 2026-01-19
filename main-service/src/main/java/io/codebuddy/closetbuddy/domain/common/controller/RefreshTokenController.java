@@ -1,8 +1,6 @@
 package io.codebuddy.closetbuddy.domain.common.controller;
 
 import io.codebuddy.closetbuddy.domain.common.app.JwtTokenProvider;
-
-import io.codebuddy.closetbuddy.domain.common.app.JwtTokenProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +30,6 @@ public class RefreshTokenController {
     클라이언트가 보내는 요청 JSON 바디를 매핑하기 위한 DTO
     {"refreshToken":"..."} 형태로 받는다.
      */
-    public record RefreshRequest(String refreshToken) {}
     @Schema(description = "토큰 재발급 요청 DTO")
     public record RefreshRequest(
             @Schema(description = "리프레시 토큰")
@@ -42,7 +39,6 @@ public class RefreshTokenController {
     서버가 새 access 토큰만 내려주기 위한 응답 DTO
     {"accessToken":"..."} 형태로 응답
      */
-    public record AccessResponse(String accessToken) {}
     @Schema(description = "새로운 액세스 토큰 응답 DTO")
     public record AccessResponse(
             @Schema(description = "새로 발급된 액세스 토큰")
@@ -54,11 +50,11 @@ public class RefreshTokenController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "재발급 성공",
-            content = @Content(schema = @Schema(implementation = AccessResponse.class))),
+                    content = @Content(schema = @Schema(implementation = AccessResponse.class))),
             @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰",
-            content = @Content),
+                    content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류",
-            content = @Content)
+                    content = @Content)
     })
     @PostMapping("/refresh")
     public ResponseEntity<AccessResponse> refresh(@RequestBody RefreshRequest req) {

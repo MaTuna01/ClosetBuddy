@@ -3,8 +3,6 @@ package io.codebuddy.closetbuddy.domain.oauth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-package io.codebuddy.userservice.domain.oauth.controller;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +20,6 @@ public class OAuthTestController {
             description = "OAuth2 인증 완료 후 리다이렉트되어 발급된 Access 토큰을 화면에 표시합니다. (개발/테스트용)"
     )
     @GetMapping("/login-success")
-    public String success(@RequestParam String access) {
     public String success(
             @Parameter(description = "OAuth2 인증을 통해 발급된 Access 토큰", required = true)
             @RequestParam String access) {

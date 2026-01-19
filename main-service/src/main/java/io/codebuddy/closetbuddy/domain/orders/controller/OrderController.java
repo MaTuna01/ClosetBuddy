@@ -145,9 +145,10 @@ public class OrderController {
     })
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<Void> canceledOrder(
-            @PathVariable Long orderId
+            @PathVariable Long orderId,
+            @PathVariable Long memberId
     ){
-        orderService.cancelledOrder(orderId);
+        orderService.cancelledOrder(memberId, orderId);
         return ResponseEntity.ok().build();
     }
 }
