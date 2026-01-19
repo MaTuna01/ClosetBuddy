@@ -59,7 +59,7 @@ public class OrderService {
         /**
          * 새로운 객체를 만들어서 orderItem을 저장합니다.
          */
-        Order order = Order.createOrder(member, orderItems);
+        Order order = Order.createOrder(memberId, orderItems);
         orderRepository.save(order);
 
         /**
@@ -113,7 +113,7 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다."));
 
-        if(!order.getMember().getId().equals(memberId)) {
+        if(!order.getMemberId().equals(memberId)) {
             throw new AccessDeniedException("본인의 주문만 조회할 수 있습니다.");
         }
 
@@ -152,7 +152,7 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("주문한 내역이 아직 없습니다."));
 
 
-        if(!order.getMember().getId().equals(memberId)) {
+        if(!order.getMemberId().equals(memberId)) {
             throw new AccessDeniedException("주문자만 취소가 가능합니다.");
         }
 
