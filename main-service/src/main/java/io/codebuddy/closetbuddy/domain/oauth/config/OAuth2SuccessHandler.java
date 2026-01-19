@@ -6,7 +6,6 @@ import io.codebuddy.closetbuddy.domain.common.app.JwtTokenProvider;
 import io.codebuddy.closetbuddy.domain.oauth.service.OauthService;
 import io.codebuddy.closetbuddy.domain.common.model.entity.RefreshToken;
 import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

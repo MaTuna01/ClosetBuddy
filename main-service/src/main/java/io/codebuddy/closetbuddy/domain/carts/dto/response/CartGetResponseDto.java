@@ -6,6 +6,10 @@ public record CartGetResponseDto(
         String productName,
         Integer cartCount
 ) {
+
+    /**
+     * Entity -> Dto 변환 로직
+     */
     public CartGetResponseDto(CartItem entity) {
         this(
                 entity.getProduct().getProductName(),

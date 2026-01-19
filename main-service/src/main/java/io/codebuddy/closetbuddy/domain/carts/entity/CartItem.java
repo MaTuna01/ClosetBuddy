@@ -37,6 +37,9 @@ public class CartItem {
         this.cartPrice = cartPrice;
     }
 
+    /**
+     *  cart 수량을 변경합니다.
+     */
     public void updateCount(Integer cartCount) {
         this.cartCount += cartCount;
     }
