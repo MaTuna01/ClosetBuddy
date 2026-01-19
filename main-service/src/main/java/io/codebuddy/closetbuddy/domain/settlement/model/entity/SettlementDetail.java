@@ -40,6 +40,13 @@ public class SettlementDetail {
     @Column(name = "payment_id", nullable = false)
     private Long paymentId;
 
+    // 어느 상점의 정산 내역인지 그룹핑 위함
+    @Transient
+    private Long storeId;
+
+    @Transient
+    private Long sellerId;
+
     // [스냅샷 데이터]
     @Column(name = "product_name", nullable = false)
     private String productName;
@@ -52,16 +59,18 @@ public class SettlementDetail {
 
     // [금액 계산]
     @Column(name = "total_amount", nullable = false)
-    private Long totalAmount;
+    private Long totalAmount; // 판매 총액
 
+    // Double은 이진수 근사치를 사용하기 때문에 다시 십진수로 변환 시 기대값과 다른 문제 발생
+    // BigDecimal을 이용한 위의 정밀도 문제 해결
     @Column(name = "fee_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal feeRate; // 수수료율 스냅샷
 
     @Column(name = "fee_amount", nullable = false)
-    private Long feeAmount;
+    private Long feeAmount; // 수수료 금액
 
     @Column(name = "payout_amount", nullable = false)
-    private Long payoutAmount;
+    private Long payoutAmount; // 정산 지급액 (총액 - 수수료)
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -70,7 +79,8 @@ public class SettlementDetail {
     @Builder
     public SettlementDetail(Long settleId, Long orderId, Long orderItemId, Long productId, Long paymentId,
                             String productName, Long productPrice, Integer quantity,
-                            Long totalAmount, BigDecimal feeRate, Long feeAmount, Long payoutAmount) {
+                            Long totalAmount, BigDecimal feeRate, Long feeAmount, Long payoutAmount, LocalDateTime createdAt,
+                            Long storeId, Long sellerId) {
         this.settleId = settleId;
         this.orderId = orderId;
         this.orderItemId = orderItemId;
@@ -83,6 +93,13 @@ public class SettlementDetail {
         this.feeRate = feeRate;
         this.feeAmount = feeAmount;
         this.payoutAmount = payoutAmount;
+        this.createdAt=createdAt;
+        this.storeId = storeId;
+        this.sellerId = sellerId;
+    }
+
+    public void setSettleId(Long settleId) {
+        this.settleId = settleId;
     }
 }
 

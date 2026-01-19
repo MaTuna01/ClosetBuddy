@@ -36,7 +36,7 @@ public class Settlement {
 
     // [집계 정보]
     @Column(name = "total_sales_amount", nullable = false)
-    private Long totalSalesAmount;
+    private Long totalSalesAmount; // 총 매출액
 
     @Column(name = "payout_amount", nullable = false)
     private Long payoutAmount; // 최종 지급액
@@ -57,13 +57,20 @@ public class Settlement {
     private LocalDateTime completedAt;
 
     @Builder
-    public Settlement(Long storeId, Long sellerId, Long totalSalesAmount, Long payoutAmount, SettlementStatus settleStatus, LocalDate settlementDate) {
+    public Settlement(Long storeId, Long sellerId, Long totalSalesAmount, Long payoutAmount, SettlementStatus settleStatus, LocalDate settlementDate, LocalDateTime createdAt) {
         this.storeId = storeId;
         this.sellerId = sellerId;
         this.totalSalesAmount = totalSalesAmount;
         this.payoutAmount = payoutAmount;
         this.settleStatus = settleStatus;
         this.settlementDate = settlementDate;
+        this.createdAt= LocalDateTime.now();
+    }
+
+    // 매출액 누적
+    public void addAmounts(Long salesAmount, Long payoutAmount) {
+        this.totalSalesAmount += salesAmount;
+        this.payoutAmount += payoutAmount;
     }
 
 }

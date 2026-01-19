@@ -4,6 +4,7 @@ public enum TransactionType {
     CHARGE,
     CANCEL,
     USE,
-    REFUND
+    REFUND,
+    SETTLEMENT
 
 }

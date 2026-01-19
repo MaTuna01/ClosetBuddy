@@ -1,41 +1,180 @@
 package io.codebuddy.closetbuddy;
 
-import org.junit.jupiter.api.DisplayName;
+import io.codebuddy.closetbuddy.domain.accounts.model.entity.Account;
+import io.codebuddy.closetbuddy.domain.accounts.repository.AccountHistoryRepository;
+import io.codebuddy.closetbuddy.domain.accounts.repository.AccountRepository;
+import io.codebuddy.closetbuddy.domain.common.model.dto.Role;
+import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
+import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
+import io.codebuddy.closetbuddy.domain.orders.entity.Order;
+import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
+
+import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
+
+import io.codebuddy.closetbuddy.domain.payments.model.entity.Payment;
+import io.codebuddy.closetbuddy.domain.payments.model.vo.PaymentStatus;
+import io.codebuddy.closetbuddy.domain.payments.repository.PaymentRepository;
+import io.codebuddy.closetbuddy.domain.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.products.repository.ProductJpaRepository;
+
+import io.codebuddy.closetbuddy.domain.sellers.model.entity.Seller;
+import io.codebuddy.closetbuddy.domain.sellers.repository.SellerJpaRepository;
+import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
+import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRepository;
+import io.codebuddy.closetbuddy.domain.stores.model.entity.Store;
+import io.codebuddy.closetbuddy.domain.stores.repository.StoreJpaRepository;
+
+import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-@SpringBootTest // 실제 DB와 연결해서 실행
+@SpringBootTest
+@SpringBatchTest
+@ActiveProfiles("test") // application-test.yml 사용 시
 public class SettlementJobTest {
 
-    @Autowired
-    private JobLauncher jobLauncher;
+    @Autowired private JobLauncherTestUtils jobLauncherTestUtils;
+    @Autowired private JobLauncher jobLauncher;
+    @Autowired private Job settlementJob; // JobConfig Bean 이름
 
-    @Autowired
-    private Job settlementJob; // Config에 등록한 Job Bean 주입
+    // Repositories
+    @Autowired private MemberRepository memberRepository;
+    @Autowired private AccountRepository accountRepository;
+    @Autowired private SellerJpaRepository sellerJpaRepository;
+    @Autowired private StoreJpaRepository storeRepository;
+    @Autowired private ProductJpaRepository productRepository;
+    @Autowired private OrderRepository ordersRepository;
+    //@Autowired private OrderItemRepository orderItemRepository;
+    @Autowired private PaymentRepository paymentRepository;
+
+    // Cleanup Repositories
+    @Autowired private SettlementRepository settlementRepository;
+    @Autowired private SettlementDetailRepository settlementDetailRepository;
+    @Autowired private AccountHistoryRepository accountHistoryRepository;
+
+    @BeforeEach
+    public void setUp() {
+        // 1. 데이터 초기화 (FK 제약조건 때문에 자식 -> 부모 순으로 삭제)
+        settlementDetailRepository.deleteAll();
+        settlementRepository.deleteAll();
+        accountHistoryRepository.deleteAll();
+        paymentRepository.deleteAll();
+        //orderItemRepository.deleteAll();
+        ordersRepository.deleteAll();
+        productRepository.deleteAll();
+        storeRepository.deleteAll();
+        sellerJpaRepository.deleteAll();
+        accountRepository.deleteAll();
+        memberRepository.deleteAll();
+
+        // 2. [판매자] 회원 생성
+        Member sellerMember = memberRepository.save(Member.builder()
+                .username("판매자킴")
+                .memberId("seller1")
+                .email("seller@test.com")
+                .password("pass")
+                .role(Role.SELLER) // Role Enum 가정
+                .build());
+
+        // 3. ★ [핵심] 판매자의 계좌(Account) 생성 (이게 없어서 에러가 났던 것!)
+        accountRepository.save(Account.builder()
+                .member(sellerMember)
+                .balance(0L)
+                .build());
+
+        // 4. [판매자] 엔티티 생성 (Member와 연결)
+        Seller seller = sellerJpaRepository.save(Seller.builder()
+                .member(sellerMember)
+                .sellerName("김사장")
+                .build());
+
+        // 5. 상점 생성
+        Store store = storeRepository.save(Store.builder()
+                .storeName("대박옷가게")
+                .seller(seller)
+                .build());
+
+        // 6. 상품 생성
+        Product product = productRepository.save(Product.builder()
+                .store(store)
+                .productName("기모 후드티")
+                .productPrice(50000L)
+                .productStock(100)
+                .category(Category.TOP) // Enum 가정
+                .build());
+
+        // 7. [구매자] 회원 생성
+        Member buyerMember = memberRepository.save(Member.builder()
+                .username("구매자이")
+                .memberId("buyer1")
+                .email("buyer@test.com")
+                .password("pass")
+                .role(Role.MEMBER)
+                .build());
+
+        // 8. ★ [수정] 주문 상세(OrderItem) 생성
+        // - 아직 DB에 저장하지 않고 객체만 만듭니다.
+        OrderItem orderItem = OrderItem.createOrderItem(product, 50000L, 2); // 5만원 * 2개
+
+        // 9. ★ [수정] 주문(Order) 생성 및 Cascade 저장
+        // - Order.createOrder() 팩토리 메서드 사용
+        List<OrderItem> orderItems = new ArrayList<>();
+        orderItems.add(orderItem);
+
+        Order order = Order.createOrder(buyerMember, orderItems);
+
+        // 10. 테스트 조건을 위한 강제 값 변경 (ReflectionTestUtils)
+        // - createOrder는 CREATED 상태이므로 -> COMPLETED로 변경
+        // - Reader가 읽어갈 수 있도록 날짜를 과거(어제)로 변경
+        LocalDateTime pastDate = LocalDateTime.now().minusDays(10);
+
+        ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.COMPLETED);
+        ReflectionTestUtils.setField(order, "orderAmount", 100000L); // 총액 설정
+        ReflectionTestUtils.setField(order, "updatedAt", pastDate);
+        ReflectionTestUtils.setField(order, "createdAt", pastDate);
+
+        // ★ 여기서 save하면 Order와 OrderItem이 같이 저장됩니다.
+        ordersRepository.save(order);
+
+        // 11. 결제 생성 (승인 완료)
+        Payment payment = Payment.builder()
+                .orderId(order.getOrderId())
+                .memberId(buyerMember.getId())
+                .paymentAmount(100000L)
+                .build();
+        payment.approved(); // 상태를 APPROVED로 변경
+        ReflectionTestUtils.setField(payment, "createdAt", pastDate);
+        ReflectionTestUtils.setField(payment, "updatedAt", pastDate);
+        paymentRepository.save(payment);
+    }
 
     @Test
-    @DisplayName("정산 배치를 수동으로 실행하여 로그를 확인한다")
-    void runJob() throws Exception {
-        // [Given] 어제 날짜를 파라미터로 생성
-        String yesterday = LocalDate.now().minusDays(1).toString();
+    public void runJob() throws Exception {
+        // Job 파라미터 설정 (Reader 쿼리 조건에 맞는 날짜)
+        String targetDateStr = LocalDate.now().toString();
 
         JobParameters jobParameters = new JobParametersBuilder()
-                .addString("targetDate", yesterday)
-                .addLong("time", System.currentTimeMillis()) // 중복 실행 방지용 유니크 값
+                .addString("targetDate", targetDateStr)
+                .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
 
-        // [When] 배치 실행
         jobLauncher.run(settlementJob, jobParameters);
-
-        // [Then] 콘솔 로그를 확인하세요!
     }
 }
-
-

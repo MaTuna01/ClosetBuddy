@@ -45,7 +45,8 @@ public class OrderItem {
 
         OrderItem orderItem = new OrderItem();
         orderItem.setProduct(product);
-        orderItem.setProductPrice(productPrice);
+        //orderItem.setProductPrice(productPrice);
+        orderItem.setOrderPrice(productPrice);
         orderItem.setOrderCount(orderCount);
 
         // 주문 수량만큼 재고 감소

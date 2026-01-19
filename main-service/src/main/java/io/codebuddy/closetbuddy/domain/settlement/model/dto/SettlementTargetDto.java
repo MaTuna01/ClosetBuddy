@@ -20,7 +20,7 @@ public class SettlementTargetDto {
     private Long price;    // 판매 당시 단가
     private Integer count; // 구매 수량
 
-    // 생성자 (QueryDSL 사용 위함)
+    // 생성자
     public SettlementTargetDto(Long orderId, Long orderItemId, Long productId, Long paymentId,
                                Long sellerId, Long storeId,
                                String productName, Long price, Integer count) {
