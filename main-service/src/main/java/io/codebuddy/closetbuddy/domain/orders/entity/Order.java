@@ -33,15 +33,13 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_item_id")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItem = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
-    // 주문하면 주문 상품(orderItem) 값이 들어간다.
+    // 주문 생성 메서드
     public static Order createOrder(Member member, List<OrderItem> orderItems) {
 
         // 주문 객체 생성

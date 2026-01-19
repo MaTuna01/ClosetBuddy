@@ -1,13 +1,15 @@
 package io.codebuddy.closetbuddy.domain.orders.controller;
 
 import io.codebuddy.closetbuddy.domain.common.security.auth.MemberDetails;
-import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderDetailResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/orders")
 @RequiredArgsConstructor
+@Tag(name = "Order API", description = "주문 관련 API")
 public class OrderController {
 
     private final OrderService orderService;
@@ -26,6 +29,7 @@ public class OrderController {
      * 주문을 생성합니다.
      * @param request
      * @return
+     * 주문 번호를 반환해줍니다.
      */
     @Operation(
             summary = "주문 생성",
@@ -46,10 +50,14 @@ public class OrderController {
             )
     })
     @PostMapping
-    public ResponseEntity<OrderRequestDto> createOrder(
-            @RequestBody OrderRequestDto request
+    public ResponseEntity<Long> createOrder(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @Valid @RequestBody OrderCreateRequestDto request
     ){
-        return ResponseEntity.ok(request);
+        Long memberId = memberDetails.getId();
+        Long orderId = orderService.createOrder(memberId, request);
+
+        return ResponseEntity.ok(orderId);
     }
 
     /**
@@ -112,9 +120,13 @@ public class OrderController {
     })
     @GetMapping("/{orderId}")
     public OrderDetailResponseDto getDetailOrder(
-            @PathVariable Long orderId
+            @PathVariable Long orderId,
+            @AuthenticationPrincipal MemberDetails memberDetails
     ){
-        OrderDetailResponseDto response = orderService.getDetailOrder(orderId);
+
+        Long memberId = memberDetails.getId();
+
+        OrderDetailResponseDto response = orderService.getDetailOrder(memberId, orderId);
 
         return response;
     }
@@ -146,9 +158,11 @@ public class OrderController {
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<Void> canceledOrder(
             @PathVariable Long orderId,
-            @PathVariable Long memberId
+            @AuthenticationPrincipal MemberDetails memberPrincipal
     ){
-        orderService.cancelledOrder(memberId, orderId);
+        Long memberId = memberPrincipal.getMember().getId();
+
+        orderService.cancelOrder(memberId, orderId);
         return ResponseEntity.ok().build();
     }
 }
