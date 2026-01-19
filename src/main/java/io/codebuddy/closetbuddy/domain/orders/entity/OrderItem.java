@@ -28,12 +28,17 @@ public class OrderItem {
     @JoinColumn(name = "orders_id")
     private Order order;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Transient
     private String productName; // 상품 이름 가져오기
+
+    @Transient
     private Long productPrice; // 상품 가격 가져오기
+
+    @Transient
     private Long storeName; // 가게 이름 가져오기
 
     public static OrderItem createOrderItem(Product product, Long productPrice, Integer orderCount) {

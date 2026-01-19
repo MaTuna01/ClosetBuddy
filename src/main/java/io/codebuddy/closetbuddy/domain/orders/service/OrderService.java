@@ -46,6 +46,7 @@ public class OrderService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 
+
         /**
          * 주문 상품들이 들어갈 리스트를 생성합니다.
          */
@@ -71,7 +72,6 @@ public class OrderService {
         /**
          * 생성된 주문에 status를 CREATED로 바꾸어줍니다.
          */
-
         order.changeStatus(OrderStatus.CREATED);
 
         /**
@@ -99,7 +99,7 @@ public class OrderService {
          * 만약 회원의 주문 내역이 없다면 예외를 반환합니다.
          */
         if(order.isEmpty()) {
-            new IllegalArgumentException("주문 내역이 없습니다.");
+            throw new IllegalArgumentException("주문 내역이 없습니다.");
         }
 
         return order.stream()
