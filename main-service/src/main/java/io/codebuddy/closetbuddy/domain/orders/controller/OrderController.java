@@ -9,6 +9,8 @@ import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/orders")
 @RequiredArgsConstructor
+@Tag(name = "Order API", description = "주문 관련 API")
 public class OrderController {
 
     private final OrderService orderService;
@@ -26,6 +29,7 @@ public class OrderController {
      * 주문을 생성합니다.
      * @param request
      * @return
+     * 주문 번호를 반환해줍니다.
      */
     @Operation(
             summary = "주문 생성",

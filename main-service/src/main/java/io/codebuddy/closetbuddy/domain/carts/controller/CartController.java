@@ -28,7 +28,7 @@ public class CartController {
     /*
      * 장바구니를 생성합니다.
      * memberId를 받지 않으면 남의 장바구니에 물건을 담아버리거나
-     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받는다.
+     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받음
      * @param memberPrincipalDetails
      * @param request
      * @return
@@ -103,7 +103,7 @@ public class CartController {
      * @return
      */
     @Operation(
-            summary = "장바구니 조회",
+            summary = "장바구니 수정",
             description = "사용자의 장바구니 수량을 수정합니다."
     )
     @ApiResponses(value = {
