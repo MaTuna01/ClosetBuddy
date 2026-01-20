@@ -138,7 +138,7 @@ public class SettlementJobTest {
         List<OrderItem> orderItems = new ArrayList<>();
         orderItems.add(orderItem);
 
-        Order order = Order.createOrder(buyerMember, orderItems);
+        Order order = Order.createOrder(buyerMember.getId(), orderItems);
 
         // 10. 테스트 조건을 위한 강제 값 변경 (ReflectionTestUtils)
         // - createOrder는 CREATED 상태이므로 -> COMPLETED로 변경
