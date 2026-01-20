@@ -29,27 +29,23 @@ public class Order {
     @Column(name = "order_amount")
     private Long orderAmount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(name = "member_id")
+    private Long memberId;
 
-    //    @OneToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "order_item_id")
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItem = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
-    // 주문하면 주문 상품(orderItem) 값이 들어간다.
-    public static Order createOrder(Member member, List<OrderItem> orderItems) {
+    // 주문 생성 메서드
+    public static Order createOrder(Long memberId, List<OrderItem> orderItems) {
 
         // 주문 객체 생성
         Order order = new Order();
 
         // 주문 회원 설정
-        order.SetMember(member);
+        order.memberId = memberId;
         order.orderStatus = OrderStatus.CREATED;
         order.createdAt = LocalDateTime.now();
 
@@ -58,11 +54,6 @@ public class Order {
             order.addOrderItem(orderItem);
         }
         return order;
-    }
-
-    // 회원 생성용
-    private void SetMember(Member member) {
-        this.member = member;
     }
 
     // 주문 아이템 추가 로직
