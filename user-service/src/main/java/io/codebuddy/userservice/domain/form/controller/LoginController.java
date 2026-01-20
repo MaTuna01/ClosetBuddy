@@ -4,6 +4,7 @@ package io.codebuddy.userservice.domain.form.controller;
 import io.codebuddy.userservice.domain.common.app.JwtTokenProvider;
 import io.codebuddy.userservice.domain.common.model.dto.UserReqDTO;
 import io.codebuddy.userservice.domain.common.security.auth.MemberDetails;
+import io.codebuddy.userservice.domain.form.login.dto.LoginUsrDto;
 import io.codebuddy.userservice.domain.form.signup.service.SignService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.HashMap;
 import java.util.Map;
-
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/api/v1")
@@ -51,11 +51,11 @@ public class LoginController {
 
     //로그인
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(HttpSession session, @RequestBody UserReqDTO userReqDTO) {
+    public ResponseEntity<?> login(HttpSession session, @RequestBody LoginUsrDto loginUsrDto) {
 
         try {
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(userReqDTO.getMemberId(), userReqDTO.getPassword())
+                    new UsernamePasswordAuthenticationToken(loginUsrDto.getMemberId(), loginUsrDto.getPassword())
             );
 
             MemberDetails userDetails = (MemberDetails) auth.getPrincipal(); //UserDetails를 구현한 객체가 가지고 있는 정보들을 가지고 옴
