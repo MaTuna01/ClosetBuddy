@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "custom.jwt")
 public class JwtConfiguration {
 
     private final Validation validation;

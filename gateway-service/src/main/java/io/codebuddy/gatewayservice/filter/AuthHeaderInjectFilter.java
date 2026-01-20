@@ -10,6 +10,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+
+//헤더에 X-User_id, X-User-Role 주입
 @Component
 public class AuthHeaderInjectFilter extends OncePerRequestFilter {
 
@@ -28,7 +30,7 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
         if (authHeader != null) {
             VerifiedUser verified = tokenVerifier.verify(authHeader);
 
-            //헤더 주입
+            //헤더 주입 -> yml 파일로 빼서 주입, 관례상 전체 대문자(추가적인 X헤더 에 많은 주입 재고)
             MutableHttpServletRequest wrapped = new MutableHttpServletRequest(request);
             wrapped.putHeader("X-User-Id", verified.userId());
             wrapped.putHeader("X-User-Role", verified.role());

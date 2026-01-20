@@ -76,7 +76,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginProcessingUrl("/api/v1/auth/login")
                         .successHandler(memberAuthSuccessHandler)
-                        .failureHandler((AuthenticationFailureHandler) customAuthenticationFailureHandler)
+                        .failureHandler(customAuthenticationFailureHandler)
                         .usernameParameter("memberId")
                         .passwordParameter("password")
                         .permitAll()

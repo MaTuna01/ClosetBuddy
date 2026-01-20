@@ -52,7 +52,6 @@ public class LoginController {
     //로그인
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(HttpSession session, @RequestBody UserReqDTO userReqDTO) {
-
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userReqDTO.getMemberId(), userReqDTO.getPassword())
