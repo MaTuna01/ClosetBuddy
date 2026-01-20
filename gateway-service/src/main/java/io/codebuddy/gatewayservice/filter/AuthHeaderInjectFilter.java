@@ -34,13 +34,14 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
             try {
                 verified = tokenVerifier.verify(authHeader);
             } catch (Exception ex) {
+                ex.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
             //헤더 주입 -> yml 파일로 빼서 주입, 관례상 전체 대문자(추가적인 X헤더 에 많은 주입 재고)
             MutableHttpServletRequest wrapped = new MutableHttpServletRequest(request);
             wrapped.putHeader("X-USER-ID", verified.userId());
-            wrapped.putHeader("X-USER0ID", verified.role());
+            wrapped.putHeader("X-USER-ROLE", verified.role());
 
             filterChain.doFilter(wrapped, response);
             return;
