@@ -93,7 +93,7 @@ public class SettlementJobTest {
                 .role(Role.SELLER) // Role Enum 가정
                 .build());
 
-        // 3. ★ [핵심] 판매자의 계좌(Account) 생성 (이게 없어서 에러가 났던 것!)
+        // 3.  판매자의 계좌(Account) 생성
         accountRepository.save(Account.builder()
                 .member(sellerMember)
                 .balance(0L)
@@ -117,7 +117,7 @@ public class SettlementJobTest {
                 .productName("기모 후드티")
                 .productPrice(50000L)
                 .productStock(100)
-                .category(Category.TOP) // Enum 가정
+                .category(Category.TOP)
                 .build());
 
         // 7. [구매자] 회원 생성
@@ -129,11 +129,11 @@ public class SettlementJobTest {
                 .role(Role.MEMBER)
                 .build());
 
-        // 8. ★ [수정] 주문 상세(OrderItem) 생성
+        // 8. 주문 상세(OrderItem) 생성
         // - 아직 DB에 저장하지 않고 객체만 만듭니다.
         OrderItem orderItem = OrderItem.createOrderItem(product, 50000L, 2); // 5만원 * 2개
 
-        // 9. ★ [수정] 주문(Order) 생성 및 Cascade 저장
+        // 9.  주문(Order) 생성 및 Cascade 저장
         // - Order.createOrder() 팩토리 메서드 사용
         List<OrderItem> orderItems = new ArrayList<>();
         orderItems.add(orderItem);
@@ -142,7 +142,7 @@ public class SettlementJobTest {
 
         // 10. 테스트 조건을 위한 강제 값 변경 (ReflectionTestUtils)
         // - createOrder는 CREATED 상태이므로 -> COMPLETED로 변경
-        // - Reader가 읽어갈 수 있도록 날짜를 과거(어제)로 변경
+        // - Reader가 읽어갈 수 있도록 날짜를 과거(10일전)로 변경
         LocalDateTime pastDate = LocalDateTime.now().minusDays(10);
 
         ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.COMPLETED);
@@ -150,7 +150,7 @@ public class SettlementJobTest {
         ReflectionTestUtils.setField(order, "updatedAt", pastDate);
         ReflectionTestUtils.setField(order, "createdAt", pastDate);
 
-        // ★ 여기서 save하면 Order와 OrderItem이 같이 저장됩니다.
+        // save하면 Order와 OrderItem이 같이 저장됩니다.
         ordersRepository.save(order);
 
         // 11. 결제 생성 (승인 완료)

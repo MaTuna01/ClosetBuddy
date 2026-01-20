@@ -40,7 +40,7 @@ public class SettlementItemProcessor implements ItemProcessor<SettlementTargetDt
         // 1. 총 매출액 계산 (가격 * 수량)
         long totalAmount = item.getPrice() * item.getCount();
 
-        // 2. 수수료 계산 (총액 * 수수료율 / 100) -> 소수점 버림(long 캐스팅)
+        // 2. 수수료 계산 (총액 * 수수료율 / 100)
         long feeAmount = (long) (totalAmount * (feeRate / 100.0));
 
         // 3. 정산 지급액 계산 (총액 - 수수료)

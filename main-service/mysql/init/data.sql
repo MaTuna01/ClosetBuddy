@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `member` (
     `member_email`	VARCHAR(255)	NULL,
     `member_address`	VARCHAR(255)	NULL,
     `phone_number`	VARCHAR(255)	NULL,
-    `role`	Enum	('admin', 'member', 'guest') NOT NULL DEFAULT 'MEMBER',
+    `role`	Enum	('ADMIN', 'MEMBER', 'GUEST','SELLER') NOT NULL DEFAULT 'MEMBER',
     primary key (id),
     UNIQUE KEY uk_member_name (member_name),
     UNIQUE KEY uk_member_email (member_email),
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `product` (
     `store_id`	BIGINT UNSIGNED NOT NULL,
     `image_url`	VARCHAR(255)	NULL,
     `is_like`	Boolean	NULL,
-    `category`	Enum ('상의','하의'),
+    `category`	Enum ('TOP','PANTS'),
     `Field`	VARCHAR(255)	NULL,
     PRIMARY KEY (product_id),
     KEY idx_product_store (store_id),
@@ -146,7 +146,6 @@ CREATE TABLE IF NOT EXISTS `settlement` (
 
     -- [집계 정보]
                                             `total_sales_amount` BIGINT NOT NULL DEFAULT 0, -- 총 매출액
-                                            `fee_amount`         BIGINT NOT NULL DEFAULT 0, -- 수수료 총액
                                             `payout_amount`      BIGINT NOT NULL DEFAULT 0, -- 최종 지급액 (매출 - 수수료)
 
     -- [상태 및 기준]

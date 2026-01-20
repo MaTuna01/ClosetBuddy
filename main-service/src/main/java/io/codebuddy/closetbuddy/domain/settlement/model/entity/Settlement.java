@@ -73,4 +73,9 @@ public class Settlement {
         this.payoutAmount += payoutAmount;
     }
 
+    // 상태 변경
+    public void setSettleStatus(SettlementStatus settleStatus){
+        this.settleStatus=settleStatus;
+    }
+
 }

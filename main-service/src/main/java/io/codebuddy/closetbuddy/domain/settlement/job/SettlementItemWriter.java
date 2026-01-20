@@ -91,7 +91,8 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
 
             // 저장 (Detail 저장 및 Settlement 업데이트)
             settlementDetailRepository.saveAll(details);
-            settlementRepository.save(settlement); // 변경된 총액 업데이트
+            settlement.setSettleStatus(SettlementStatus.SETTLED);
+            settlementRepository.save(settlement); // 변경된 총액과 상태 업데이트
 
 
             // 예치금 지급 및 이력 저장
