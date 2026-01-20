@@ -105,7 +105,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                         .orElseThrow(() -> new RuntimeException("판매자 정보를 찾을 수 없습니다. ID: " + sellerId));
 
                 // 2. Member ID 추출
-                Long memberId = seller.getMember().getId();
+                Long memberId = seller.getMemberId();
 
                 // 3. Account 조회
                 Account account = accountRepository.findByMemberId(memberId)

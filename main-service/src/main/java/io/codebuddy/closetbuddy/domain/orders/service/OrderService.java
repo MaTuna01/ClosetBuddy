@@ -1,7 +1,5 @@
 package io.codebuddy.closetbuddy.domain.orders.service;
 
-import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderDetailResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemDto;
@@ -25,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final MemberRepository memberRepository;
     private final ProductJpaRepository productJpaRepository;
     private final OrderRepository orderRepository;
 
@@ -38,12 +35,9 @@ public class OrderService {
     @Transactional
     public Long createOrder(Long memberId, OrderCreateRequestDto requestDto) {
 
-        /**
-         * 회원 객체를 생성하여 memberId를 통해 회원이 존재하는지 조회합니다.
-         * 존재하지 않으면 예외를 반환합니다.
-         */
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+        if(memberId == null) {
+            throw new IllegalArgumentException("회원이 없습니다.");
+        }
 
         List<OrderItem> orderItems = new ArrayList<>();
 
