@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.orders.entity;
 
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

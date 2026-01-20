@@ -2,7 +2,7 @@ package io.codebuddy.closetbuddy.domain.orders.controller;
 
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
-import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderDetailResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
@@ -50,15 +50,15 @@ public class OrderController {
             )
     })
     @PostMapping
-    public ResponseEntity<OrderRequestDto> createOrder(
-            @RequestBody OrderRequestDto request
+    public ResponseEntity<OrderCreateRequestDto> createOrder(
+            @RequestBody OrderCreateRequestDto request
     ){
         return ResponseEntity.ok(request);
     }
 
     /**
      * 주문 내역을 리스트로 가져옵니다.
-     * @param memberPrincipal
+     * @param currentUser
      * @return
      */
     @Operation(
@@ -115,9 +115,10 @@ public class OrderController {
     })
     @GetMapping("/{orderId}")
     public OrderDetailResponseDto getDetailOrder(
+            @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long orderId
     ){
-        OrderDetailResponseDto response = orderService.getDetailOrder(orderId);
+        OrderDetailResponseDto response = orderService.getDetailOrder(Long.parseLong(currentUser.userId()), orderId);
 
         return response;
     }
@@ -151,7 +152,7 @@ public class OrderController {
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long orderId
     ){
-        orderService.cancelledOrder(Long.parseLong(currentUser.userId()), orderId);
+        orderService.cancelOrder(Long.parseLong(currentUser.userId()), orderId);
         return ResponseEntity.ok().build();
     }
 }
