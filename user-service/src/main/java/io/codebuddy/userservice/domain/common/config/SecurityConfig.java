@@ -1,6 +1,10 @@
 package io.codebuddy.userservice.domain.common.config;
 
 
+import io.codebuddy.userservice.domain.common.security.handler.CustomAuthenticationEntryPoint;
+import io.codebuddy.userservice.domain.common.security.auth.JwtExceptionFilter;
+import io.codebuddy.userservice.domain.common.security.auth.JwtAuthenticationFilter;
+import io.codebuddy.userservice.domain.common.security.handler.CustomAccessDeniedHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.CustomAuthenticationFailureHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthSuccessHandler;
 import io.codebuddy.userservice.domain.form.logout.config.ApiLogoutSuccessHandler;
@@ -16,7 +20,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
@@ -29,11 +32,17 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
+    private final JwtExceptionFilter jwtExceptionFilter; // [추가]
+
     private final MemberAuthSuccessHandler memberAuthSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     private final JwtLogoutHandler jwtLogoutHandler;
 
     private final ApiLogoutSuccessHandler apiLogoutSuccessHandler;
+
+    // [추가]
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -90,11 +99,22 @@ public class SecurityConfig {
                         .logoutSuccessHandler(apiLogoutSuccessHandler)
                 )
 
+                // 인증/인가 예외 처리
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
+
                 //OAuth2 로그인 활성화
                 .oauth2Login(oauth -> {
                     oauth.successHandler(oAuth2SuccessHandler);
                 })
+
+
+                // 필터 순서: JwtExceptionFilter -> JwtAuthenticationFilter -> UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class) // [추가]
+
                 .build();// 필터 체인 빌드
 
     }

@@ -11,6 +11,7 @@ application.yml
 src/main/resources/docker-compose.yml
 */docker-compose.yml
 docker-compose.yml
+docker-compose-test.yml
 
 ### STS ###
 .apt_generated

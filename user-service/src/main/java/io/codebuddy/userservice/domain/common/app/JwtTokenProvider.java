@@ -74,31 +74,14 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 검증 메서드
-    public boolean validate(String token) {
+    // 기존 검증 메서드 코드의 단점: false만 리턴하면, 호출한 쪽(JwtAuthenticationFilter)은 왜 실패했는지 알 방법이 없음.
+    public void validate(String token) {
 
-        try {
-            Jwts.parser()
-                    .verifyWith(getSecretKey())
-                    .build()
-                    .parseSignedClaims(token);
-
-            return true;
-
-        } catch ( JwtException e ) {
-            log.error("token = {}", token);
-            log.error("JWT 토큰에 문제가 있습니다.");
-
-        } catch ( IllegalStateException e ) {
-            log.error("token = {}", token);
-            log.error("이상한 토큰이 검출되었습니다.");
-
-        } catch (Exception e) {
-            log.error("token = {}", token);
-            log.error(";;");
-        }
-
-        return false;
+        Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token);
+        // 예외가 발생하지 않으면 정상 통과
 
     }
 
