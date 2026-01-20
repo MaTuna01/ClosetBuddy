@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.carts.entity;
 
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,18 +20,17 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @Column(name = "member_id")
+    private Long memberId;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 
     // 생성자
     @Builder
-    public static Cart createCart(Member member) {
+    public static Cart createCart(Long memberId) {
         Cart cart = new Cart();
-        cart.member = member;
+        cart.memberId = memberId;
         return cart;
     }
 }

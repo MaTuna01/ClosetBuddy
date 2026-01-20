@@ -61,9 +61,8 @@ public class CartController {
     }
 
     /**
-     * 장바구니를 조회합니다.
-     * 회원 아이디를 통해 조회합니다.
-     * @param memberPrincipalDetails
+     * 회원 아이디를 통해 장바구니를 조회합니다.
+     * @param currentUser
      * @return
      */
     @Operation(
@@ -95,9 +94,9 @@ public class CartController {
 
 
     /**
-     * memberId를 통해 장바구니 수량을 수정합니다.
-     * 수량이 1개 미만으로 떨어지면 예외를 발생시킵니다.
-     * @param memberPrincipal
+     * 장바구니 수량을 수정합니다.
+     * 수량이 1개 미만이면 예외를 발생시킵니다.
+     * @param currentUser
      * @param cartItemId
      * @param cartCount
      * @return
@@ -138,7 +137,7 @@ public class CartController {
 
     /**
      * 장바구니의 물건을 삭제합니다.
-     * @param memberPrincipal
+     * @param currentUser
      * @param cartItemId
      * @return
      */
