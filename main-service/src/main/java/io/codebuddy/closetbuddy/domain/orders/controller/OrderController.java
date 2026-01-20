@@ -50,10 +50,14 @@ public class OrderController {
             )
     })
     @PostMapping
-    public ResponseEntity<OrderCreateRequestDto> createOrder(
+    public ResponseEntity<Long> createOrder(
+            @CurrentUser CurrentUserInfo currentUser,
             @RequestBody OrderCreateRequestDto request
     ){
-        return ResponseEntity.ok(request);
+
+        Long memberId = Long.parseLong(currentUser.userId());
+        Long orderId = orderService.createOrder(memberId, request);
+        return ResponseEntity.ok(orderId);
     }
 
     /**
