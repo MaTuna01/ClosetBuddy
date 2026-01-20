@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
-import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
 import io.codebuddy.closetbuddy.domain.carts.dto.request.CartCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.carts.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.entity.Cart;
@@ -8,7 +7,6 @@ import io.codebuddy.closetbuddy.domain.carts.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 
-import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.products.repository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +23,6 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final MemberRepository memberRepository;
     private final ProductJpaRepository productJpaRepository;
 
 
@@ -40,8 +37,9 @@ public class CartService {
     public Long createCart(Long memberId, CartCreateRequestDto request) {
 
         // 1. 회원 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 없습니다."));
+        if(memberId == null) {
+            throw new IllegalArgumentException("회원이 존재하지 않습니다.");
+        }
 
         // 2. 상품 조회
         Product product = productJpaRepository.findById(request.productId())
@@ -50,7 +48,7 @@ public class CartService {
         // 장바구니 조회 없으면 생성
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseGet(() -> {
-                    Cart newCart = Cart.createCart(member);
+                    Cart newCart = Cart.createCart(memberId);
                     return cartRepository.save(newCart);
                 });
 
@@ -97,7 +95,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException(""));
 
-        if (!cartItem.getCart().getMember().getId().equals(memberId)) {
+        if (!cartItem.getCart().getMemberId().equals(memberId)) {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 
@@ -115,7 +113,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException("장바구니에 없는 상품입니다."));
 
-        if (!cartItem.getCart().getMember().getId().equals(memberId)) {
+        if (!cartItem.getCart().getMemberId().equals(memberId)) {
             throw new IllegalArgumentException("삭제 권한이 없습니다.");
         }
 
