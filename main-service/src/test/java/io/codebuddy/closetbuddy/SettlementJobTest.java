@@ -1,8 +1,8 @@
 package io.codebuddy.closetbuddy;
 
-import io.codebuddy.closetbuddy.domain.accounts.model.entity.Account;
-import io.codebuddy.closetbuddy.domain.accounts.repository.AccountHistoryRepository;
-import io.codebuddy.closetbuddy.domain.accounts.repository.AccountRepository;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
+import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
+import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.common.model.dto.Role;
 import io.codebuddy.closetbuddy.domain.common.model.entity.Member;
 import io.codebuddy.closetbuddy.domain.common.repository.MemberRepository;
@@ -11,11 +11,11 @@ import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
 
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
 
-import io.codebuddy.closetbuddy.domain.payments.model.entity.Payment;
-import io.codebuddy.closetbuddy.domain.payments.repository.PaymentRepository;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.Category;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
-import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
+import io.codebuddy.closetbuddy.domain.pay.payments.model.entity.Payment;
+import io.codebuddy.closetbuddy.domain.pay.payments.repository.PaymentRepository;
+import io.codebuddy.closetbuddy.domain.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.products.repository.ProductJpaRepository;
 
 import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
