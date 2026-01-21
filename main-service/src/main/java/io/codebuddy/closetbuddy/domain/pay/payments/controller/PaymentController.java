@@ -50,9 +50,9 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payOrder(Long.parseLong(currentUser.userId()), request));
     }
 
-    // 결제 취소
+    // 특정 결제 내역 취소
     @Operation(
-            summary = "결제 취소",
+            summary = "특정 결제 내역 취소",
             description = "사용자의 결제를 취소합니다."
     )
     @ApiResponses(value = {
@@ -69,12 +69,12 @@ public class PaymentController {
                     description = "대상을 찾을 수 없음"
             )
     })
-    @PostMapping("/cancel")
+    @PostMapping("/{paymentId}/cancel")
     public ResponseEntity<PaymentResponse> cancelPayment(
             @CurrentUser CurrentUserInfo currentUser,
-            @RequestBody @Valid PaymentRequest request
+            @PathVariable Long paymentId
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payCancel(Long.parseLong(currentUser.userId()), request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payCancel(Long.parseLong(currentUser.userId()), , paymentId));
     }
 
     // 결제 단건 조회

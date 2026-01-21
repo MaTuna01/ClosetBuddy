@@ -9,7 +9,7 @@ public interface PaymentService {
 
     public PaymentResponse payOrder(Long memberId, PaymentRequest request);
 
-    public PaymentResponse payCancel(Long memberId, PaymentRequest request);
+    public PaymentResponse payCancel(Long memberId, Long paymentId);
 
     PaymentResponse getPayment(Long memberId, Long orderId);
 

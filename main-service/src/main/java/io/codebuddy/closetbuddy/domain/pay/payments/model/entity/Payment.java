@@ -53,12 +53,14 @@ public class Payment {
         this.orderId = orderId;
         this.memberId = memberId;
         this.paymentAmount = paymentAmount;
+        this.createdAt=LocalDateTime.now();
         this.paymentStatus = PaymentStatus.PENDING; // 초기 상태
     }
 
     public void approved(){
         this.paymentStatus=PaymentStatus.APPROVED;
         this.approvedAt=LocalDateTime.now();
+        this.updatedAt=LocalDateTime.now();
     }
 
     public void canceled(){

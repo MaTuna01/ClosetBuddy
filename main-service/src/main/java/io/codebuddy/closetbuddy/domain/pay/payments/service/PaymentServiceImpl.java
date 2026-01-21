@@ -105,10 +105,10 @@ public class PaymentServiceImpl implements PaymentService{
      */
     @Transactional
     @Override
-    public PaymentResponse payCancel(Long memberId, PaymentRequest request) {
+    public PaymentResponse payCancel(Long memberId, Long paymentId) {
 
         // 결제 정보 조회
-        Payment payment = paymentRepository.findByOrderId(request.orderId())
+        Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PayException(ErrorCode.PAYMENT_NOT_FOUND));
 
         // 본인 확인
