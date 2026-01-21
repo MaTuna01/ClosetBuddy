@@ -5,8 +5,8 @@ import io.codebuddy.closetbuddy.domain.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.accounts.model.vo.TransactionType;
 import io.codebuddy.closetbuddy.domain.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.accounts.repository.AccountRepository;
-import io.codebuddy.closetbuddy.domain.sellers.model.entity.Seller;
-import io.codebuddy.closetbuddy.domain.sellers.repository.SellerJpaRepository;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
 import io.codebuddy.closetbuddy.domain.settlement.model.vo.SettlementStatus;
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @StepScope

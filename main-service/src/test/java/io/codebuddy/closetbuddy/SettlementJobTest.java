@@ -12,18 +12,17 @@ import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
 
 import io.codebuddy.closetbuddy.domain.payments.model.entity.Payment;
-import io.codebuddy.closetbuddy.domain.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.payments.repository.PaymentRepository;
-import io.codebuddy.closetbuddy.domain.products.model.dto.Category;
-import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
-import io.codebuddy.closetbuddy.domain.products.repository.ProductJpaRepository;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 
-import io.codebuddy.closetbuddy.domain.sellers.model.entity.Seller;
-import io.codebuddy.closetbuddy.domain.sellers.repository.SellerJpaRepository;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRepository;
-import io.codebuddy.closetbuddy.domain.stores.model.entity.Store;
-import io.codebuddy.closetbuddy.domain.stores.repository.StoreJpaRepository;
+import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
+import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @SpringBootTest
 @SpringBatchTest
