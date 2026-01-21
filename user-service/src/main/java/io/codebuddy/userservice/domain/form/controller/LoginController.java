@@ -7,6 +7,7 @@ import io.codebuddy.userservice.domain.common.security.auth.MemberDetails;
 import io.codebuddy.userservice.domain.form.service.LogoutService;
 import io.codebuddy.userservice.domain.form.service.SignService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class LoginController {
     //회원가입
     @PostMapping("/authc")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> create(@RequestBody SignReqDTO signReqDTO) {
+    public ResponseEntity<String> create(@Valid @RequestBody SignReqDTO signReqDTO) {
         signService.create(signReqDTO);
         return ResponseEntity.status(
                 HttpStatus.CREATED
@@ -47,7 +48,7 @@ public class LoginController {
 
     //로그인
     // @PostMapping("/auth/login")
-    public ResponseEntity<?> login(HttpSession session, @RequestBody LoginReqDTO loginReqDTO) {
+    public ResponseEntity<?> login(HttpSession session, @Valid @RequestBody LoginReqDTO loginReqDTO) {
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginReqDTO.getMemberId(), loginReqDTO.getPassword())
