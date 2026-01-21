@@ -12,7 +12,7 @@ import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.entity.Order;
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
+//import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,9 +107,9 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다."));
 
-        if(!order.getMemberId().equals(memberId)) {
-            throw new AccessDeniedException("본인의 주문만 조회할 수 있습니다.");
-        }
+//        if(!order.getMemberId().equals(memberId)) {
+//            throw new AccessDeniedException("본인의 주문만 조회할 수 있습니다.");
+//        }
 
         /**
          * OrderItemDto에 주문 상품들의 상세 내역을 넣어 반환해줍니다.
@@ -146,17 +146,17 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("주문한 내역이 아직 없습니다."));
 
 
-        if(!order.getMemberId().equals(memberId)) {
-            throw new AccessDeniedException("주문자만 취소가 가능합니다.");
-        }
+//        if(!order.getMemberId().equals(memberId)) {
+//            throw new AccessDeniedException("주문자만 취소가 가능합니다.");
+//        }
 
         /**
          * AccessDeniedException을 통해 회원이 아닌 경우
          * 예외처리를 진행합니다.
          */
-        if(order.getOrderStatus()==OrderStatus.CANCELED) {
-            throw new AccessDeniedException("이미 취소된 주문입니다.");
-        }
+//        if(order.getOrderStatus()==OrderStatus.CANCELED) {
+//            throw new AccessDeniedException("이미 취소된 주문입니다.");
+//        }
         order.changeStatus(OrderStatus.CANCELED);
     }
 }
