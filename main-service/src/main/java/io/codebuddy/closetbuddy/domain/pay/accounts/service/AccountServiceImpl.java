@@ -9,11 +9,14 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.DepositCharge;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.mapper.AccountMapper;
-import io.codebuddy.closetbuddy.domain.accounts.model.vo.*;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.DepositChargeRepository;
+import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
+import io.codebuddy.closetbuddy.domain.pay.exception.TossErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +63,7 @@ public class AccountServiceImpl implements AccountService{
     public AccountResponse getAccountBalance(Long memberId) {
 
         // Member 조회 로직 제거 -> memberId로 바로 Account 조회
-        //memberId는 컨트롤러에서 currentUser.userId()를 통해 가져온 값이므로 보안 작업 넣지 않음.
+        // memberId는 컨트롤러에서 currentUser.userId()를 통해 가져온 값이므로 보안 작업 넣지 않음.
 
         Account account = accountRepository.findByMemberId(memberId).orElse(Account.createAccount(memberId));
 
@@ -91,10 +94,10 @@ public class AccountServiceImpl implements AccountService{
         // 금액 검증
         // 요청한 금액과 실제 결제된 금액이 다르면 예외 발생
         if (!command.getAmount().equals(paymentSuccessDto.getTotalAmount()) ) {
-            throw new IllegalStateException("요청 금액과 실제 결제 금액이 일치하지 않습니다.");
+            throw new PayException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
-        // 3. 회원 검증 (MemberRepository 제거됨) -> 회원검증은 GateWay에서 진행하므로 별다른 검증 진행 X
+        // 회원 검증 (MemberRepository 제거됨) -> 회원검증은 GateWay에서 진행하므로 별다른 검증 진행 X
 
         // 계좌 조회
         Account account = accountRepository.findByMemberId(command.getMemberId())
@@ -180,7 +183,7 @@ public class AccountServiceImpl implements AccountService{
         // 내역 단건 조회
         // 계좌 객체(account)를 조건으로 넣어서, 남의 내역을 조회하는 것을 차단
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 본인의 내역이 아닙니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
 
         return AccountMapper.toHistoryResponse(history);
     }
@@ -208,11 +211,11 @@ public class AccountServiceImpl implements AccountService{
 
         // History랑 연결된 계좌(Account)의 주인(MemberId)이 요청한 사람(memberId)과 같은지 + 요청한 내역 번호가 맞는지 검증
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 본인의 내역이 아닙니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
 
         // 충전 건인지 확인
         if (history.getType() != TransactionType.CHARGE) {
-            throw new IllegalStateException("충전 내역만 취소 가능합니다.");
+            throw new PayException(ErrorCode.CANNOT_CANCEL_TYPE);
         }
 
         //계좌 객체
@@ -220,16 +223,16 @@ public class AccountServiceImpl implements AccountService{
 
         // pg 결제 내역 조회
         DepositCharge depositCharge = depositChargeRepository.findById(history.getRefId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예치 내역입니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.DEPOSIT_DATA_NOT_FOUND));
 
         // 이미 취소된 내역인지 검증
         if (depositCharge.getStatus() == ChargeStatus.CANCEL) {
-            throw new IllegalStateException("이미 취소된 내역입니다.");
+            throw new PayException(ErrorCode.ALREADY_CANCELED_TRANSACTION);
         }
 
         // 잔액 검증
         if (account.getBalance() < history.getAmount()) {
-            throw new IllegalStateException("잔액이 부족하여 취소할 수 없습니다.");
+            throw new PayException(ErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND);
         }
 
         // 계좌 잔액 차감
@@ -278,18 +281,29 @@ public class AccountServiceImpl implements AccountService{
             // 전송
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-            // 결과 확인
+            // 토스 결제 취소 실패
             if (response.statusCode() != 200) {
-                // 200이 아니면 실패로 간주하고 예외 발생 -> Transaction Rollback 유도
+                TossErrorResponse errorResponse = om.readValue(response.body(), TossErrorResponse.class);
+
                 log.error("토스 환불 실패. 상태코드: {}, 내용: {}", response.statusCode(), response.body());
-                throw new RuntimeException("토스 결제 취소 실패: " + response.body());
+
+                if (response.statusCode() >= 400 && response.statusCode() < 500) {
+                    // 토스 서버로부터 4xx
+                    throw new PayException(ErrorCode.PAYMENT_APPROVAL_FAILED, errorResponse.getMessage());
+                } else {
+                    // 토스 서버로부터 5xx
+                    throw new PayException(ErrorCode.PAYMENT_SYSTEM_ERROR);
+                }
             }
 
             log.info("토스 결제 취소 성공. paymentKey: {}", paymentKey);
 
-        } catch (Exception e) {
+        } catch (PayException e) {
+            // PayException은 Exception이 잡지 않도록 함
+            throw e;
+        } catch (Exception e) { // 여기서 예외를 던져야 deleteHistory의 @Transactional이 작동해 DB도 롤백
             log.error("토스 결제 취소 중 통신 오류 발생", e);
-            // 여기서 예외를 던져야 deleteHistory의 @Transactional이 작동해 DB도 롤백
+            // 그 외(JsonProcessingException, IOException 등)만 RuntimeException으로 감쌉니다.
             throw new RuntimeException("결제 취소 연동 중 오류가 발생했습니다.", e);
         }
 
@@ -338,9 +352,20 @@ public class AccountServiceImpl implements AccountService{
             } else {
                 // 실패 시: 에러 로그 출력 및 예외 발생
                 log.error("토스 결제 승인 실패. 응답코드: {}, 내용: {}", response.statusCode(), response.body());
-                throw new RuntimeException("결제 승인 실패: " + response.body());
+
+                TossErrorResponse errorResponse = om.readValue(response.body(), TossErrorResponse.class);
+
+                if (response.statusCode() >= 400 && response.statusCode() < 500) {
+                    // 토스 서버로부터 4xx
+                    throw new PayException(ErrorCode.PAYMENT_APPROVAL_FAILED, errorResponse.getMessage());
+                } else {
+                    // 토스 서버로부터 5xx
+                    throw new PayException(ErrorCode.PAYMENT_SYSTEM_ERROR);
+                }
             }
 
+        } catch (PayException e) {
+            throw e;
         } catch (Exception e) {
             log.error("토스 결제 통신 중 에러 발생", e);
             throw new RuntimeException("결제 시스템 연동 중 오류가 발생했습니다.", e);
