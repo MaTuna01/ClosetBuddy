@@ -1,14 +1,12 @@
 package io.codebuddy.closetbuddy.domain.products.model.dto;
 
 import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
-import io.codebuddy.closetbuddy.domain.stores.model.entity.Store;
 
 public record ProductResponse(
         Long productId,
         String productName,
         Long productPrice,
         int productStock,
-
         Category category,
         String storeName
 ) {
@@ -21,7 +19,6 @@ public record ProductResponse(
                 product.getProductPrice(),
                 product.getProductStock(),
                 product.getCategory(),
-                        //!= null ? product.getCategory().name() : "Uncategorized",
                 product.getStore().getStoreName()
         );
     }

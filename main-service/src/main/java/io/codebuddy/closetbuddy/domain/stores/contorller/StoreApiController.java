@@ -73,6 +73,10 @@ public class StoreApiController {
     public ResponseEntity<StoreResponse> getOneStore(
             @PathVariable Long store_id
     ) {
+        if (store_id == null || store_id <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
+
         StoreResponse response = storeService.getStore(store_id);
         return ResponseEntity.ok(response);
     }
@@ -117,7 +121,6 @@ public class StoreApiController {
                     responseCode = "404",
                     description = "가게 데이터 없음"
             )
-
     })
     @PutMapping("stores/{store_id}")
     public ResponseEntity<StoreResponse> updateStore(
@@ -125,6 +128,11 @@ public class StoreApiController {
             @PathVariable Long store_id,
             @RequestBody @Valid UpdateStoreRequest request
             ) {
+
+        if (store_id == null || store_id <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
+
         storeService.updateStore(Long.parseLong(currentUser.userId()), store_id, request);
         return ResponseEntity.ok().build();
     }
@@ -150,6 +158,9 @@ public class StoreApiController {
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long store_id
     ) {
+        if (store_id == null || store_id <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
         storeService.deleteStore(Long.parseLong(currentUser.userId()), store_id);
         return ResponseEntity.noContent().build();
     }

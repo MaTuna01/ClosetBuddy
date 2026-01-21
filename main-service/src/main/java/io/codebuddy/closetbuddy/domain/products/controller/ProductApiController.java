@@ -50,6 +50,11 @@ public class ProductApiController {
             @PathVariable Long storeId,
             @RequestBody @Valid ProductCreateRequest request
     ) {
+
+        if (storeId == null || storeId <= 0) {
+            throw new IllegalStateException("유효하지 않는 상점 ID입니다.");
+        }
+
         Long productId = productService.createProduct(Long.parseLong(currentUser.userId()), storeId, request);
         return ResponseEntity.ok(productId);
     }
@@ -73,6 +78,11 @@ public class ProductApiController {
     public ResponseEntity<ProductResponse> getProduct(
             @PathVariable Long productId
     ) {
+
+        if (productId == null || productId <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상품 ID입니다.");
+        }
+
         ProductResponse response = productService.getProduct(productId);
         return ResponseEntity.ok(response);
     }
@@ -96,6 +106,11 @@ public class ProductApiController {
     public ResponseEntity<List<ProductResponse>> getProductsByStore(
             @PathVariable Long storeId
     ) {
+
+        if (storeId == null || storeId <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
+
         List<ProductResponse> response = productService.getProductByStoreId(storeId);
         return ResponseEntity.ok(response);
     }
@@ -125,6 +140,11 @@ public class ProductApiController {
             @PathVariable Long productId,
             @RequestBody @Valid UpdateProductRequest request
     ) {
+
+        if (productId == null || productId <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상품 ID입니다.");
+        }
+
         productService.updateProduct(Long.parseLong(currentUser.userId()), productId, request);
         return ResponseEntity.ok().build();
     }
@@ -150,6 +170,11 @@ public class ProductApiController {
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long productId
     ) {
+
+        if (productId == null || productId <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상품 ID입니다.");
+        }
+
         productService.deleteProduct(Long.parseLong(currentUser.userId()), productId);
         return ResponseEntity.noContent().build();
     }
