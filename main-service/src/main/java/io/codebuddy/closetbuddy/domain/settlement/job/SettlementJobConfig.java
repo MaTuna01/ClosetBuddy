@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.settlement.job;
 
-import io.codebuddy.closetbuddy.domain.payments.model.vo.PaymentStatus;
+import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
@@ -14,9 +14,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +23,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
