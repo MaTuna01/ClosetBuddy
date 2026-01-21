@@ -83,7 +83,7 @@ public class AccountApiController {
     @Operation(summary = "예치금 내역 전체 조회", description = "현재 사용자의 모든 충전 및 사용 내역을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccountHistoryResponse.class))),
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccountHistoryResponse.class)))
             ),
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content)
     })
