@@ -5,13 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record PaymentResponse(
-        @NotNull
+
         Long paymentAmount,
-        @NotNull
+
         PaymentStatus paymentStatus,
-        @NotNull
+
         LocalDateTime approvedAt,
-        @NotNull
+
         LocalDateTime updatedAt
 ) {
 }

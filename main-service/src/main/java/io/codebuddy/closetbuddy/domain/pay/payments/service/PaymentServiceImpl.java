@@ -5,6 +5,8 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
+import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.entity.Payment;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.mapper.PaymentMapper;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentRequest;
@@ -46,7 +48,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 중복 결제 방지
         if (paymentRepository.existsByOrderId(request.orderId())) {
-            throw new IllegalStateException("이미 결제된 주문입니다.");
+            throw new PayException(ErrorCode.DUPLICATE_ORDER);
         }
 
         // 결제 데이터 생성 (상태: PENDING)
@@ -59,10 +61,10 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 계좌 조회 및 잔액 확인
         Account account = accountRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("계좌가 존재하지 않습니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         if (account.getBalance() < request.amount()) {
-            throw new IllegalArgumentException("예치금 잔액이 부족합니다.");
+            throw new PayException(ErrorCode.NOT_ENOUGH_BALANCE);
         }
 
         // 예치금 차감
@@ -107,15 +109,15 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 결제 정보 조회
         Payment payment = paymentRepository.findByOrderId(request.orderId())
-                .orElseThrow(() -> new IllegalArgumentException("결제 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.PAYMENT_NOT_FOUND));
 
         // 본인 확인
         if (!payment.getMemberId().equals(memberId)) {
-            throw new IllegalStateException("본인의 결제 건만 취소할 수 있습니다.");
+            throw new PayException(ErrorCode.PAYMENT_NOT_FOUND);
         }
         // 상태 확인 (이미 취소된 건인지)
         if (payment.getPaymentStatus() == PaymentStatus.CANCELED) {
-            throw new IllegalStateException("이미 취소된 결제입니다.");
+            throw new PayException(ErrorCode.ALREADY_CANCELED_TRANSACTION);
         }
 
         // 결제 상태 취소로 변경
@@ -123,11 +125,11 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 계좌 조회
         Account account = accountRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("계좌가 존재하지 않습니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 환불
         long refundAmount = payment.getPaymentAmount();
-        account.charge(refundAmount); // 기존 Account 엔티티의 charge 메서드 재사용
+        account.charge(refundAmount);
 
         //AccountHistory 기록 (REFUND)
         AccountHistory history = AccountHistory.builder()
@@ -156,10 +158,10 @@ public class PaymentServiceImpl implements PaymentService{
     @Transactional(readOnly = true)
     public PaymentResponse getPayment(Long memberId, Long orderId) {
         Payment payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("결제 정보가 없습니다."));
+                .orElseThrow(() -> new PayException(ErrorCode.PAYMENT_NOT_FOUND));
 
         if (!payment.getMemberId().equals(memberId)) {
-            throw new IllegalStateException("본인의 결제 내역만 조회 가능합니다.");
+            throw new PayException(ErrorCode.PAYMENT_NOT_FOUND);
         }
 
         return PaymentMapper.toPaymentResponse(payment);
