@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.domain.orders.exception;
+package io.codebuddy.closetbuddy.domain.orders.error;
 
 /**
  * 재고 부족 예외 처리용

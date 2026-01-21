@@ -93,7 +93,7 @@ public class CartService {
     @Transactional
     public void updateCart(Long memberId, Long cartItemId, Integer cartCount) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new IllegalArgumentException(""));
+                .orElseThrow(() -> new IllegalArgumentException("장바구니가 아직 비었습니다."));
 
         if (!cartItem.getCart().getMemberId().equals(memberId)) {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
