@@ -1,5 +1,8 @@
 package io.codebuddy.closetbuddy.domain.catalog.web;
 
+import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.service.SellerService;
+import io.codebuddy.closetbuddy.domain.catalog.stores.service.StoreService;
 import io.codebuddy.closetbuddy.domain.common.exception.AuthHeaderMissingException;
 import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.controller.SellerApiController;
@@ -20,7 +23,10 @@ import java.time.Instant;
 @RestControllerAdvice(assignableTypes = {
         ProductApiController.class,
         StoreApiController.class,
-        SellerApiController.class
+        SellerApiController.class,
+        ProductService.class,
+        StoreService.class,
+        SellerService.class
 })
 public class CatalogExceptionHandler {
 

@@ -20,7 +20,7 @@ public record ProductCreateRequest(
         @Size(min = 3, max = 999999, message = "Url 경로 길이를 확인하세요")
         String imgUrl,
 
-        @Size(min = 1, max = 9999, message = "카테고리 이름 길이를 확인하세요(1~9999)")
+        @NotNull(message = "카테고리는 필수 항목입니다.")
         Category category
 ) {
     public Product toEntity(Store store) {
