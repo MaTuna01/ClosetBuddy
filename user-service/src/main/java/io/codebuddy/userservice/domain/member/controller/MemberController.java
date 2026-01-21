@@ -5,10 +5,7 @@ import io.codebuddy.userservice.domain.common.security.auth.MemberDetails;
 import io.codebuddy.userservice.domain.member.model.dto.MemberResponse;
 import io.codebuddy.userservice.domain.member.model.dto.MemberUpdateRequest;
 import io.codebuddy.userservice.domain.member.service.MemberService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,5 +37,16 @@ public class MemberController {
     public ResponseEntity<Void> deleteMe(@AuthenticationPrincipal MemberDetails principal) {
         memberCommandService.deleteMe(principal.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    //판매자 권한 변경
+    @PostMapping("/me/seller")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Long> registerSeller(
+            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal) {
+
+        memberCommandService.registerSeller(principal.getId());
+
+        return ResponseEntity.ok().build();
     }
 }
