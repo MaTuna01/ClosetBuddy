@@ -1,5 +1,8 @@
 package io.codebuddy.closetbuddy.domain.catalog.stores.exception;
 
+import lombok.Getter;
+
+@Getter
 public class StoreException extends RuntimeException {
     private final StoreErrorCode errorCode;
 
@@ -8,7 +11,4 @@ public class StoreException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public StoreErrorCode getErrorCode() {
-        return errorCode;
-    }
 }

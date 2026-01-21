@@ -1,9 +1,6 @@
 package io.codebuddy.userservice.domain.form.service;
 
 import io.codebuddy.userservice.domain.common.model.entity.RefreshToken;
-import io.codebuddy.userservice.domain.common.repository.MemberRepository;
-import io.codebuddy.userservice.domain.common.repository.RefreshTokenBlackListRepository;
-import io.codebuddy.userservice.domain.common.repository.RefreshTokenRepository;
 import io.codebuddy.userservice.domain.common.repository.TokenRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

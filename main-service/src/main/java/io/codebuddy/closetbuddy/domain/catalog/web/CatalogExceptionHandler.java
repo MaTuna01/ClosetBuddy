@@ -1,13 +1,12 @@
 package io.codebuddy.closetbuddy.domain.catalog.web;
 
 import io.codebuddy.closetbuddy.domain.common.exception.AuthHeaderMissingException;
-import io.codebuddy.closetbuddy.domain.catalog.web.ErrorResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.controller.SellerApiController;
 import io.codebuddy.closetbuddy.domain.catalog.stores.controller.StoreApiController;
-import io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -41,7 +40,7 @@ public class CatalogExceptionHandler {
         // 여러 필드 에러가 있을 경우, 첫 번째 메시지만 보내거나 합쳐서 반환
         String firstErrorMessage = bindingResult.getFieldErrors().stream()
                 .findFirst()
-                .map(fieldError -> fieldError.getDefaultMessage())
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse("잘못된 요청입니다.");
         //서버 로그 출력
         log.warn("Seller Validation Fail: {}", firstErrorMessage);

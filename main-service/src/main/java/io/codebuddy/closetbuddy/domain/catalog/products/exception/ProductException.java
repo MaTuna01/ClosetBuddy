@@ -1,5 +1,8 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.exception;
 
+import lombok.Getter;
+
+@Getter
 public class ProductException extends RuntimeException {
     private final ProductErrorCode errorCode;
 
@@ -8,7 +11,4 @@ public class ProductException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public ProductErrorCode getErrorCode() {
-        return errorCode;
-    }
 }
