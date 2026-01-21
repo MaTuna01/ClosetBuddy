@@ -41,7 +41,7 @@ public class SellerApiController {
                     description = "이미 등록된 판매자"
             )
     })
-    @PostMapping("/me")
+    @PostMapping
     public ResponseEntity<Long> register(
             @CurrentUser CurrentUserInfo currentUser,
             @RequestBody @Valid SellerUpsertRequest request
