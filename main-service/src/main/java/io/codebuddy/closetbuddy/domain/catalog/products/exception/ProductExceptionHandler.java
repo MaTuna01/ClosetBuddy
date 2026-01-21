@@ -1,5 +1,6 @@
-package io.codebuddy.closetbuddy.domain.catalog.products.controller;
+package io.codebuddy.closetbuddy.domain.catalog.products.exception;
 
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

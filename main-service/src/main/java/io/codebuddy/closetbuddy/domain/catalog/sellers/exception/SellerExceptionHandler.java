@@ -1,7 +1,6 @@
-package io.codebuddy.closetbuddy.domain.catalog.sellers.controller;
+package io.codebuddy.closetbuddy.domain.catalog.sellers.exception;
 
-import io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerErrorCode;
-import io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerException;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.controller.SellerApiController;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.service.SellerService;
 import io.codebuddy.closetbuddy.domain.catalog.web.ErrorResponse;
 import org.slf4j.Logger;
