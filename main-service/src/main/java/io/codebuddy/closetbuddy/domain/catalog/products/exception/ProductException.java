@@ -1,7 +1,14 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.exception;
 
 public class ProductException extends RuntimeException {
-    public ProductException(String message) {
-        super(message);
+    private final ProductErrorCode errorCode;
+
+    public ProductException(ProductErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    public ProductErrorCode getErrorCode() {
+        return errorCode;
     }
 }
