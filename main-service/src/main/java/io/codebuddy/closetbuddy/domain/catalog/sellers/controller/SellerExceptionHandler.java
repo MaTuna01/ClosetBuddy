@@ -2,6 +2,7 @@ package io.codebuddy.closetbuddy.domain.catalog.sellers.controller;
 
 import io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerException;
+import io.codebuddy.closetbuddy.domain.catalog.sellers.service.SellerService;
 import io.codebuddy.closetbuddy.domain.catalog.web.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
-// SellerApiController의 예외만 잡도록 격리
-@RestControllerAdvice(assignableTypes = SellerApiController.class)
+// Seller 도메인의 예외만 잡도록 격리
+@RestControllerAdvice(assignableTypes = {SellerApiController.class, SellerService.class})
 public class SellerExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SellerExceptionHandler.class);
@@ -26,7 +27,7 @@ public class SellerExceptionHandler {
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(new ErrorResponse("ALREADY_REGISTERED", errorCode.getMessage(), Instant.now()));
+                .body(new ErrorResponse(errorCode.name(), errorCode.getMessage(), Instant.now()));
     }
 
     //그 외 서버에러
