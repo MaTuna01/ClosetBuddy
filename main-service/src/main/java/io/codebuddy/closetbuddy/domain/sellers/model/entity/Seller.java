@@ -20,6 +20,7 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seller_id")
     private Long sellerId;
+    @Column(name = "member_id", nullable = false)
     private Long memberId;
     @Column(name = "seller_name")
     private String sellerName;

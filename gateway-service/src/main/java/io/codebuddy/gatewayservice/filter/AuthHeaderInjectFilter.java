@@ -1,7 +1,9 @@
 package io.codebuddy.gatewayservice.filter;
 
-
-import io.codebuddy.gatewayservice.security.TokenVerifier;import io.codebuddy.gatewayservice.security.VerifiedUser;import io.codebuddy.gatewayservice.web.MutableHttpServletRequest;import jakarta.servlet.FilterChain;
+import io.codebuddy.gatewayservice.security.TokenVerifier;
+import io.codebuddy.gatewayservice.security.VerifiedUser;
+import io.codebuddy.gatewayservice.web.MutableHttpServletRequest;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,12 +30,18 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null) {
-            VerifiedUser verified = tokenVerifier.verify(authHeader);
-
+            VerifiedUser verified;
+            try {
+                verified = tokenVerifier.verify(authHeader);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
             //헤더 주입 -> yml 파일로 빼서 주입, 관례상 전체 대문자(추가적인 X헤더 에 많은 주입 재고)
             MutableHttpServletRequest wrapped = new MutableHttpServletRequest(request);
-            wrapped.putHeader("X-User-Id", verified.userId());
-            wrapped.putHeader("X-User-Role", verified.role());
+            wrapped.putHeader("X-USER-ID", verified.userId());
+            wrapped.putHeader("X-USER-ROLE", verified.role());
 
             filterChain.doFilter(wrapped, response);
             return;
