@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 //RefreshTokenRepository와 RefreshTokenBlackListRepository 이 두 저장소를 TokenRepository 형태로 변환해주는 역할을 하는 어댑터이다.
@@ -63,14 +64,20 @@ public class TokenRepositoryAdapter implements TokenRepository {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<RefreshToken> findValidRefToken(Long memberId) {
+    public Optional<RefreshToken> findValidRefToken(Long id) {
         return entityManager.createQuery(
                         "select rf from RefreshToken rf left join RefreshTokenBlackList rtb on rtb.refreshToken = rf where rf.member.id = :memberId and rtb.id is null"
                         , RefreshToken.class)
-                .setParameter("memberId", memberId)
+                .setParameter("memberId", id)
                 .getResultStream()
                 .findFirst();
     }
+
+    @Override
+    public Optional<RefreshToken> findRefreshTokenById(Long memberId) {
+        return refreshTokenRepository.findByMember_Id(memberId);
+    }
+
 
     // 전달받은 refresh 엔티티를 삭제합니다.
     @Override

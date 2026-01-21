@@ -1,8 +1,8 @@
-package io.codebuddy.userservice.domain.form.signup.service;
+package io.codebuddy.userservice.domain.form.service;
 
 
 import io.codebuddy.userservice.domain.common.model.dto.Role;
-import io.codebuddy.userservice.domain.common.model.dto.UserReqDTO;
+import io.codebuddy.userservice.domain.common.model.dto.SignReqDTO;
 import io.codebuddy.userservice.domain.common.model.entity.Member;
 import io.codebuddy.userservice.domain.common.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +16,15 @@ public class SignService {
     private final PasswordEncoder passwordEncoder;
 
 
-    public Member create(UserReqDTO userReqDTO) {
+    public Member create(SignReqDTO signReqDTO) {
 
         Member loginmember = Member.builder()
-                .username(userReqDTO.getUsername())
-                .memberId(userReqDTO.getMemberId())
-                .email(userReqDTO.getEmail())
-                .password(passwordEncoder.encode(userReqDTO.getPassword()))
-                .address(userReqDTO.getAddress())
-                .phone(userReqDTO.getPhone())
+                .username(signReqDTO.getUsername())
+                .memberId(signReqDTO.getMemberId())
+                .email(signReqDTO.getEmail())
+                .password(passwordEncoder.encode(signReqDTO.getPassword()))
+                .address(signReqDTO.getAddress())
+                .phone(signReqDTO.getPhone())
                 .role(Role.MEMBER)
                 .build();
 
