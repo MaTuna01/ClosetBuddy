@@ -1,7 +1,9 @@
 package io.codebuddy.userservice.domain.common.repository;
 
 
-import io.codebuddy.userservice.domain.common.model.entity.RefreshToken;import org.springframework.data.jpa.repository.JpaRepository;import org.springframework.stereotype.Repository;
+import io.codebuddy.userservice.domain.common.model.entity.RefreshToken;import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
@@ -14,4 +16,11 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     Optional<RefreshToken> findByMember_Id(Long memberId);
 
     Optional<RefreshToken> findByRefreshToken(String refreshToken);
+
+    @Query("""
+    select rf
+    from RefreshToken rf
+    where rf.member.memberId = :memberId
+    """)
+    Optional<RefreshToken> findByMemberId(String memberId);
 }

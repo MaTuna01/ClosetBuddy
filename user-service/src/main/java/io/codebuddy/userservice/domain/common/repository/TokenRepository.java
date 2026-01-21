@@ -17,10 +17,13 @@ public interface TokenRepository {
     void addBlackList(RefreshToken refreshToken);
 
     /*
-        memberId 기준으로 유효한 refresh 토큰을 조회한다. 여기에서 토큰이 유효하다는 말은
+        id 기준으로 유효한 refresh 토큰을 조회한다. 여기에서 토큰이 유효하다는 말은
         refresh 토큰이 존재하고 블랙리스트에 등록되지 않는 것을 의미하도록 구현한다.
      */
-    Optional<RefreshToken> findValidRefToken(Long memberId);
+    Optional<RefreshToken> findValidRefToken(Long id);
+
+    Optional<RefreshToken> findRefreshTokenById(Long memberId);
+
     /*
         refresh 토큰 엔티티를 삭제
         회원 탈퇴, refresh 무효화 정책에서 사용
