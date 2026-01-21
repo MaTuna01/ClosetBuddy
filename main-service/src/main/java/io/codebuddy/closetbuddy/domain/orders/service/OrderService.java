@@ -5,8 +5,8 @@ import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemCreateReques
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemDto;
 import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
-import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
+import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.products.repository.ProductJpaRepository;
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.entity.Order;

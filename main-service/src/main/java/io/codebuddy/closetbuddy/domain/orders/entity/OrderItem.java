@@ -1,7 +1,7 @@
 package io.codebuddy.closetbuddy.domain.orders.entity;
 
 import io.codebuddy.closetbuddy.domain.orders.exception.OutOfStockException;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 

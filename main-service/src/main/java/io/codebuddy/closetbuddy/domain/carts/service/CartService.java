@@ -7,8 +7,8 @@ import io.codebuddy.closetbuddy.domain.carts.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
-import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
+import io.codebuddy.closetbuddy.domain.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.products.repository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
