@@ -24,7 +24,7 @@ public class StoreExceptionHandler {
                 .collect(Collectors.joining(", "));
         log.warn("상점 요청 검증 실패: {}", message);
         return errorResponse(HttpStatus.BAD_REQUEST, message);
-    }
+    }햣
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
