@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.domain.common.web;
+package io.codebuddy.closetbuddy.domain.catalog.web;
 
 import java.time.Instant;
 

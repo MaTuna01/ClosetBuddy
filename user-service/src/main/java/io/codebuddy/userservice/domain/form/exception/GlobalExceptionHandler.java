@@ -1,6 +1,5 @@
 package io.codebuddy.userservice.domain.form.exception;
 
-import io.codebuddy.userservice.domain.common.model.dto.LoginReqDTO;
 import io.codebuddy.userservice.domain.form.controller.LoginController;
 import io.codebuddy.userservice.domain.member.controller.MemberController;
 import org.springframework.http.HttpStatus;
