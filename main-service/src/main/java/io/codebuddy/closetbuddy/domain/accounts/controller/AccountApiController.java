@@ -43,6 +43,8 @@ public class AccountApiController {
         return ResponseEntity.ok(accountResponse);
     }
 
+
+
     //예치금 등록
     @Operation(summary = "예치금 충전(결제 승인)", description = "토스페이먼츠 결제 성공 후 전달받은 정보를 바탕으로 예치금을 충전합니다.")
     @ApiResponses(value = {
@@ -53,7 +55,7 @@ public class AccountApiController {
     @PostMapping("/charge")
     public ResponseEntity<AccountHistoryResponse> chargeAccount(
             @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser,
-            @RequestBody PaymentConfirmRequest request
+            @RequestBody @Valid PaymentConfirmRequest request
     ) {
 
         AccountCommand command = new AccountCommand(
@@ -66,6 +68,9 @@ public class AccountApiController {
 
         return ResponseEntity.ok(response);
     }
+
+
+
 
     // 예치 내역 전체 조회
     @Operation(summary = "예치금 내역 전체 조회", description = "현재 사용자의 모든 충전 및 사용 내역을 조회합니다.")
@@ -82,6 +87,9 @@ public class AccountApiController {
         return ResponseEntity.ok(historyList);
     }
 
+
+
+
     // 예치금 내역 상세(단건) 조회
     @Operation(summary = "예치금 내역 상세 조회", description = "특정 내역 ID에 해당하는 상세 거래 기록을 조회합니다.")
     @ApiResponses(value = {
@@ -92,13 +100,16 @@ public class AccountApiController {
     @GetMapping("/history/{accountHistoryId}")
     public ResponseEntity<AccountHistoryResponse> getAccountHistoryDetail(
             @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser,
-            @Parameter(description = "예치금 내역 PK", example = "101") @PathVariable Long accountHistoryId
+            @Parameter(description = "예치금 내역 PK", example = "101") @PathVariable @Valid Long accountHistoryId
     ) {
 
         AccountHistoryResponse response = accountService.getHistory(Long.parseLong(currentUser.userId()), accountHistoryId);
 
         return ResponseEntity.ok(response);
     }
+
+
+
 
     // 예치 취소 (환불)
     /*
@@ -114,7 +125,7 @@ public class AccountApiController {
     @PostMapping("/history/{accountHistoryId}/cancel")
     public ResponseEntity<AccountHistoryResponse> cancelHistory(
             @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser,
-            @Parameter(description = "취소할 내역 PK", example = "101") @PathVariable Long accountHistoryId,
+            @Parameter(description = "취소할 내역 PK", example = "101") @PathVariable @Valid Long accountHistoryId,
             @RequestBody @Valid TossCancelRequest request
     ) {
 

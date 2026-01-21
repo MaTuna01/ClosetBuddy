@@ -67,7 +67,7 @@ public class OrderItem {
 
     // 주문 총 가격 구하기
     public Long getTotalPrice() {
-        return getOrderPrice() + getOrderCount();
+        return getOrderPrice() * getOrderCount();
     }
 
     protected void setOrder(Order order) {
