@@ -1,5 +1,8 @@
 package io.codebuddy.userservice.domain.form.exception;
 
+import io.codebuddy.userservice.domain.common.model.dto.LoginReqDTO;
+import io.codebuddy.userservice.domain.form.controller.LoginController;
+import io.codebuddy.userservice.domain.member.controller.MemberController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,7 +15,7 @@ import java.util.stream.Collectors;
 /*
 정확한 에러 메시지를 사용자에게 출력하기 위한 메서드
  */
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = {LoginController.class, MemberController.class})
 public class GlobalExceptionHandler {
     /**
      * @Valid 검증 실패 시 호출됨
