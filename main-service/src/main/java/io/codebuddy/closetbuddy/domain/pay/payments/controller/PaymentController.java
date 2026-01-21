@@ -74,7 +74,7 @@ public class PaymentController {
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long paymentId
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payCancel(Long.parseLong(currentUser.userId()), , paymentId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payCancel(Long.parseLong(currentUser.userId()), paymentId));
     }
 
     // 결제 단건 조회
