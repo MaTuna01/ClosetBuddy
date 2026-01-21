@@ -7,8 +7,8 @@ import io.codebuddy.userservice.domain.common.security.auth.JwtAuthenticationFil
 import io.codebuddy.userservice.domain.common.security.handler.CustomAccessDeniedHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.CustomAuthenticationFailureHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthSuccessHandler;
-import io.codebuddy.userservice.domain.form.logout.config.ApiLogoutSuccessHandler;
-import io.codebuddy.userservice.domain.form.logout.config.JwtLogoutHandler;
+// import io.codebuddy.userservice.domain.form.logout.config.ApiLogoutSuccessHandler;
+// import io.codebuddy.userservice.domain.form.logout.config.JwtLogoutHandler;
 import io.codebuddy.userservice.domain.oauth.config.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,20 +36,13 @@ public class SecurityConfig {
 
     private final MemberAuthSuccessHandler memberAuthSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-    private final JwtLogoutHandler jwtLogoutHandler;
+    // private final JwtLogoutHandler jwtLogoutHandler;
 
-    private final ApiLogoutSuccessHandler apiLogoutSuccessHandler;
+    // private final ApiLogoutSuccessHandler apiLogoutSuccessHandler;
 
     // [추가]
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
-    ) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
 
     //1. SecurityFilterChain 빈으로 OAuth2 로그인과 JWT 필터 등록.
 
@@ -90,7 +83,7 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .permitAll()
                 )
-
+/*
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout") // 로그아웃 처리 URL
                         .logoutSuccessUrl("/api/v1/auth/loginForm?logout=1") // 로그아웃 성공 후 이동페이지
@@ -98,6 +91,7 @@ public class SecurityConfig {
                         .addLogoutHandler(jwtLogoutHandler)
                         .logoutSuccessHandler(apiLogoutSuccessHandler)
                 )
+*/
 
                 // 인증/인가 예외 처리
                 .exceptionHandling(handling -> handling
