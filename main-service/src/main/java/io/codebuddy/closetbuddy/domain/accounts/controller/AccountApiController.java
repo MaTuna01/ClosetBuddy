@@ -59,8 +59,8 @@ public class AccountApiController {
         AccountCommand command = new AccountCommand(
                 Long.parseLong(currentUser.userId()),
                 request.amount(),
-                request.orderId(),
-                request.paymentKey()
+                request.paymentKey(),
+                request.orderId()
         );
         AccountHistoryResponse response = accountService.charge(command);
 
