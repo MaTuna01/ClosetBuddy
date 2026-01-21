@@ -8,7 +8,9 @@ import io.codebuddy.closetbuddy.domain.pay.payments.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,9 +45,9 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<PaymentResponse> payOrder(
             @CurrentUser CurrentUserInfo currentUser,
-            @RequestBody PaymentRequest request
+            @RequestBody @Valid PaymentRequest request
     ) {
-        return ResponseEntity.ok(paymentService.payOrder(Long.parseLong(currentUser.userId()), request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payOrder(Long.parseLong(currentUser.userId()), request));
     }
 
     // 결제 취소
@@ -55,7 +57,7 @@ public class PaymentController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204",
+                    responseCode = "201",
                     description = "결제 취소 성공"
             ),
             @ApiResponse(
@@ -70,9 +72,9 @@ public class PaymentController {
     @PostMapping("/cancel")
     public ResponseEntity<PaymentResponse> cancelPayment(
             @CurrentUser CurrentUserInfo currentUser,
-            @RequestBody PaymentRequest request
+            @RequestBody @Valid PaymentRequest request
     ) {
-        return ResponseEntity.ok(paymentService.payCancel(Long.parseLong(currentUser.userId()), request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.payCancel(Long.parseLong(currentUser.userId()), request));
     }
 
     // 결제 단건 조회
