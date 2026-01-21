@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,21 +17,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StoreExceptionHandler {
 
-    //상점 요청 검증 메시지 핸들러 응답 출력
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        //서버 로그 출력
         log.warn("상점 요청 검증 실패: {}", message);
         return errorResponse(HttpStatus.BAD_REQUEST, message);
     }
 
-    //상점 요청 파라미터 제약조건 위반 예외 핸들러 응답 출력
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
-        //서버 로그 출력
         log.warn("상점 요청 제약 조건 위반: {}", ex.getMessage());
         return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
@@ -40,6 +37,12 @@ public class StoreExceptionHandler {
         HttpStatus status = resolveStatus(ex.getMessage());
         log.warn("상점 처리 오류: {}", ex.getMessage());
         return errorResponse(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("상점 처리 중 데이터 무결성 오류: {}", ex.getMessage());
+        return errorResponse(HttpStatus.CONFLICT, "중복된 상점 데이터입니다.");
     }
 
     @ExceptionHandler(Exception.class)

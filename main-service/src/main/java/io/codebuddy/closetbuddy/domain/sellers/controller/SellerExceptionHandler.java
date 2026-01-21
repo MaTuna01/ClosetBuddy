@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,7 +17,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SellerExceptionHandler {
 
-    //판매자 요청 검증 예외 핸들러
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
@@ -26,7 +26,6 @@ public class SellerExceptionHandler {
         return errorResponse(HttpStatus.BAD_REQUEST, message);
     }
 
-    //판매자 제약조건 예외 핸들러
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
         log.warn("판매자 요청 제약 조건 위반: {}", ex.getMessage());
@@ -38,6 +37,12 @@ public class SellerExceptionHandler {
         HttpStatus status = resolveStatus(ex.getMessage());
         log.warn("판매자 처리 오류: {}", ex.getMessage());
         return errorResponse(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("판매자 등록 중 데이터 무결성 오류: {}", ex.getMessage());
+        return errorResponse(HttpStatus.CONFLICT, "이미 등록된 판매자입니다.");
     }
 
     @ExceptionHandler(Exception.class)
