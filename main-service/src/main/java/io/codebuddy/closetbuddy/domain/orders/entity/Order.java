@@ -52,6 +52,11 @@ public class Order {
         for (OrderItem orderItem : orderItems) {
             order.addOrderItem(orderItem);
         }
+
+        order.orderAmount = orderItems.stream()
+                .mapToLong(OrderItem::getTotalPrice)
+                .sum();
+
         return order;
     }
 
