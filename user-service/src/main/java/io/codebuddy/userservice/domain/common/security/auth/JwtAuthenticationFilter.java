@@ -1,8 +1,7 @@
-package io.codebuddy.userservice.domain.common.config;
+package io.codebuddy.userservice.domain.common.security.auth;
 
 import io.codebuddy.userservice.domain.common.app.JwtTokenProvider;
 import io.codebuddy.userservice.domain.common.model.dto.TokenBody;
-import io.codebuddy.userservice.domain.common.security.auth.MemberDetails;
 import io.codebuddy.userservice.domain.oauth.service.OauthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,7 +34,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if ( token != null && jwtTokenProvider.validate(token) ) {
+        if (token != null ) {
+            // validate()에서 예외가 발생하면 JwtExceptionFilter로 전파됨
+            jwtTokenProvider.validate(token);
 
             TokenBody tokenBody = jwtTokenProvider.parseJwt(token);
             MemberDetails memberPrincipalDetails = oauthService.getMemberDetailsById(tokenBody.getMemberId());
