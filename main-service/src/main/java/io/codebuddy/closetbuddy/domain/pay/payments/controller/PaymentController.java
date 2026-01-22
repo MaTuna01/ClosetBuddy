@@ -26,20 +26,20 @@ public class PaymentController {
     // 결제 수행
     @Operation(
             summary = "결제 생성",
-            description = "사용자의 결제 내역을 생성합니다."
+            description = "사용자의 주문 요청에 대한 결제를 수행합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "결제 생성 성공"
+                    description = "결제 수행 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청"
+                    description = "잘못된 결제 요청"
             ),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 결제 데이터"
+                    responseCode = "404",
+                    description = "잘못된 결제 정보"
             )
     })
     @PostMapping
@@ -93,7 +93,7 @@ public class PaymentController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "결제 내역을 찾을 수 없음"
+                    description = "결제 내역을 찾을 수 없거나 접근 권한이 없음"
             )
     })
     @GetMapping("/{orderId}")

@@ -95,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService{
      * 결제 상태를 변경(CANCELED)하고 예치금을 환불합니다.
      *
      * @param memberId
-     * @param request - 주문번호, 금액
+     * @param paymentId
      * @return 결제 금액, 결제 상태, 승인 시각, 업데이트 시각
      * 1. 결제 정보 조회
      * 2. 본인 확인 및 상태 검증

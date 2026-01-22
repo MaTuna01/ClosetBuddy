@@ -44,11 +44,8 @@ public class AccountServiceImpl implements AccountService{
     private final AccountHistoryRepository accountHistoryRepository;
     private final DepositChargeRepository depositChargeRepository;
 
-    @Value("${custom.payments.toss.secrets}")
-    private String tossPaymentSecrets;
+    private final PaymentClient paymentClient;
 
-    @Value("${custom.payments.toss.url}")
-    private String tossPaymentUrl;
 
     /**
      * 예치금 조회
@@ -89,7 +86,7 @@ public class AccountServiceImpl implements AccountService{
     public AccountHistoryResponse charge(AccountCommand command) {
 
         // PG 결제 승인 요청
-        PaymentSuccessDto paymentSuccessDto = confirmTossPayment(command);
+        PaymentSuccessDto paymentSuccessDto = paymentClient.confirm(command);
 
         // 금액 검증
         // 요청한 금액과 실제 결제된 금액이 다르면 예외 발생
@@ -252,123 +249,9 @@ public class AccountServiceImpl implements AccountService{
         accountHistoryRepository.save(refundHistory);
 
         // 토스 환불 요청
-        cancelTossPayment(depositCharge.getPgPaymentKey(), reason);
+        paymentClient.cancel(depositCharge.getPgPaymentKey(), reason);
 
         return AccountMapper.toHistoryResponse(history);
     }
 
-    // 토스 결제 취소
-    private void cancelTossPayment(String paymentKey, String cancelReason) {
-        try {
-            // 인증 헤더 (시크릿 키)
-            String authorization = "Basic " + Base64.getEncoder()
-                    .encodeToString((tossPaymentSecrets + ":").getBytes(StandardCharsets.UTF_8));
-
-            // 요청 Body 생성 (Record -> JSON)
-            String requestBody = om.writeValueAsString(new TossCancelRequest(cancelReason));
-
-            // HttpClient 준비
-            HttpClient client = HttpClient.newHttpClient();
-
-            // 요청 만들기 (POST)
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(tossPaymentUrl + "/" + paymentKey + "/cancel"))
-                    .header("Authorization", authorization)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            // 전송
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-            // 토스 결제 취소 실패
-            if (response.statusCode() != 200) {
-                TossErrorResponse errorResponse = om.readValue(response.body(), TossErrorResponse.class);
-
-                log.error("토스 환불 실패. 상태코드: {}, 내용: {}", response.statusCode(), response.body());
-
-                if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    // 토스 서버로부터 4xx
-                    throw new PayException(ErrorCode.PAYMENT_APPROVAL_FAILED, errorResponse.getMessage());
-                } else {
-                    // 토스 서버로부터 5xx
-                    throw new PayException(ErrorCode.PAYMENT_SYSTEM_ERROR);
-                }
-            }
-
-            log.info("토스 결제 취소 성공. paymentKey: {}", paymentKey);
-
-        } catch (PayException e) {
-            // PayException은 Exception이 잡지 않도록 함
-            throw e;
-        } catch (Exception e) { // 여기서 예외를 던져야 deleteHistory의 @Transactional이 작동해 DB도 롤백
-            log.error("토스 결제 취소 중 통신 오류 발생", e);
-            // 그 외(JsonProcessingException, IOException 등)만 RuntimeException으로 감쌉니다.
-            throw new RuntimeException("결제 취소 연동 중 오류가 발생했습니다.", e);
-        }
-
-
-    }
-
-
-    // 토스 결제 검증
-    private PaymentSuccessDto confirmTossPayment(AccountCommand command) {
-        try {
-            // 1. 시크릿 키 인코딩
-            String authorization = "Basic " + Base64.getEncoder()
-                    .encodeToString((tossPaymentSecrets + ":").getBytes(StandardCharsets.UTF_8));
-
-            // 2. 요청 객체를 JSON 문자열로 변환
-            String requestBody = om.writeValueAsString(
-                    new TossPaymentConfirm(
-                            command.getPaymentKey(),
-                            command.getOrderId(),
-                            command.getAmount()));
-
-            // 3. HttpClient 생성
-            HttpClient client = HttpClient.newHttpClient();
-
-            // 4. 요청 생성
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(tossPaymentUrl + "/confirm"))
-                    .header("Authorization", authorization)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                    .build();
-
-            // 5. 요청 전송 및 응답 수신
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-            // 6. 결과 처리
-            if (response.statusCode() == 200) {
-                // 성공 시: json 문자열 -> dto로 매핑
-                TossPaymentResponse tossResponse = om.readValue(response.body(), TossPaymentResponse.class);
-                return PaymentSuccessDto.builder()
-                        .paymentKey(tossResponse.getPaymentKey())
-                        .status(tossResponse.getStatus())
-                        .totalAmount(tossResponse.getTotalAmount())
-                        .approvedAt(tossResponse.getApprovedAt())
-                        .build();
-            } else {
-                // 실패 시: 에러 로그 출력 및 예외 발생
-                log.error("토스 결제 승인 실패. 응답코드: {}, 내용: {}", response.statusCode(), response.body());
-
-                TossErrorResponse errorResponse = om.readValue(response.body(), TossErrorResponse.class);
-
-                if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    // 토스 서버로부터 4xx
-                    throw new PayException(ErrorCode.PAYMENT_APPROVAL_FAILED, errorResponse.getMessage());
-                } else {
-                    // 토스 서버로부터 5xx
-                    throw new PayException(ErrorCode.PAYMENT_SYSTEM_ERROR);
-                }
-            }
-
-        } catch (PayException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("토스 결제 통신 중 에러 발생", e);
-            throw new RuntimeException("결제 시스템 연동 중 오류가 발생했습니다.", e);
-        }
-    }
 }

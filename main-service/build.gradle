@@ -42,7 +42,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     //swagger-ui
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // redis
     //implementation 'org.springframework.boot:spring-boot-starter-data-redis'
@@ -69,6 +69,10 @@ dependencies {
     //spring-batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     testImplementation 'org.springframework.batch:spring-batch-test'
+
+    //batch 테스트 용 h2 db
+    runtimeOnly 'com.h2database:h2'
+
 }
 dependencyManagement {
     imports {
