@@ -4,6 +4,7 @@ package io.codebuddy.userservice.domain.member.controller;
 import io.codebuddy.userservice.domain.common.security.auth.MemberDetails;
 import io.codebuddy.userservice.domain.member.model.dto.MemberResponse;
 import io.codebuddy.userservice.domain.member.model.dto.MemberUpdateRequest;
+import io.codebuddy.userservice.domain.member.model.dto.SellerRegisterRequest;
 import io.codebuddy.userservice.domain.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -44,9 +45,11 @@ public class MemberController {
     @PostMapping("/me/seller")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Long> registerSeller(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal) {
+            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal,
+            @Valid @RequestBody SellerRegisterRequest request
+    ) {
 
-        memberCommandService.registerSeller(principal.getId());
+        memberCommandService.registerSeller(principal.getId(), request);
 
         return ResponseEntity.ok().build();
     }

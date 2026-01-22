@@ -1,11 +1,13 @@
 package io.codebuddy.userservice.domain.member.service;
 
+import io.codebuddy.userservice.domain.client.MainServiceClient;
 import io.codebuddy.userservice.domain.common.model.dto.Role;
 import io.codebuddy.userservice.domain.common.model.entity.Member;
 import io.codebuddy.userservice.domain.common.repository.MemberRepository;
 import io.codebuddy.userservice.domain.common.repository.RefreshTokenRepository;
 import io.codebuddy.userservice.domain.member.model.dto.MemberResponse;
 import io.codebuddy.userservice.domain.member.model.dto.MemberUpdateRequest;
+import io.codebuddy.userservice.domain.member.model.dto.SellerRegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MainServiceClient mainServiceClient;
 
     @Transactional(readOnly = true)
     public MemberResponse getMe(Long memberId) {
@@ -37,7 +40,7 @@ public class MemberService {
 
         if (req.name() != null) m.setUsername(req.name());
         if (req.email() != null) m.setEmail(req.email());
-        if (req.phone() != null)   m.setPhone(req.phone());
+        if (req.phone() != null) m.setPhone(req.phone());
         if (req.address() != null) m.setAddress(req.address());
 
         return new MemberResponse(m.getId(),
@@ -58,7 +61,7 @@ public class MemberService {
     판매자 등록
     return: 판매자로 등록에 성공했으니, 생성된 ID가 무엇인지 사용자에게 알려주겠다는 의미로 ID 값을 반환
      */
-    public void registerSeller(Long memberId) {
+    public void registerSeller(Long memberId, SellerRegisterRequest request) {
 
         //1. 회원 조회
         Member member = memberRepository.findById(memberId)
@@ -72,6 +75,16 @@ public class MemberService {
         // 3. Member의 권한 변경
         member.setRole(Role.SELLER);
 
-    }
+        // 4. Main Service 호출
+        try {
+            mainServiceClient.registerSeller(
+                    memberId, // 헤더로 보낼 userId
+                    request   // Body로 보낼 sellerNamne
+            );
+        } catch (Exception e) {
+            // Main Service 호출 실패 시 롤백 발생 (Role 변경 취소됨)
+            throw new RuntimeException("판매자 등록 시스템 연동 실패", e);
+        }
 
+    }
 }

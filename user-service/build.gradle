@@ -49,6 +49,12 @@ dependencies {
     //swagger-ui
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
+    //feign-client
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // Source: https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos
+    runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.2.9.Final'
+
     //jjwt
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
