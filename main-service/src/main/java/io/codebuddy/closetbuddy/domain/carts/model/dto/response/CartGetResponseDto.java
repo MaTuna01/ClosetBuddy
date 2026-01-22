@@ -1,6 +1,6 @@
-package io.codebuddy.closetbuddy.domain.orders.dto.response;
+package io.codebuddy.closetbuddy.domain.carts.model.dto.response;
 
-import io.codebuddy.closetbuddy.domain.carts.entity.CartItem;
+import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 
 public record CartGetResponseDto(
         Long cartItemId,

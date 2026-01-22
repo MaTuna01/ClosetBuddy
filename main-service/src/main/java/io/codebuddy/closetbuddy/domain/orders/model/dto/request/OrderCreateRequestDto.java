@@ -1,6 +1,6 @@
-package io.codebuddy.closetbuddy.domain.orders.dto.request;
+package io.codebuddy.closetbuddy.domain.orders.model.dto.request;
 
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemCreateRequestDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 

@@ -1,9 +1,12 @@
-package io.codebuddy.closetbuddy;
+package io.codebuddy.closetbuddy.domain.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.codebuddy.closetbuddy.domain.orders.controller.OrderController;
-import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.*;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;

@@ -1,6 +1,7 @@
-package io.codebuddy.closetbuddy.domain.orders.entity;
+package io.codebuddy.closetbuddy.domain.orders.model.entity;
 
-import io.codebuddy.closetbuddy.domain.orders.exception.OutOfStockException;
+import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
+import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,7 +27,6 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    // cascade를 제거했습니다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
@@ -58,7 +58,7 @@ public class OrderItem {
         Integer totalCount = count - orderCount;
 
         if (totalCount < 0) {
-            throw new OutOfStockException("상품의 재고가 부족합니다." + "현재 재고 수량: " + totalCount);
+            throw new OrderException(OrderErrorCode.OUT_OF_STOCK);
         }
 
         // 상품 재고를 totalCount만큼 제거합니다.

@@ -1,12 +1,12 @@
-package io.codebuddy.closetbuddy;
+package io.codebuddy.closetbuddy.domain.cart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.codebuddy.closetbuddy.domain.carts.controller.CartController;
-import io.codebuddy.closetbuddy.domain.carts.dto.request.CartCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.CartGetResponseDto;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

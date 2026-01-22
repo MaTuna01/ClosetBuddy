@@ -2,18 +2,16 @@ package io.codebuddy.closetbuddy.domain.orders.controller;
 
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
-import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderDetailResponseDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
