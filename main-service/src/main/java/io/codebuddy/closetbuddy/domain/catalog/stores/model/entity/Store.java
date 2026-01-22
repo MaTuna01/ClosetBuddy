@@ -3,14 +3,13 @@ package io.codebuddy.closetbuddy.domain.catalog.stores.model.entity;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
 @Table(name = "store")
