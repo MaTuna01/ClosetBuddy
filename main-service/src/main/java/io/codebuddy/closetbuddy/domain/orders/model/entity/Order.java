@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.domain.orders.entity;
+package io.codebuddy.closetbuddy.domain.orders.model.entity;
 
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.domain.carts.entity;
+package io.codebuddy.closetbuddy.domain.carts.model.entity;
 
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import jakarta.persistence.*;

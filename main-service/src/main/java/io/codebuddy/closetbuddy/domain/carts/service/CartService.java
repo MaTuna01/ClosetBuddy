@@ -1,9 +1,11 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
-import io.codebuddy.closetbuddy.domain.carts.dto.request.CartCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.CartGetResponseDto;
-import io.codebuddy.closetbuddy.domain.carts.entity.Cart;
-import io.codebuddy.closetbuddy.domain.carts.entity.CartItem;
+import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
+import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
+import io.codebuddy.closetbuddy.domain.carts.model.entity.Cart;
+import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 
@@ -25,10 +27,8 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductJpaRepository productJpaRepository;
 
-
     /**
      * 장바구니가 존재하는지 판단하고 없으면 장바구니 리스트를 만듭니다.
-     *
      * @param memberId
      * @param request
      * @return
@@ -36,14 +36,14 @@ public class CartService {
     @Transactional
     public Long createCart(Long memberId, CartCreateRequestDto request) {
 
-        // 1. 회원 조회
+        // 회원 조회
         if(memberId == null) {
-            throw new IllegalArgumentException("회원이 존재하지 않습니다.");
+            throw new CartException(CartErrorCode.CART_NOT_FOUND);
         }
 
-        // 2. 상품 조회
+        // 상품 조회
         Product product = productJpaRepository.findById(request.productId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다."));
+                .orElseThrow(() -> new CartException(CartErrorCode.PRODUCT_NOT_FOUND));
 
         // 장바구니 조회 없으면 생성
         Cart cart = cartRepository.findByMemberId(memberId)
@@ -85,7 +85,7 @@ public class CartService {
 
 
     /**
-     * 장바구니를 수정합니다. (수량)
+     * 장바구니 수량을 수정합니다.
      * @param memberId
      * @param cartItemId
      * @param cartCount
@@ -93,10 +93,10 @@ public class CartService {
     @Transactional
     public void updateCart(Long memberId, Long cartItemId, Integer cartCount) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new IllegalArgumentException(""));
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
         if (!cartItem.getCart().getMemberId().equals(memberId)) {
-            throw new IllegalArgumentException("수정 권한이 없습니다.");
+            throw new CartException(CartErrorCode.NOT_OWNER);
         }
 
         cartItem.updateCount(cartCount);
@@ -111,10 +111,10 @@ public class CartService {
     @Transactional
     public void deleteCartItem(Long memberId, Long cartItemId) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new IllegalArgumentException("장바구니에 없는 상품입니다."));
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
         if (!cartItem.getCart().getMemberId().equals(memberId)) {
-            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+            throw new CartException(CartErrorCode.NOT_OWNER);
         }
 
         cartItemRepository.delete(cartItem);

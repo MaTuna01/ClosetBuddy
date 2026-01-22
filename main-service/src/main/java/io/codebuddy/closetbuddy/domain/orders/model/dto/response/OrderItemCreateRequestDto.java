@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.domain.orders.dto.response;
+package io.codebuddy.closetbuddy.domain.orders.model.dto.response;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

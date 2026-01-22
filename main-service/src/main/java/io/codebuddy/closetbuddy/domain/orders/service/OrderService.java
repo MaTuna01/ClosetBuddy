@@ -1,16 +1,23 @@
 package io.codebuddy.closetbuddy.domain.orders.service;
 
+import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
+import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.*;
-import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
+import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
+import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.model.entity.OrderItem;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
-import io.codebuddy.closetbuddy.domain.orders.dto.request.OrderCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.orders.entity.Order;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.orders.model.entity.Order;
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +32,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
 
+
     /**
      * 주문을 생성합니다.
      * @param memberId
@@ -35,14 +43,15 @@ public class OrderService {
     public Long createOrder(Long memberId, OrderCreateRequestDto requestDto) {
 
         if (memberId == null) {
-            throw new IllegalArgumentException("회원이 없습니다.");
+            throw new OrderException(OrderErrorCode.NOT_MEMBER);
         }
 
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemCreateRequestDto itemDto : requestDto.orderItems()) {
             Product product = productJpaRepository.findById(itemDto.productId())
-                    .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다."));
+                    .orElseThrow(() -> new OrderException(OrderErrorCode.PRODUCT_NOT_FOUND));
+
             OrderItem orderItem = OrderItem.createOrderItem(
                     product, product.getProductPrice(), itemDto.orderCount()
             );
@@ -77,7 +86,7 @@ public class OrderService {
          * 만약 회원의 주문 내역이 없다면 예외를 반환합니다.
          */
         if (order.isEmpty()) {
-            throw new IllegalArgumentException("주문 내역이 없습니다.");
+            throw new OrderException(OrderErrorCode.ORDER_NOT_FOUND);
         }
 
         return order.stream()
@@ -97,20 +106,15 @@ public class OrderService {
 
 
     /**
-     * 주문 하나의 상세 내용을 조회합니다.
-     *
+     * 주문 하나의 상세 내역을 조회합니다.
+     * @param memberId
      * @param orderId
      * @return
      */
     public OrderDetailResponseDto getDetailOrder(Long memberId, Long orderId) {
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문이 없습니다."));
-
-//        if(!order.getMemberId().equals(memberId)) {
-//            throw new AccessDeniedException("본인의 주문만 조회할 수 있습니다.");
-//        }
-
+                .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
         /**
          * OrderItemDto에 주문 상품들의 상세 내역을 넣어 반환해줍니다.
          */
@@ -137,20 +141,21 @@ public class OrderService {
 
     /**
      * 주문을 취소합니다.
-     *
-     * @param orderId 주문을 삭제하지만 실질적으로 상태값만 바뀜
-     *                -> 정산할때 주문 내역을 취소 포함해서 보여줘야하기 때문에
+     * 주문을 삭제하지만 실질적으로 상태값만 바뀜
+     * -> 정산할때 주문 내역을 취소 포함해서 보여줘야하기 때문에
+     * @param memberId
+     * @param orderId
      */
     @Transactional
     public void cancelOrder(Long memberId, Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문한 내역이 아직 없습니다."));
+                .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
         order.changeStatus(OrderStatus.CANCELED);
     }
 
     /**
-     * 장바구니의 물품을 주문할 수 있도록 합니다.
+     * 장바구니에 담은 물품을 주문할 수 있도록 합니다.
      * @param memberId
      * @return
      */
@@ -160,14 +165,14 @@ public class OrderService {
         List<CartGetResponseDto> cartList = cartService.getCartList(memberId);
 
         if (cartList.isEmpty()) {
-            throw new IllegalArgumentException("장바구니가 비었습니다.");
+            throw new CartException(CartErrorCode.CART_NOT_FOUND);
         }
 
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (CartGetResponseDto cartDto : cartList) {
             Product product = productJpaRepository.findById(cartDto.productId())
-                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+                    .orElseThrow(() -> new OrderException(OrderErrorCode.PRODUCT_NOT_FOUND));
 
             OrderItem orderItem = OrderItem.createOrderItem(
                     product,
