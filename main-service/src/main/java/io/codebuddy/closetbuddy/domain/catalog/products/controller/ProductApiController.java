@@ -38,6 +38,15 @@ public class ProductApiController {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청"
+            )
+            ,
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "권한 없음"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "상품의 소유자가 아닙니다."
             ),
             @ApiResponse(
                     responseCode = "409",
@@ -96,7 +105,11 @@ public class ProductApiController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "상품 리스트 성공"
+                    description = "상품 리스트 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 형식."
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -132,6 +145,14 @@ public class ProductApiController {
                     description = "잘못된 요청"
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "권한없음"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "금지된 접근"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "수정할 상품 없음"
             )
@@ -162,6 +183,14 @@ public class ProductApiController {
                     description = "상품 삭제 성공(반환 데이터 없음)"
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 형식"
+            ),
+            @ApiResponse(
+            responseCode = "403",
+            description = "금지된 접근"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "삭제할 상품 없음"
             )
@@ -190,6 +219,10 @@ public class ProductApiController {
             @ApiResponse(
                     responseCode = "200",
                     description = "상품 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 형식"
             ),
             @ApiResponse(
                     responseCode = "404",

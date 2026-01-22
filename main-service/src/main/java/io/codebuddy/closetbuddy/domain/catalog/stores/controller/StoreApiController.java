@@ -85,6 +85,24 @@ public class StoreApiController {
 
     // 내 상점 목록 조회 (로그인 필수)
     // /stores/me
+    @Operation(
+            summary = "내 가게 목록 조회",
+            description = "가게를 목록들을 리스트로 조회합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "가게 리스트 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "접근 권한 없음"
+            )
+    })
     @GetMapping("/me")
     public ResponseEntity<List<StoreResponse>> getMyStores(
             @CurrentUser CurrentUserInfo currentUser
@@ -95,6 +113,20 @@ public class StoreApiController {
 
     // 전체 상점 목록 조회 (로그인 불필요)
     // /stores
+    @Operation(
+            summary = "전체 상품 목록 조회(로그인 불필요)",
+            description = "전체 가게를 목록들을 리스트로 조회합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "가게 리스트 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            )
+    })
     @GetMapping
     public ResponseEntity<List<StoreResponse>> getAllStores() {
         List<StoreResponse> response = storeService.getAllStores();
