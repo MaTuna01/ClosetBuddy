@@ -7,8 +7,6 @@ import io.codebuddy.userservice.domain.common.security.auth.JwtAuthenticationFil
 import io.codebuddy.userservice.domain.common.security.handler.CustomAccessDeniedHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.CustomAuthenticationFailureHandler;
 import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthSuccessHandler;
-// import io.codebuddy.userservice.domain.form.logout.config.ApiLogoutSuccessHandler;
-// import io.codebuddy.userservice.domain.form.logout.config.JwtLogoutHandler;
 import io.codebuddy.userservice.domain.oauth.config.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,9 +34,6 @@ public class SecurityConfig {
 
     private final MemberAuthSuccessHandler memberAuthSuccessHandler;
     private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-    // private final JwtLogoutHandler jwtLogoutHandler;
-
-    // private final ApiLogoutSuccessHandler apiLogoutSuccessHandler;
 
     // [추가]
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -53,10 +48,13 @@ public class SecurityConfig {
 
 
 
+
         return http
-                .securityMatcher("/oauth2/**","/login/oauth2/**", "/api/**","/api/v1/**")
+//                .securityMatcher("/oauth2/**","/login/oauth2/**", "/api/**","/api/v1/**")
                 .authorizeHttpRequests((request) -> request
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                        .requestMatchers("/login-success").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/authc/**").permitAll()
                         .requestMatchers("/api/v1/payments/**").hasAnyAuthority("MEMBER", "SELLER")
@@ -100,10 +98,15 @@ public class SecurityConfig {
                 )
 
                 //OAuth2 로그인 활성화
-                .oauth2Login(oauth -> {
-                    oauth.successHandler(oAuth2SuccessHandler);
-                })
+                .oauth2Login(oauth2 -> oauth2  // formLogin 후 위치 유지
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureUrl("/api/v1/auth/error")  // 백엔드 경로로 변경
+                )
 
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
 
                 // 필터 순서: JwtExceptionFilter -> JwtAuthenticationFilter -> UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
