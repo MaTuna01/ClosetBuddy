@@ -85,7 +85,7 @@ public class ProductApiController {
                     description = "상품 데이터 없음"
             )
     })
-    @GetMapping("products/{productId}")
+    @GetMapping("/products/{productId}")
     public ResponseEntity<ProductResponse> getProduct(
             @PathVariable Long productId
     ) {
@@ -157,7 +157,7 @@ public class ProductApiController {
                     description = "수정할 상품 없음"
             )
     })
-    @PutMapping("products/{productId}")
+    @PutMapping("/products/{productId}")
     public ResponseEntity<CatalogResult<Void>> updateProduct(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long productId,
@@ -195,7 +195,7 @@ public class ProductApiController {
                     description = "삭제할 상품 없음"
             )
     })
-    @DeleteMapping("products/{productId}")
+    @DeleteMapping("/products/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<CatalogResult<Void>> deleteProduct(
             @CurrentUser CurrentUserInfo currentUser,

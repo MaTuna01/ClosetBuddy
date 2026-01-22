@@ -103,7 +103,7 @@ public class StoreApiController {
                     description = "접근 권한 없음"
             )
     })
-    @GetMapping("/me")
+    @GetMapping("/stores/me")
     public ResponseEntity<List<StoreResponse>> getMyStores(
             @CurrentUser CurrentUserInfo currentUser
     ) {
@@ -127,7 +127,7 @@ public class StoreApiController {
                     description = "가게 데이터 없음"
             )
     })
-    @GetMapping
+    @GetMapping("/stores")
     public ResponseEntity<List<StoreResponse>> getAllStores() {
         List<StoreResponse> response = storeService.getAllStores();
         return ResponseEntity.ok(response);
@@ -156,7 +156,7 @@ public class StoreApiController {
                     description = "가게 데이터 없음"
             )
     })
-    @PutMapping("stores/{store_id}")
+    @PutMapping("/stores/{store_id}")
     public ResponseEntity<CatalogResult<Void>> updateStore(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long store_id,
