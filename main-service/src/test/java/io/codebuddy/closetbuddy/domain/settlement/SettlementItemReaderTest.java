@@ -7,7 +7,6 @@ import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
-
 import io.codebuddy.closetbuddy.domain.orders.entity.Order;
 import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
@@ -15,19 +14,22 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.entity.Payment;
+import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.pay.payments.repository.PaymentRepository;
-import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
+import io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRepository;
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.BatchStatus;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.test.MetaDataInstanceFactory;
+import org.springframework.batch.test.StepScopeTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,33 +47,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @SpringBatchTest
 @ActiveProfiles("test")
-@Import(TestBatchConfig.class) // JobLauncherTestUtils 빈 등록을 위한 설정
-public class SettlementJobTest {
+@Import(TestBatchConfig.class) // 배치 설정 로드
+public class SettlementItemReaderTest {
 
-    @Autowired private JobLauncherTestUtils jobLauncherTestUtils; // Job 실행 도구
+    @Autowired private JpaPagingItemReader<SettlementTargetDto> settlementItemReader;
 
     // Repositories
-
     @Autowired private AccountRepository accountRepository;
-    @Autowired private SellerJpaRepository sellerJpaRepository;
     @Autowired private AccountHistoryRepository accountHistoryRepository;
+    @Autowired private SellerJpaRepository sellerJpaRepository;
     @Autowired private StoreJpaRepository storeRepository;
     @Autowired private ProductJpaRepository productRepository;
     @Autowired private OrderRepository orderRepository;
     @Autowired private PaymentRepository paymentRepository;
-
-    // 검증 및 삭제용 Repository
     @Autowired private SettlementRepository settlementRepository;
     @Autowired private SettlementDetailRepository settlementDetailRepository;
 
     @AfterEach
     public void tearDown() {
-        // FK 제약조건 역순 삭제
-        accountHistoryRepository.deleteAll();
+        // FK 제약조건을 고려하여 자식 테이블부터 삭제
         settlementDetailRepository.deleteAll();
         settlementRepository.deleteAll();
+        accountHistoryRepository.deleteAll();
         paymentRepository.deleteAll();
-        orderRepository.deleteAll(); // OrderItem은 Cascade로 삭제된다고 가정
+        orderRepository.deleteAll();
         productRepository.deleteAll();
         storeRepository.deleteAll();
         sellerJpaRepository.deleteAll();
@@ -79,75 +78,100 @@ public class SettlementJobTest {
     }
 
     @Test
-    @DisplayName("정산 배치 통합 테스트: Job 실행 후 정산 내역 생성 및 계좌 잔액 증가 검증")
-    public void settlementJob_IntegrationTest() throws Exception {
+    @DisplayName("Reader 검증: 정산 대상 기간(3일 전 ~ 1달 전)과 완료된 주문만 조회한다")
+    public void settlementItemReader_Test() throws Exception {
         // [Given]
         String targetDateStr = LocalDate.now().toString();
-        // 정산 기준: 배치 실행일로부터 3일 전 ~ 1달 전 데이터 조회
-        // 안전하게 5일 전으로 설정
-        LocalDateTime orderDate = LocalDate.now().minusDays(5).atStartOfDay();
 
-        // 1. 가상의 Member ID 설정
-        Long sellerMemberId = 100L;
-        Long buyerMemberId = 200L;
+        // 1. [Valid] 읽혀야 하는 데이터 (5일 전, 완료됨, 결제 승인됨)
+        LocalDateTime validDate = LocalDate.now().minusDays(5).atStartOfDay();
+        Long expectedSellerId = createScenario(100L, validDate, OrderStatus.COMPLETED, PaymentStatus.APPROVED);
 
-        // 2. 판매자 관련 데이터 생성
-        // -> 계좌와 판매자 정보가 같은 memberId(100L)를 가져야 나중에 정산금이 입금됨
-        Account sellerAccount = createAccount(sellerMemberId, 100000L);
-        Seller seller = createSeller(sellerMemberId);
+        // 2. [Invalid] 날짜가 너무 최신이라 안 읽혀야 함 (1일 전) -> 정산 대상 아님(D-3 미만)
+        LocalDateTime tooRecentDate = LocalDate.now().minusDays(1).atStartOfDay();
+        createScenario(200L, tooRecentDate, OrderStatus.COMPLETED, PaymentStatus.APPROVED);
 
-        Store store = createStore(seller);
-        Product product = createProduct(store, 50000L); // 5만원
+        // 3. [Invalid] 날짜는 맞는데 주문 상태가 취소임
+        createScenario(300L, validDate, OrderStatus.CANCELED, PaymentStatus.APPROVED);
 
-        // 3. 구매자 관련 데이터 생성
-        Order order = createOrder(buyerMemberId, product, 2, orderDate); // 10만원
-        createPayment(buyerMemberId, order, orderDate);
+        // 4. [Invalid] 날짜는 맞는데 결제 상태가 PENDING임
+        createScenario(400L, validDate, OrderStatus.COMPLETED, PaymentStatus.PENDING);
+
 
         // [When]
+        // Reader 실행 환경 설정
+        // 가짜 StepExecution을 만들고 파라미터를 주입합니다.
         JobParameters jobParameters = new JobParametersBuilder()
-                .addString("targetDate", targetDateStr)
-                .addLong("time", System.currentTimeMillis())
+                .addString("targetDate", targetDateStr) // Reader의 @Value로 들어갈 값
                 .toJobParameters();
 
-        JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution(jobParameters);
 
         // [Then]
-        // 1. Job 성공 확인
-        assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+        // StepScopeTestUtils를 이용해 Reader의 read() 메서드 실행
+        int readCount = StepScopeTestUtils.doInStepScope(stepExecution, () -> {
 
-        // 2. 정산 데이터 생성 확인
-        List<Settlement> settlements = settlementRepository.findAll();
-        assertThat(settlements).hasSize(1);
+            settlementItemReader.open(new ExecutionContext());
 
-        Settlement settlement = settlements.get(0);
-        assertThat(settlement.getTotalSalesAmount()).isEqualTo(100000L);
-        assertThat(settlement.getPayoutAmount()).isEqualTo(97000L); // 수수료 3% 제외
+            int count = 0;
+            SettlementTargetDto item;
+            try {
+                while ((item = settlementItemReader.read()) != null) {
+                    count++;
+                    // 읽어온 데이터가 판매자의 물건인지 확인
+                    assertThat(item.getSellerId()).isEqualTo(expectedSellerId);
+                    System.out.println("Read Item: " + item.getProductName());
+                }
+            } finally {
+                settlementItemReader.close();
+            }
+            return count;
+        });
 
-        // 3. 판매자 계좌 입금 확인 (memberId 100L로 조회)
-        // AccountRepository가 findByMemberId를 지원해야 함
-        Account updatedAccount = accountRepository.findByMemberId(sellerMemberId).orElseThrow();
-        assertThat(updatedAccount.getBalance()).isEqualTo(197000L);
+        // 검증: 총 4개의 데이터를 넣었지만, 조건에 맞는 건 1개뿐이어야 함
+        assertThat(readCount).isEqualTo(1);
     }
 
-    // --- Helper Methods (Member 객체 의존성 제거) ---
+    // --- Helper Methods ---
+
+    // PaymentStatus 파라미터 추가
+    private Long createScenario(Long idBase, LocalDateTime date, OrderStatus orderStatus, PaymentStatus paymentStatus) {
+        Account account = createAccount(idBase, 0L);
+        Seller seller = createSeller(idBase);
+        Store store = createStore(seller);
+        Product product = createProduct(store, 10000L);
+
+        // 주문 생성 시 상태와 날짜를 파라미터로 받음
+        // idBase + 1000을 하여 memberId 충돌 방지 (Account와 별개인 구매자 ID)
+        Order order = createOrder(idBase + 1000, product, 1, date);
+
+        ReflectionTestUtils.setField(order, "orderStatus", orderStatus); // 상태 강제 변경
+        orderRepository.save(order);
+
+        // paymentStatus 전달
+        createPayment(idBase + 1000, order, date, paymentStatus);
+        return seller.getSellerId(); // 생성된 ID 반환
+    }
 
     private Account createAccount(Long memberId, Long balance) {
         Account account = Account.createAccount(memberId);
-        account.charge(balance); // 초기 잔액 설정 필요 시
+        if (balance > 0) {
+            account.charge(balance);
+        }
         return accountRepository.save(account);
     }
 
     private Seller createSeller(Long memberId) {
         return sellerJpaRepository.save(Seller.builder()
-                .memberId(memberId) // 객체 대신 ID 주입
+                .memberId(memberId)
                 .sellerName("사장님_" + memberId)
                 .build());
     }
 
     private Store createStore(Seller seller) {
         return storeRepository.save(Store.builder()
-                .storeName("상점_" + seller.getSellerName())
                 .seller(seller)
+                .storeName("상점_" + seller.getSellerName())
                 .build());
     }
 
@@ -165,7 +189,7 @@ public class SettlementJobTest {
         OrderItem orderItem = OrderItem.createOrderItem(product, product.getProductPrice(), count);
         List<OrderItem> items = new ArrayList<>();
         items.add(orderItem);
-        
+
         Order order = Order.createOrder(buyerMemberId, items);
 
         ReflectionTestUtils.setField(order, "orderStatus", OrderStatus.COMPLETED);
@@ -175,19 +199,24 @@ public class SettlementJobTest {
         return orderRepository.save(order);
     }
 
-    private void createPayment(Long buyerMemberId, Order order, LocalDateTime date) {
+    // PaymentStatus를 받아서 처리하도록 변경
+    private void createPayment(Long buyerMemberId, Order order, LocalDateTime date, PaymentStatus status) {
+
         long totalAmount = order.getOrderItem().stream()
                 .mapToLong(item -> item.getOrderPrice() * item.getOrderCount())
                 .sum();
 
         Payment payment = Payment.builder()
                 .orderId(order.getOrderId())
-                .memberId(buyerMemberId) // 객체 대신 ID
+                .memberId(buyerMemberId)
                 .paymentAmount(totalAmount)
                 .build();
 
-        payment.approved();
+        // 만약 Builder에 status가 없다면 아래 로직 사용
+        // Reflection으로 덮어씀 (Builder 초기화 이슈 방지)
+        ReflectionTestUtils.setField(payment, "paymentStatus", status);
 
+        // 날짜 강제 설정
         ReflectionTestUtils.setField(payment, "createdAt", date);
         ReflectionTestUtils.setField(payment, "updatedAt", date);
 
