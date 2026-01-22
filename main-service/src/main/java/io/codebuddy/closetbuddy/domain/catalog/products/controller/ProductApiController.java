@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.controller;
 
+import io.codebuddy.closetbuddy.domain.catalog.web.dto.CatalogResult;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
@@ -45,7 +46,7 @@ public class ProductApiController {
     })
     @PostMapping("/stores/{storeId}/products")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Long> create(
+    public ResponseEntity<CatalogResult<Void>> create(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long storeId,
             @RequestBody @Valid ProductCreateRequest request
@@ -55,8 +56,9 @@ public class ProductApiController {
             throw new IllegalStateException("유효하지 않는 상점 ID입니다.");
         }
 
-        Long productId = productService.createProduct(Long.parseLong(currentUser.userId()), storeId, request);
-        return ResponseEntity.ok(productId);
+        productService.createProduct(Long.parseLong(currentUser.userId()), storeId, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CatalogResult.messageOnly("상품 등록이 완료되었습니다."));
     }
 
     //상품 상세조회(단건)
@@ -135,7 +137,7 @@ public class ProductApiController {
             )
     })
     @PutMapping("products/{productId}")
-    public ResponseEntity<ProductResponse> updateProduct(
+    public ResponseEntity<CatalogResult<Void>> updateProduct(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long productId,
             @RequestBody @Valid UpdateProductRequest request
@@ -146,7 +148,7 @@ public class ProductApiController {
         }
 
         productService.updateProduct(Long.parseLong(currentUser.userId()), productId, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(CatalogResult.messageOnly("상품 정보가 수정되었습니다."));
     }
 
     //상품 삭제
@@ -166,7 +168,7 @@ public class ProductApiController {
     })
     @DeleteMapping("products/{productId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteProduct(
+    public ResponseEntity<CatalogResult<Void>> deleteProduct(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long productId
     ) {
@@ -176,7 +178,7 @@ public class ProductApiController {
         }
 
         productService.deleteProduct(Long.parseLong(currentUser.userId()), productId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(CatalogResult.messageOnly("상품이 삭제되었습니다."));
     }
 
     //전체 상품 조회

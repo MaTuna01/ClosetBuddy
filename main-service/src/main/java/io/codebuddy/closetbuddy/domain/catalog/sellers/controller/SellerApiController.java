@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.sellers.controller;
 
 
+import io.codebuddy.closetbuddy.domain.catalog.web.dto.CatalogResult;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.model.dto.SellerResponse;
@@ -42,12 +43,13 @@ public class SellerApiController {
             )
     })
     @PostMapping
-    public ResponseEntity<Long> register(
+    public ResponseEntity<CatalogResult<Void>> register(
             @CurrentUser CurrentUserInfo currentUser,
             @RequestBody @Valid SellerUpsertRequest request
     ) {
-        Long sellerId = sellerService.registerSeller(Long.parseLong(currentUser.userId()), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(sellerId);
+        sellerService.registerSeller(Long.parseLong(currentUser.userId()), request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CatalogResult.messageOnly("판매자 등록이 완료되었습니다."));
     }
 
     //내 정보 조회
@@ -89,12 +91,12 @@ public class SellerApiController {
             )
     })
     @PutMapping("/me")
-    public ResponseEntity<Void> update(
+    public ResponseEntity<CatalogResult<Void>> update(
             @CurrentUser CurrentUserInfo currentUser,
             @RequestBody @Valid SellerUpsertRequest request
     ) {
         sellerService.updateSeller(Long.parseLong(currentUser.userId()), request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(CatalogResult.messageOnly("판매자 정보가 수정되었습니다."));
     }
 
     //등록 해제
@@ -113,11 +115,11 @@ public class SellerApiController {
             )
     })
     @DeleteMapping("/me")
-    public ResponseEntity<Void> unregister(
+    public ResponseEntity<CatalogResult<Void>> unregister(
             @CurrentUser CurrentUserInfo currentUser
     ) {
         sellerService.unregisterSeller(Long.parseLong(currentUser.userId()));
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(CatalogResult.messageOnly("판매자 등록이 해제되었습니다."));
     }
 
 }
