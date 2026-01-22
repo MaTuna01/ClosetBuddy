@@ -25,7 +25,7 @@ dependencies {
     //implementation 'org.springframework.boot:spring-boot-starter'
     //spring security
 
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+    //implementation 'org.springframework.boot:spring-boot-starter-security'
     //spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
     //spring jpa

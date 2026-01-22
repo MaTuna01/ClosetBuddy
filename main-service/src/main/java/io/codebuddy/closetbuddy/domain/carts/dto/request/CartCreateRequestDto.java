@@ -9,5 +9,4 @@ public record CartCreateRequestDto(
         @Min(1)
         Integer cartCount
 ){
-
 }
