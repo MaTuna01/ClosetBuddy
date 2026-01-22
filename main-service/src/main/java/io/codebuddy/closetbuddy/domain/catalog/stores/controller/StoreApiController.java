@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.stores.controller;
 
 
+import io.codebuddy.closetbuddy.domain.catalog.web.dto.CatalogResult;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.dto.StoreResponse;
@@ -46,12 +47,13 @@ public class StoreApiController {
     })
     @PostMapping("/stores")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Long> create(
+    public ResponseEntity<CatalogResult<Void>> create(
             @CurrentUser CurrentUserInfo currentUser,
             @RequestBody @Valid UpsertStoreRequest request
-            ) {
-        Long storeId = storeService.createStore(Long.parseLong(currentUser.userId()), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(storeId);
+    ) {
+        storeService.createStore(Long.parseLong(currentUser.userId()), request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CatalogResult.messageOnly("상점 등록이 완료되었습니다."));
     }
 
     //내 가게 조회(단건)
@@ -123,7 +125,7 @@ public class StoreApiController {
             )
     })
     @PutMapping("stores/{store_id}")
-    public ResponseEntity<StoreResponse> updateStore(
+    public ResponseEntity<CatalogResult<Void>> updateStore(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long store_id,
             @RequestBody @Valid UpdateStoreRequest request
@@ -134,7 +136,7 @@ public class StoreApiController {
         }
 
         storeService.updateStore(Long.parseLong(currentUser.userId()), store_id, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(CatalogResult.messageOnly("가게 정보가 수정되었습니다."));
     }
 
     //내 가게 삭제(폐점)
@@ -154,7 +156,7 @@ public class StoreApiController {
     })
     @DeleteMapping("stores/{store_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteStore(
+    public ResponseEntity<CatalogResult<Void>> deleteStore(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long store_id
     ) {
@@ -162,6 +164,6 @@ public class StoreApiController {
             throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
         }
         storeService.deleteStore(Long.parseLong(currentUser.userId()), store_id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(CatalogResult.messageOnly("가게가 삭제(폐점)되었습니다."));
     }
 }
