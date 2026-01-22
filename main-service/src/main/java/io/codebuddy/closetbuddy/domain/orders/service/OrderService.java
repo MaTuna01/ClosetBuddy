@@ -1,9 +1,7 @@
 package io.codebuddy.closetbuddy.domain.orders.service;
 
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderDetailResponseDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderItemDto;
-import io.codebuddy.closetbuddy.domain.orders.dto.response.OrderResponseDto;
+import io.codebuddy.closetbuddy.domain.carts.service.CartService;
+import io.codebuddy.closetbuddy.domain.orders.dto.response.*;
 import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
@@ -25,6 +23,7 @@ public class OrderService {
 
     private final ProductJpaRepository productJpaRepository;
     private final OrderRepository orderRepository;
+    private final CartService cartService;
 
     /**
      * 주문을 생성합니다.
@@ -35,7 +34,7 @@ public class OrderService {
     @Transactional
     public Long createOrder(Long memberId, OrderCreateRequestDto requestDto) {
 
-        if(memberId == null) {
+        if (memberId == null) {
             throw new IllegalArgumentException("회원이 없습니다.");
         }
 
@@ -77,7 +76,7 @@ public class OrderService {
         /**
          * 만약 회원의 주문 내역이 없다면 예외를 반환합니다.
          */
-        if(order.isEmpty()) {
+        if (order.isEmpty()) {
             throw new IllegalArgumentException("주문 내역이 없습니다.");
         }
 
@@ -99,6 +98,7 @@ public class OrderService {
 
     /**
      * 주문 하나의 상세 내용을 조회합니다.
+     *
      * @param orderId
      * @return
      */
@@ -137,6 +137,7 @@ public class OrderService {
 
     /**
      * 주문을 취소합니다.
+     *
      * @param orderId 주문을 삭제하지만 실질적으로 상태값만 바뀜
      *                -> 정산할때 주문 내역을 취소 포함해서 보여줘야하기 때문에
      */
@@ -145,18 +146,45 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문한 내역이 아직 없습니다."));
 
-
-//        if(!order.getMemberId().equals(memberId)) {
-//            throw new AccessDeniedException("주문자만 취소가 가능합니다.");
-//        }
-
-        /**
-         * AccessDeniedException을 통해 회원이 아닌 경우
-         * 예외처리를 진행합니다.
-         */
-//        if(order.getOrderStatus()==OrderStatus.CANCELED) {
-//            throw new AccessDeniedException("이미 취소된 주문입니다.");
-//        }
         order.changeStatus(OrderStatus.CANCELED);
     }
+
+    /**
+     * 장바구니의 물품을 주문할 수 있도록 합니다.
+     * @param memberId
+     * @return
+     */
+    @Transactional
+    public Long createOrderFromCart(Long memberId) {
+
+        List<CartGetResponseDto> cartList = cartService.getCartList(memberId);
+
+        if (cartList.isEmpty()) {
+            throw new IllegalArgumentException("장바구니가 비었습니다.");
+        }
+
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (CartGetResponseDto cartDto : cartList) {
+            Product product = productJpaRepository.findById(cartDto.productId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+            OrderItem orderItem = OrderItem.createOrderItem(
+                    product,
+                    product.getProductPrice(),
+                    cartDto.cartCount()
+            );
+            orderItems.add(orderItem);
+        }
+
+        Order order = Order.createOrder(memberId, orderItems);
+        orderRepository.save(order);
+
+        for (CartGetResponseDto cartDto : cartList) {
+            cartService.deleteCartItem(memberId, cartDto.cartItemId());
+        }
+
+        return order.getOrderId();
+    }
+
 }
