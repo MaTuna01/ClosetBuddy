@@ -59,7 +59,7 @@ public class MemberControllerTest {
         MemberUpdateRequest request = new MemberUpdateRequest("손재현", "sonjae@naver", "010-1234-5678", "Seoul");
 
         mockMvc.perform(patch("/api/v1/members/me")
-                        .with(csrf()) // SecurityConfig에서 csrf.disable() 했어도 테스트 가독성과 안전을 위해 권장
+                        .with(csrf()) // csrf를 테스트 가독성과 안전을 위해 추가
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());

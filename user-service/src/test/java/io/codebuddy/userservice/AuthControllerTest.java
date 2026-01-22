@@ -7,7 +7,6 @@ import io.codebuddy.userservice.domain.common.model.entity.Member;
 import io.codebuddy.userservice.domain.common.model.entity.RefreshToken;
 import io.codebuddy.userservice.domain.common.repository.MemberRepository;
 import io.codebuddy.userservice.domain.common.repository.RefreshTokenRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        // (선택) 과거 실행에서 남아있는 testmember가 있을 수 있으면 정리
+        // 과거 실행에서 남아있는 testmember가 있을 수 있으면 정리
         memberRepository.findByMemberId("testmember").ifPresent(m -> {
             refreshTokenRepository.deleteAllByMember_Id(m.getId());
             memberRepository.delete(m);
@@ -55,10 +54,10 @@ class AuthControllerTest {
                 .email("test@naver.com")
                 .address("Seoul")
                 .phone("010-1111-2222")
-                .role(Role.MEMBER) // 프로젝트 enum 값에 맞게 수정
+                .role(Role.MEMBER)
                 .build();
 
-        Member savedMember = memberRepository.saveAndFlush(member);
+        Member savedMember = memberRepository.saveAndFlush(member); // DB에 즉시 반영
         this.testUserId = savedMember.getId();
 
         // logout 로직이 찾을 refresh token을 미리 생성(삭제하지 않을 정책이어도 테스트용으로 1개는 필요)
