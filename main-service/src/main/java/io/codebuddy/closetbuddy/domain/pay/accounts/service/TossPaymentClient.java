@@ -103,7 +103,7 @@ public class TossPaymentClient implements PaymentClient {
                     .encodeToString((tossPaymentSecrets + ":").getBytes(StandardCharsets.UTF_8));
 
             // 요청 Body 생성 (Record -> JSON)
-            String requestBody = om.writeValueAsString(new TossCancelRequest(cancelReason));
+            String requestBody = om.writeValueAsString(new TossCancelRequest(reason));
 
             // HttpClient 준비
             HttpClient client = HttpClient.newHttpClient();
