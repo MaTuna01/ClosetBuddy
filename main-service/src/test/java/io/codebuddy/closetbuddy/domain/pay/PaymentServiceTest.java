@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy;
+package io.codebuddy.closetbuddy.domain.pay;
 
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;

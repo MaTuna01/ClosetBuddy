@@ -57,6 +57,9 @@ public class SettlementJobConfig {
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                .faultTolerant()
+                .skip(Exception.class) //  배치 중단 방지
+                .skipLimit(10)
                 .build();
     }
 

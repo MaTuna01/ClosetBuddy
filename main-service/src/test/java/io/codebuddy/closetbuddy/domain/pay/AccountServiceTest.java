@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy;
+package io.codebuddy.closetbuddy.domain.pay;
 
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.AccountCommand;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.PaymentSuccessDto;
@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
