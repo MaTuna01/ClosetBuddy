@@ -1,7 +1,7 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
 import io.codebuddy.closetbuddy.domain.carts.dto.request.CartCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.carts.dto.response.CartGetResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.entity.Cart;
 import io.codebuddy.closetbuddy.domain.carts.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;

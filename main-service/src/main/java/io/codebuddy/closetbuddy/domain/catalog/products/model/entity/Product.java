@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
