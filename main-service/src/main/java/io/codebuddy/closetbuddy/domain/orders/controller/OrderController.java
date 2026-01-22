@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -158,5 +159,24 @@ public class OrderController {
     ){
         orderService.cancelOrder(Long.parseLong(currentUser.userId()), orderId);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 장바구니에 담은 상품들을 주문 할 수 있습니다.
+     * @param currentUser
+     * @param orderId
+     * @return
+     */
+
+    @PostMapping("/cart/{orderId}")
+    public ResponseEntity<Long> createOrderFromCart(
+            @CurrentUser CurrentUserInfo currentUser,
+            @PathVariable Long orderId
+    ){
+        Long memberId = Long.parseLong(currentUser.userId());
+
+        orderService.createOrderFromCart(memberId);
+
+        return ResponseEntity.ok(orderId);
     }
 }

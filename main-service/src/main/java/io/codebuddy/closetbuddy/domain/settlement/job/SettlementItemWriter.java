@@ -1,10 +1,10 @@
 package io.codebuddy.closetbuddy.domain.settlement.job;
 
-import io.codebuddy.closetbuddy.domain.accounts.model.entity.Account;
-import io.codebuddy.closetbuddy.domain.accounts.model.entity.AccountHistory;
-import io.codebuddy.closetbuddy.domain.accounts.model.vo.TransactionType;
-import io.codebuddy.closetbuddy.domain.accounts.repository.AccountHistoryRepository;
-import io.codebuddy.closetbuddy.domain.accounts.repository.AccountRepository;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
+import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
+import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
