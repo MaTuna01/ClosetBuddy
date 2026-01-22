@@ -23,9 +23,6 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
-    //spring security
-
-    //implementation 'org.springframework.boot:spring-boot-starter-security'
     //spring web
     implementation 'org.springframework.boot:spring-boot-starter-web'
     //spring jpa
@@ -44,11 +41,7 @@ dependencies {
     //swagger-ui
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
-    // redis
-    //implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
     //mysql 드라이버
-
     runtimeOnly 'com.mysql:mysql-connector-j'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -69,9 +62,6 @@ dependencies {
     //spring-batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     testImplementation 'org.springframework.batch:spring-batch-test'
-
-    //batch 테스트 용 h2 db
-    runtimeOnly 'com.h2database:h2'
 
 }
 dependencyManagement {
