@@ -63,6 +63,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     testImplementation 'org.springframework.batch:spring-batch-test'
 
+    //h2
+    testImplementation 'com.h2database:h2'
+
 }
 dependencyManagement {
     imports {
