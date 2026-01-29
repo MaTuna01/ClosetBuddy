@@ -84,80 +84,56 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional
     public AccountHistoryResponse charge(AccountCommand command) {
-        log.info("========== [Charge Start] 요청 시작 ==========");
-        log.info("Request Info - MemberId: {}, OrderId: {}, PaymentKey: {}, Amount: {}",
-                command.getMemberId(), command.getOrderId(), command.getPaymentKey(), command.getAmount());
 
-        // 1. PG 결제 승인 요청
-        PaymentSuccessDto paymentSuccessDto;
-        try {
-            log.info("[PaymentClient] 토스 결제 승인 요청 시작...");
-            paymentSuccessDto = paymentClient.confirm(command);
-            log.info("[PaymentClient] 토스 승인 성공. 응답 데이터: {}", paymentSuccessDto);
-        } catch (Exception e) {
-            log.error("[PaymentClient] 토스 승인 요청 중 에러 발생: {}", e.getMessage(), e);
-            throw e; // 에러를 상위로 던져서 트랜잭션 롤백 유도
-        }
+        // PG 결제 승인 요청
+        PaymentSuccessDto paymentSuccessDto = paymentClient.confirm(command);
 
-        // 2. 금액 검증
-        if (!command.getAmount().equals(paymentSuccessDto.getTotalAmount())) {
-            log.error("[Validation Error] 금액 불일치 - 요청 금액: {}, 승인된 금액: {}",
-                    command.getAmount(), paymentSuccessDto.getTotalAmount());
+        // 금액 검증
+        // 요청한 금액과 실제 결제된 금액이 다르면 예외 발생
+        if (!command.getAmount().equals(paymentSuccessDto.getTotalAmount()) ) {
             throw new PayException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
-        log.info("[Validation] 금액 검증 완료");
 
-        // 3. 계좌 조회 및 생성
-        log.info("[Account] 계좌 조회 시작 (MemberId: {})", command.getMemberId());
+        // 회원 검증 (MemberRepository 제거됨) -> 회원검증은 GateWay에서 진행하므로 별다른 검증 진행 X
+
+        // 계좌 조회
         Account account = accountRepository.findByMemberId(command.getMemberId())
                 .orElseGet(() -> {
-                    log.info("[Account] 계좌가 없어 신규 생성합니다.");
                     Account newAccount = Account.createAccount(command.getMemberId());
                     return accountRepository.save(newAccount);
                 });
 
-        long balanceBefore = account.getBalance();
 
-        // 4. 충전
+        // 충전
         account.charge(command.getAmount());
-        log.info("[Account] 잔액 충전 완료. (이전: {} -> 이후: {})", balanceBefore, account.getBalance());
 
-        // 5. 날짜 파싱
-        LocalDateTime approvedAt;
-        try {
-            log.info("[Date Parsing] 날짜 파싱 시작. ApprovedAt String: {}", paymentSuccessDto.getApprovedAt());
-            approvedAt = OffsetDateTime.parse(paymentSuccessDto.getApprovedAt())
-                    .toLocalDateTime();
-        } catch (Exception e) {
-            log.error("[Date Parsing Error] 날짜 파싱 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("날짜 파싱 중 오류 발생", e);
-        }
+        // 날짜 파싱 (String -> LocalDateTime)
+        // 토스는 ISO 8601 (2022-01-01T00:00:00+09:00) 형식
+        LocalDateTime approvedAt = OffsetDateTime.parse(paymentSuccessDto.getApprovedAt())
+                .toLocalDateTime();
 
-        // 6. pg 결제 내역 저장 (DepositCharge)
-        log.info("[DB Save] DepositCharge 저장 시작");
+        //pg 결제 내역 저장
         DepositCharge charge = DepositCharge.builder()
                 .memberId(command.getMemberId())
                 .pgPaymentKey(paymentSuccessDto.getPaymentKey())
                 .pgOrderId(command.getOrderId())
                 .chargeAmount(command.getAmount())
-                .approvedAt(approvedAt)
                 .status(ChargeStatus.DONE)
                 .build();
         depositChargeRepository.save(charge);
 
-        // 7. 예치금 내역 저장 (AccountHistory)
-        log.info("[DB Save] AccountHistory 저장 시작");
+        // 예치금 내역 저장
         AccountHistory history = AccountHistory.builder()
                 .account(account)
                 .type(TransactionType.CHARGE)
                 .amount(command.getAmount())
                 .balanceSnapshot(account.getBalance())
-                .refId(charge.getChargeId())
+                .refId(charge.getChargeId()) // DepositCharge의 ID를 저장
                 .createdAt(LocalDateTime.now())
                 .build();
+
         accountHistoryRepository.save(history);
 
-        log.info("========== [Charge Finish] 충전 프로세스 정상 종료 (History ID: {}) ==========", history.getAccountHistoryId());
         return AccountMapper.toHistoryResponse(history);
     }
 
