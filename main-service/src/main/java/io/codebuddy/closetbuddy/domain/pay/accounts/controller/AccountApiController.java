@@ -1,7 +1,6 @@
 package io.codebuddy.closetbuddy.domain.pay.accounts.controller;
 
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.AccountCommand;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountHistoryResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.PaymentConfirmRequest;
@@ -20,7 +19,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -141,7 +139,7 @@ public class AccountApiController {
             @RequestBody @Valid TossCancelRequest request
     ) {
 
-        AccountHistoryResponse response=accountService.deleteHistory(
+        AccountHistoryResponse response=accountService.refund(
                 Long.parseLong(currentUser.userId()),
                 accountHistoryId,
                 request.cancelReason()

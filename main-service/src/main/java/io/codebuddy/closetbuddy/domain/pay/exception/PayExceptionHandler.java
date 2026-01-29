@@ -37,8 +37,14 @@ public class PayExceptionHandler {
         ErrorCode errorCode = ex.getErrorCode();
 
         response.put("status", errorCode.getStatus().value());
-        response.put("error", errorCode.name());
-        response.put("message", errorCode.getMessage());
+
+        if (ex.getProviderErrorCode() != null && !ex.getProviderErrorCode().isEmpty()) {
+            response.put("error", ex.getProviderErrorCode());
+        } else {
+            response.put("error", errorCode.name());
+        }
+
+        response.put("message", ex.getMessage());
 
         return ResponseEntity
                 .status(errorCode.getStatus())

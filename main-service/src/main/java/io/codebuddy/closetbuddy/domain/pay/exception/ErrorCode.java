@@ -23,9 +23,8 @@ public enum ErrorCode {
     INSUFFICIENT_BALANCE_FOR_REFUND(HttpStatus.BAD_REQUEST,"잔액이 부족하여 취소할 수 없습니다."),
 
     // TOSS
-    PAYMENT_APPROVAL_FAILED(HttpStatus.BAD_REQUEST, "결제 승인이 거절되었습니다."), // 카드 한도 초과, 잔액 부족 등 - 4xx
-    PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "결제 취소에 실패하였습니다."),
-    PAYMENT_SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 시스템 연동 중 오류가 발생했습니다."), // 토스 서버 오류 등 - 5xx
+    TOSS_PAYMENT_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "결제 요청이 잘못되었습니다."), // 4xx 에러
+    TOSS_PAYMENT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "토스 결제 시스템에 오류가 발생했습니다."),
 
     // Payment
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없거나 접근 권한이 없습니다."),

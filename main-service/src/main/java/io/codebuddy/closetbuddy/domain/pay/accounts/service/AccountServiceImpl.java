@@ -204,7 +204,7 @@ public class AccountServiceImpl implements AccountService{
      */
     @Override
     @Transactional
-    public AccountHistoryResponse deleteHistory(Long memberId, Long historyId,String reason) {
+    public AccountHistoryResponse refund(Long memberId, Long historyId, String reason) {
 
         // History랑 연결된 계좌(Account)의 주인(MemberId)이 요청한 사람(memberId)과 같은지 + 요청한 내역 번호가 맞는지 검증
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)

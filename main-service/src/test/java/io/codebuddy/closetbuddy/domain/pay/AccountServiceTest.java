@@ -141,7 +141,7 @@ public class AccountServiceTest {
         given(depositChargeRepository.findById(200L)).willReturn(Optional.of(depositCharge));
 
         // when
-        accountService.deleteHistory(memberId, historyId, "단순 변심");
+        accountService.refund(memberId, historyId, "단순 변심");
 
         // then
         assertThat(account.getBalance()).isEqualTo(5000L); // 10000 - 5000 = 5000
@@ -177,7 +177,7 @@ public class AccountServiceTest {
         given(depositChargeRepository.findById(any())).willReturn(Optional.of(depositCharge));
 
         // when & then
-        assertThatThrownBy(() -> accountService.deleteHistory(memberId, 1L, "reason"))
+        assertThatThrownBy(() -> accountService.refund(memberId, 1L, "reason"))
                 .isInstanceOf(PayException.class)
                 .hasMessage(ErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND.getMessage());
     }

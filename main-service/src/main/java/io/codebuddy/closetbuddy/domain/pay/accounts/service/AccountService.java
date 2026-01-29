@@ -17,6 +17,6 @@ public interface AccountService {
 
     AccountHistoryResponse getHistory(Long memberId, Long historyId);
 
-    AccountHistoryResponse deleteHistory(Long memberId, Long historyId, String reason);
+    AccountHistoryResponse refund(Long memberId, Long historyId, String reason);
 
 }
