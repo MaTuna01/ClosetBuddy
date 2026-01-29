@@ -18,7 +18,7 @@ public enum PayErrorCode {
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌 정보를 찾을 수 없습니다."),
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST,"요청 금액과 실제 결제 금액이 일치하지 않습니다."),
     CANNOT_CANCEL_TYPE(HttpStatus.BAD_REQUEST,"충전 내역만 취소 가능합니다."),
-    DEPOSIT_DATA_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "결제 상세 정보를 찾을 수 없습니다."),
+    DEPOSIT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "PG 결제 내역을 찾을 수 없습니다."),
     ALREADY_CANCELED_TRANSACTION(HttpStatus.BAD_REQUEST,"이미 취소된 내역입니다."),
     INSUFFICIENT_BALANCE_FOR_REFUND(HttpStatus.BAD_REQUEST,"잔액이 부족하여 취소할 수 없습니다."),
 
