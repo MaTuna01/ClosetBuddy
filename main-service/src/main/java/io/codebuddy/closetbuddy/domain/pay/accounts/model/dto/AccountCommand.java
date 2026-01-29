@@ -1,9 +1,6 @@
 package io.codebuddy.closetbuddy.domain.pay.accounts.model.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,10 +8,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AccountCommand {
 
-    @NotBlank
+    @NotNull
     private Long memberId;
 
-    @NotBlank(message = "가격은 필수 입력 값입니다.")
+    @NotNull(message = "가격은 필수 입력 값입니다.")
     @Min(1)
     private Long amount;
     // pg사 api 요구사항
