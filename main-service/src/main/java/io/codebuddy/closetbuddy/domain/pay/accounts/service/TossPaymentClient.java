@@ -6,7 +6,7 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.PaymentSuccessDto;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.TossPaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TossCancelRequest;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TossPaymentConfirm;
-import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
 import io.codebuddy.closetbuddy.domain.pay.exception.TossErrorResponse;
 import lombok.RequiredArgsConstructor;
@@ -78,15 +78,15 @@ public class TossPaymentClient implements PaymentClient {
 
                 TossErrorResponse errorResponse = om.readValue(response.body(), TossErrorResponse.class);
 
-                ErrorCode errorCode;
+                PayErrorCode payErrorCode;
                 if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    errorCode = ErrorCode.TOSS_PAYMENT_CLIENT_ERROR;
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_CLIENT_ERROR;
                 } else {
-                    errorCode = ErrorCode.TOSS_PAYMENT_SERVER_ERROR;
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_SERVER_ERROR;
                 }
 
                 throw new PayException(
-                        errorCode,
+                        payErrorCode,
                         errorResponse.getCode(),
                         errorResponse.getMessage()
                 );
@@ -130,15 +130,15 @@ public class TossPaymentClient implements PaymentClient {
 
                 log.error("토스 환불 실패. 상태코드: {}, 내용: {}", response.statusCode(), response.body());
 
-                ErrorCode errorCode;
+                PayErrorCode payErrorCode;
                 if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    errorCode = ErrorCode.TOSS_PAYMENT_CLIENT_ERROR;
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_CLIENT_ERROR;
                 } else {
-                    errorCode = ErrorCode.TOSS_PAYMENT_SERVER_ERROR;
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_SERVER_ERROR;
                 }
 
                 throw new PayException(
-                        errorCode,
+                        payErrorCode,
                         errorResponse.getCode(),
                         errorResponse.getMessage()
                 );

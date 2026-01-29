@@ -1,36 +1,28 @@
 package io.codebuddy.closetbuddy.domain.pay.accounts.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.AccountCommand;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.PaymentSuccessDto;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.TossPaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.DepositCharge;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.mapper.AccountMapper;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountHistoryResponse;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountResponse;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.ChargeStatus;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.DepositChargeRepository;
-import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
-import io.codebuddy.closetbuddy.domain.pay.exception.TossErrorResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -91,7 +83,7 @@ public class AccountServiceImpl implements AccountService{
         // 금액 검증
         // 요청한 금액과 실제 결제된 금액이 다르면 예외 발생
         if (!command.getAmount().equals(paymentSuccessDto.getTotalAmount()) ) {
-            throw new PayException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
+            throw new PayException(PayErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
         // 회원 검증 (MemberRepository 제거됨) -> 회원검증은 GateWay에서 진행하므로 별다른 검증 진행 X
@@ -180,13 +172,13 @@ public class AccountServiceImpl implements AccountService{
         // 내역 단건 조회
         // 계좌 객체(account)를 조건으로 넣어서, 남의 내역을 조회하는 것을 차단
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
-                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
+                .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
 
         return AccountMapper.toHistoryResponse(history);
     }
 
     /**
-     * 특정 예치 내역 삭제
+     * 특정 예치 내역 취소 (환불)
      * @param memberId
      * @param historyId
      * @param reason(환불 사유) - 토스 필수 request Body 파라미터
@@ -208,11 +200,11 @@ public class AccountServiceImpl implements AccountService{
 
         // History랑 연결된 계좌(Account)의 주인(MemberId)이 요청한 사람(memberId)과 같은지 + 요청한 내역 번호가 맞는지 검증
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
-                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
+                .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
 
         // 충전 건인지 확인
         if (history.getType() != TransactionType.CHARGE) {
-            throw new PayException(ErrorCode.CANNOT_CANCEL_TYPE);
+            throw new PayException(PayErrorCode.CANNOT_CANCEL_TYPE);
         }
 
         //계좌 객체
@@ -220,16 +212,16 @@ public class AccountServiceImpl implements AccountService{
 
         // pg 결제 내역 조회
         DepositCharge depositCharge = depositChargeRepository.findById(history.getRefId())
-                .orElseThrow(() -> new PayException(ErrorCode.DEPOSIT_DATA_NOT_FOUND));
+                .orElseThrow(() -> new PayException(PayErrorCode.DEPOSIT_DATA_NOT_FOUND));
 
         // 이미 취소된 내역인지 검증
         if (depositCharge.getStatus() == ChargeStatus.CANCEL) {
-            throw new PayException(ErrorCode.ALREADY_CANCELED_TRANSACTION);
+            throw new PayException(PayErrorCode.ALREADY_CANCELED_TRANSACTION);
         }
 
         // 잔액 검증
         if (account.getBalance() < history.getAmount()) {
-            throw new PayException(ErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND);
+            throw new PayException(PayErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND);
         }
 
         // 계좌 잔액 차감

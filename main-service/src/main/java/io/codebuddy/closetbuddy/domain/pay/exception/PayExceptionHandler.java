@@ -34,20 +34,20 @@ public class PayExceptionHandler {
     @ExceptionHandler(PayException.class)
     public ResponseEntity<Map<String, Object>> handleBusinessException(PayException ex) {
         Map<String, Object> response = new HashMap<>();
-        ErrorCode errorCode = ex.getErrorCode();
+        PayErrorCode payErrorCode = ex.getPayErrorCode();
 
-        response.put("status", errorCode.getStatus().value());
+        response.put("status", payErrorCode.getStatus().value());
 
         if (ex.getProviderErrorCode() != null && !ex.getProviderErrorCode().isEmpty()) {
             response.put("error", ex.getProviderErrorCode());
         } else {
-            response.put("error", errorCode.name());
+            response.put("error", payErrorCode.name());
         }
 
         response.put("message", ex.getMessage());
 
         return ResponseEntity
-                .status(errorCode.getStatus())
+                .status(payErrorCode.getStatus())
                 .body(response);
     }
 

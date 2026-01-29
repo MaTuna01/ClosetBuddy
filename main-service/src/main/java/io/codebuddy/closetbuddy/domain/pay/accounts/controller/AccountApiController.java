@@ -1,12 +1,12 @@
 package io.codebuddy.closetbuddy.domain.pay.accounts.controller;
 
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.AccountCommand;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountHistoryResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.PaymentConfirmRequest;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TossCancelRequest;
-import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
-import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.pay.accounts.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -55,7 +55,8 @@ public class AccountApiController {
             @ApiResponse(responseCode = "201", description = "충전 완료",
                     content = @Content(schema = @Schema(implementation = AccountHistoryResponse.class))),
             @ApiResponse(responseCode = "400", description = "결제 정보 불일치 또는 유효하지 않은 요청", content = @Content),
-            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content)
+            @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Toss 서버 오류")
     })
     @PostMapping("/charge")
     public ResponseEntity<AccountHistoryResponse> chargeAccount(
@@ -103,7 +104,7 @@ public class AccountApiController {
             @ApiResponse(responseCode = "200", description = "조회 성공",
                     content = @Content(schema = @Schema(implementation = AccountHistoryResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 내역 ID", content = @Content)
+            @ApiResponse(responseCode = "404", description = "내역이 존재하지 않거나 접근 권한이 없음", content = @Content)
     })
     @GetMapping("/history/{accountHistoryId}")
     public ResponseEntity<AccountHistoryResponse> getAccountHistoryDetail(
@@ -128,9 +129,10 @@ public class AccountApiController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "환불 처리 완료",
                     content = @Content(schema = @Schema(implementation = AccountHistoryResponse.class))),
-            @ApiResponse(responseCode = "400", description = "환불 가능 금액 부족 또는 기간 만료", content = @Content),
+            @ApiResponse(responseCode = "400", description = "환불 가능 금액 부족, 이미 취소된 내역, 잘못된 결제 요청", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증 실패", content = @Content),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 내역", content = @Content)
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 내역", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Toss 서버 오류", content = @Content)
     })
     @PostMapping("/history/{accountHistoryId}/cancel")
     public ResponseEntity<AccountHistoryResponse> cancelHistory(

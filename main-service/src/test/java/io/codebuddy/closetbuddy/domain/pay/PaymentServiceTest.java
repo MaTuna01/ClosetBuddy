@@ -4,7 +4,7 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
-import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.entity.Payment;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentRequest;
@@ -82,7 +82,7 @@ class PaymentServiceTest {
         // when & then
         assertThatThrownBy(()->paymentService.payOrder(memberId, request))
                 .isInstanceOf(PayException.class)
-                .hasMessage(ErrorCode.DUPLICATE_ORDER.getMessage());
+                .hasMessage(PayErrorCode.DUPLICATE_ORDER.getMessage());
 
 
     }
@@ -102,7 +102,7 @@ class PaymentServiceTest {
         // when & then
         assertThatThrownBy(()->paymentService.payOrder(memberId,request))
                 .isInstanceOf(PayException.class)
-                .hasMessage(ErrorCode.NOT_ENOUGH_BALANCE.getMessage());
+                .hasMessage(PayErrorCode.NOT_ENOUGH_BALANCE.getMessage());
 
 
     }
@@ -157,7 +157,7 @@ class PaymentServiceTest {
         // when & then
         assertThatThrownBy(() -> paymentService.payCancel(requesterId, paymentId))
                 .isInstanceOf(PayException.class)
-                .hasMessage(ErrorCode.PAYMENT_NOT_FOUND.getMessage());
+                .hasMessage(PayErrorCode.PAYMENT_NOT_FOUND.getMessage());
 
     }
 
@@ -178,7 +178,7 @@ class PaymentServiceTest {
         // when & then
         assertThatThrownBy(() -> paymentService.payCancel(memberId, paymentId))
                 .isInstanceOf(PayException.class)
-                .hasMessage(ErrorCode.ALREADY_CANCELED_TRANSACTION.getMessage());
+                .hasMessage(PayErrorCode.ALREADY_CANCELED_TRANSACTION.getMessage());
 
     }
 

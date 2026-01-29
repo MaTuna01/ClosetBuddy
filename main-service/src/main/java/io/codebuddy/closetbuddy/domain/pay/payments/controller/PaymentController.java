@@ -66,7 +66,7 @@ public class PaymentController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "대상을 찾을 수 없음"
+                    description = "결제 정보를 찾을 수 없음"
             )
     })
     @PostMapping("/{paymentId}/cancel")
