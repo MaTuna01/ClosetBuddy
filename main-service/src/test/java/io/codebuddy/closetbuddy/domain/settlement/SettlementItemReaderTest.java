@@ -7,8 +7,9 @@ import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
-import io.codebuddy.closetbuddy.domain.orders.entity.Order;
-import io.codebuddy.closetbuddy.domain.orders.entity.OrderItem;
+
+import io.codebuddy.closetbuddy.domain.orders.model.entity.Order;
+import io.codebuddy.closetbuddy.domain.orders.model.entity.OrderItem;
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;

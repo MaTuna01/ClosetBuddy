@@ -41,7 +41,7 @@ public class Payment {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "approved_at", updatable = false)
+    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
     @LastModifiedDate
