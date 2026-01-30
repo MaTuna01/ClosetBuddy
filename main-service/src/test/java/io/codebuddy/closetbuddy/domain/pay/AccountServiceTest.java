@@ -12,7 +12,7 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.DepositChargeRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.service.AccountServiceImpl;
 import io.codebuddy.closetbuddy.domain.pay.accounts.service.PaymentClient;
-import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -104,7 +104,7 @@ public class AccountServiceTest {
         // when & then
         assertThatThrownBy(()->accountService.charge(command))
                 .isInstanceOf(PayException.class)
-                .hasMessage(ErrorCode.PAYMENT_AMOUNT_MISMATCH.getMessage());
+                .hasMessage(PayErrorCode.PAYMENT_AMOUNT_MISMATCH.getMessage());
 
     }
 
@@ -141,7 +141,7 @@ public class AccountServiceTest {
         given(depositChargeRepository.findById(200L)).willReturn(Optional.of(depositCharge));
 
         // when
-        accountService.deleteHistory(memberId, historyId, "단순 변심");
+        accountService.refund(memberId, historyId, "단순 변심");
 
         // then
         assertThat(account.getBalance()).isEqualTo(5000L); // 10000 - 5000 = 5000
@@ -177,9 +177,9 @@ public class AccountServiceTest {
         given(depositChargeRepository.findById(any())).willReturn(Optional.of(depositCharge));
 
         // when & then
-        assertThatThrownBy(() -> accountService.deleteHistory(memberId, 1L, "reason"))
+        assertThatThrownBy(() -> accountService.refund(memberId, 1L, "reason"))
                 .isInstanceOf(PayException.class)
-                .hasMessage(ErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND.getMessage());
+                .hasMessage(PayErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND.getMessage());
     }
 
 }

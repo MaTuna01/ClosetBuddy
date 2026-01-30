@@ -6,7 +6,7 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.PaymentSuccessDto;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.TossPaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TossCancelRequest;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TossPaymentConfirm;
-import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
 import io.codebuddy.closetbuddy.domain.pay.exception.TossErrorResponse;
 import lombok.RequiredArgsConstructor;
@@ -78,13 +78,18 @@ public class TossPaymentClient implements PaymentClient {
 
                 TossErrorResponse errorResponse = om.readValue(response.body(), TossErrorResponse.class);
 
+                PayErrorCode payErrorCode;
                 if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    // 토스 서버로부터 4xx
-                    throw new PayException(ErrorCode.PAYMENT_APPROVAL_FAILED, errorResponse.getMessage());
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_CLIENT_ERROR;
                 } else {
-                    // 토스 서버로부터 5xx
-                    throw new PayException(ErrorCode.PAYMENT_SYSTEM_ERROR);
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_SERVER_ERROR;
                 }
+
+                throw new PayException(
+                        payErrorCode,
+                        errorResponse.getCode(),
+                        errorResponse.getMessage()
+                );
             }
 
         } catch (PayException e) {
@@ -125,13 +130,18 @@ public class TossPaymentClient implements PaymentClient {
 
                 log.error("토스 환불 실패. 상태코드: {}, 내용: {}", response.statusCode(), response.body());
 
+                PayErrorCode payErrorCode;
                 if (response.statusCode() >= 400 && response.statusCode() < 500) {
-                    // 토스 서버로부터 4xx
-                    throw new PayException(ErrorCode.PAYMENT_APPROVAL_FAILED, errorResponse.getMessage());
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_CLIENT_ERROR;
                 } else {
-                    // 토스 서버로부터 5xx
-                    throw new PayException(ErrorCode.PAYMENT_SYSTEM_ERROR);
+                    payErrorCode = PayErrorCode.TOSS_PAYMENT_SERVER_ERROR;
                 }
+
+                throw new PayException(
+                        payErrorCode,
+                        errorResponse.getCode(),
+                        errorResponse.getMessage()
+                );
             }
 
             log.info("토스 결제 취소 성공. paymentKey: {}", paymentKey);

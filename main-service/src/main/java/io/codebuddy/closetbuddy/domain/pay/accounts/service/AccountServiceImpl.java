@@ -1,36 +1,28 @@
 package io.codebuddy.closetbuddy.domain.pay.accounts.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.AccountCommand;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.PaymentSuccessDto;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.dto.TossPaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.DepositCharge;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.mapper.AccountMapper;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.*;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountHistoryResponse;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.AccountResponse;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.ChargeStatus;
+import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.DepositChargeRepository;
-import io.codebuddy.closetbuddy.domain.pay.exception.ErrorCode;
+import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
-import io.codebuddy.closetbuddy.domain.pay.exception.TossErrorResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,80 +76,56 @@ public class AccountServiceImpl implements AccountService{
     @Override
     @Transactional
     public AccountHistoryResponse charge(AccountCommand command) {
-        log.info("========== [Charge Start] 요청 시작 ==========");
-        log.info("Request Info - MemberId: {}, OrderId: {}, PaymentKey: {}, Amount: {}",
-                command.getMemberId(), command.getOrderId(), command.getPaymentKey(), command.getAmount());
 
-        // 1. PG 결제 승인 요청
-        PaymentSuccessDto paymentSuccessDto;
-        try {
-            log.info("[PaymentClient] 토스 결제 승인 요청 시작...");
-            paymentSuccessDto = paymentClient.confirm(command);
-            log.info("[PaymentClient] 토스 승인 성공. 응답 데이터: {}", paymentSuccessDto);
-        } catch (Exception e) {
-            log.error("[PaymentClient] 토스 승인 요청 중 에러 발생: {}", e.getMessage(), e);
-            throw e; // 에러를 상위로 던져서 트랜잭션 롤백 유도
+        // PG 결제 승인 요청
+        PaymentSuccessDto paymentSuccessDto = paymentClient.confirm(command);
+
+        // 금액 검증
+        // 요청한 금액과 실제 결제된 금액이 다르면 예외 발생
+        if (!command.getAmount().equals(paymentSuccessDto.getTotalAmount()) ) {
+            throw new PayException(PayErrorCode.PAYMENT_AMOUNT_MISMATCH);
         }
 
-        // 2. 금액 검증
-        if (!command.getAmount().equals(paymentSuccessDto.getTotalAmount())) {
-            log.error("[Validation Error] 금액 불일치 - 요청 금액: {}, 승인된 금액: {}",
-                    command.getAmount(), paymentSuccessDto.getTotalAmount());
-            throw new PayException(ErrorCode.PAYMENT_AMOUNT_MISMATCH);
-        }
-        log.info("[Validation] 금액 검증 완료");
+        // 회원 검증 (MemberRepository 제거됨) -> 회원검증은 GateWay에서 진행하므로 별다른 검증 진행 X
 
-        // 3. 계좌 조회 및 생성
-        log.info("[Account] 계좌 조회 시작 (MemberId: {})", command.getMemberId());
+        // 계좌 조회
         Account account = accountRepository.findByMemberId(command.getMemberId())
                 .orElseGet(() -> {
-                    log.info("[Account] 계좌가 없어 신규 생성합니다.");
                     Account newAccount = Account.createAccount(command.getMemberId());
                     return accountRepository.save(newAccount);
                 });
 
-        long balanceBefore = account.getBalance();
 
-        // 4. 충전
+        // 충전
         account.charge(command.getAmount());
-        log.info("[Account] 잔액 충전 완료. (이전: {} -> 이후: {})", balanceBefore, account.getBalance());
 
-        // 5. 날짜 파싱
-        LocalDateTime approvedAt;
-        try {
-            log.info("[Date Parsing] 날짜 파싱 시작. ApprovedAt String: {}", paymentSuccessDto.getApprovedAt());
-            approvedAt = OffsetDateTime.parse(paymentSuccessDto.getApprovedAt())
-                    .toLocalDateTime();
-        } catch (Exception e) {
-            log.error("[Date Parsing Error] 날짜 파싱 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("날짜 파싱 중 오류 발생", e);
-        }
+        // 날짜 파싱 (String -> LocalDateTime)
+        // 토스는 ISO 8601 (2022-01-01T00:00:00+09:00) 형식
+        LocalDateTime approvedAt = OffsetDateTime.parse(paymentSuccessDto.getApprovedAt())
+                .toLocalDateTime();
 
-        // 6. pg 결제 내역 저장 (DepositCharge)
-        log.info("[DB Save] DepositCharge 저장 시작");
+        //pg 결제 내역 저장
         DepositCharge charge = DepositCharge.builder()
                 .memberId(command.getMemberId())
                 .pgPaymentKey(paymentSuccessDto.getPaymentKey())
                 .pgOrderId(command.getOrderId())
                 .chargeAmount(command.getAmount())
-                .approvedAt(approvedAt)
                 .status(ChargeStatus.DONE)
                 .build();
         depositChargeRepository.save(charge);
 
-        // 7. 예치금 내역 저장 (AccountHistory)
-        log.info("[DB Save] AccountHistory 저장 시작");
+        // 예치금 내역 저장
         AccountHistory history = AccountHistory.builder()
                 .account(account)
                 .type(TransactionType.CHARGE)
                 .amount(command.getAmount())
                 .balanceSnapshot(account.getBalance())
-                .refId(charge.getChargeId())
+                .refId(charge.getChargeId()) // DepositCharge의 ID를 저장
                 .createdAt(LocalDateTime.now())
                 .build();
+
         accountHistoryRepository.save(history);
 
-        log.info("========== [Charge Finish] 충전 프로세스 정상 종료 (History ID: {}) ==========", history.getAccountHistoryId());
         return AccountMapper.toHistoryResponse(history);
     }
 
@@ -204,13 +172,13 @@ public class AccountServiceImpl implements AccountService{
         // 내역 단건 조회
         // 계좌 객체(account)를 조건으로 넣어서, 남의 내역을 조회하는 것을 차단
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
-                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
+                .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
 
         return AccountMapper.toHistoryResponse(history);
     }
 
     /**
-     * 특정 예치 내역 삭제
+     * 특정 예치 내역 취소 (환불)
      * @param memberId
      * @param historyId
      * @param reason(환불 사유) - 토스 필수 request Body 파라미터
@@ -228,15 +196,15 @@ public class AccountServiceImpl implements AccountService{
      */
     @Override
     @Transactional
-    public AccountHistoryResponse deleteHistory(Long memberId, Long historyId,String reason) {
+    public AccountHistoryResponse refund(Long memberId, Long historyId, String reason) {
 
         // History랑 연결된 계좌(Account)의 주인(MemberId)이 요청한 사람(memberId)과 같은지 + 요청한 내역 번호가 맞는지 검증
         AccountHistory history = accountHistoryRepository.findByAccount_MemberIdAndAccountHistoryId(memberId, historyId)
-                .orElseThrow(() -> new PayException(ErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
+                .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_HISTORY_NOT_FOUND));
 
         // 충전 건인지 확인
         if (history.getType() != TransactionType.CHARGE) {
-            throw new PayException(ErrorCode.CANNOT_CANCEL_TYPE);
+            throw new PayException(PayErrorCode.CANNOT_CANCEL_TYPE);
         }
 
         //계좌 객체
@@ -244,16 +212,16 @@ public class AccountServiceImpl implements AccountService{
 
         // pg 결제 내역 조회
         DepositCharge depositCharge = depositChargeRepository.findById(history.getRefId())
-                .orElseThrow(() -> new PayException(ErrorCode.DEPOSIT_DATA_NOT_FOUND));
+                .orElseThrow(() -> new PayException(PayErrorCode.DEPOSIT_DATA_NOT_FOUND));
 
         // 이미 취소된 내역인지 검증
         if (depositCharge.getStatus() == ChargeStatus.CANCEL) {
-            throw new PayException(ErrorCode.ALREADY_CANCELED_TRANSACTION);
+            throw new PayException(PayErrorCode.ALREADY_CANCELED_TRANSACTION);
         }
 
         // 잔액 검증
         if (account.getBalance() < history.getAmount()) {
-            throw new PayException(ErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND);
+            throw new PayException(PayErrorCode.INSUFFICIENT_BALANCE_FOR_REFUND);
         }
 
         // 계좌 잔액 차감

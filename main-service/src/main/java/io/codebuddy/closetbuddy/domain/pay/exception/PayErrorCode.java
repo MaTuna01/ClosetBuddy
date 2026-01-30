@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ErrorCode {
+public enum PayErrorCode {
 
     // 공통 에러
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
@@ -18,14 +18,13 @@ public enum ErrorCode {
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌 정보를 찾을 수 없습니다."),
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST,"요청 금액과 실제 결제 금액이 일치하지 않습니다."),
     CANNOT_CANCEL_TYPE(HttpStatus.BAD_REQUEST,"충전 내역만 취소 가능합니다."),
-    DEPOSIT_DATA_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "결제 상세 정보를 찾을 수 없습니다."),
+    DEPOSIT_DATA_NOT_FOUND(HttpStatus.NOT_FOUND, "PG 결제 내역을 찾을 수 없습니다."),
     ALREADY_CANCELED_TRANSACTION(HttpStatus.BAD_REQUEST,"이미 취소된 내역입니다."),
     INSUFFICIENT_BALANCE_FOR_REFUND(HttpStatus.BAD_REQUEST,"잔액이 부족하여 취소할 수 없습니다."),
 
     // TOSS
-    PAYMENT_APPROVAL_FAILED(HttpStatus.BAD_REQUEST, "결제 승인이 거절되었습니다."), // 카드 한도 초과, 잔액 부족 등 - 4xx
-    PAYMENT_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "결제 취소에 실패하였습니다."),
-    PAYMENT_SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "결제 시스템 연동 중 오류가 발생했습니다."), // 토스 서버 오류 등 - 5xx
+    TOSS_PAYMENT_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "결제 요청이 잘못되었습니다."), // 4xx 에러
+    TOSS_PAYMENT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "토스 결제 시스템에 오류가 발생했습니다."),
 
     // Payment
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 정보를 찾을 수 없거나 접근 권한이 없습니다."),
