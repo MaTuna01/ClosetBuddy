@@ -16,8 +16,8 @@ public record CartGetResponseDto(
     public CartGetResponseDto(CartItem entity) {
         this(
                 entity.getId(),
-                entity.getProduct().getProductId(),
-                entity.getProduct().getProductName(),
+                entity.getProductId(),
+                productName,
                 entity.getCartCount(),
                 entity.getCartPrice()
         );

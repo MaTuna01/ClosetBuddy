@@ -8,15 +8,12 @@ import io.codebuddy.closetbuddy.domain.carts.model.entity.Cart;
 import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
-
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
-import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,70 +22,72 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final ProductJpaRepository productJpaRepository;
 
     /**
-     * 장바구니가 존재하는지 판단하고 없으면 장바구니 리스트를 만듭니다.
-     * @param memberId
-     * @param request
+     * 회원가입 시에 장바구니를 생성합니다.
      * @return
      */
     @Transactional
     public Long createCart(Long memberId, CartCreateRequestDto request) {
 
-        // 회원 조회
-        if(memberId == null) {
-            throw new CartException(CartErrorCode.CART_NOT_FOUND);
-        }
+        Cart cart = Cart.createCart(memberId);
+        return cartRepository.save(cart).getId();
+    }
 
-        // 상품 조회
-        Product product = productJpaRepository.findById(request.productId())
-                .orElseThrow(() -> new CartException(CartErrorCode.PRODUCT_NOT_FOUND));
 
-        // 장바구니 조회 없으면 생성
+    /**
+     * 장바구니에 상품을 담습니다.
+     */
+    @Transactional
+    public void addToCart(Long memberId, CartCreateRequestDto request) {
+        // 회원의 장바구니 조회
         Cart cart = cartRepository.findByMemberId(memberId)
-                .orElseGet(() -> {
-                    Cart newCart = Cart.createCart(memberId);
-                    return cartRepository.save(newCart);
-                });
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 
-        // 장바구니 상품에 삼품과 상품 개수를 담습니다.
-        CartItem cartItem = CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .cartCount(request.cartCount())
-                .build();
+        // 장바구니에 상품이 이미 존재하는지 확인
+        Optional<CartItem> cartExist = cartItemRepository.findByMemberIdAndProductId(memberId, request.productId());
 
-        cartItemRepository.save(cartItem);
+        // 장바구니에 이미 같은 상품이 존재한다면 수량만 변경할 수 있도록 한다.
+        if(cartExist.isPresent()) {
+            CartItem existItem =  cartExist.get();
 
-        // 아이디 반환
-        return cartItem.getId();
+            // 상품이 존재한다면 수량만 변경할 수 있도록
+            existItem.updateCount(request.cartCount());
+
+        } else {
+            // 장바구니에 같은 상품이 존재하지 않는다면 장바구니에 상품을 추가할 수 있도록 한다.
+            CartItem cartItem = CartItem.builder()
+                    .cart(cart)
+                    .productId(request.productId())
+                    .cartCount(request.cartCount())
+                    .build();
+
+            cartItemRepository.save(cartItem);
+        }
     }
 
 
     /**
      * 회원 아이디로 장바구니를 조회합니다.
-     * @param memberId
-     * @return
      */
     public List<CartGetResponseDto> getCartList(Long memberId) {
-        Cart cart = cartRepository.findByMemberId(memberId).orElse(null);
 
-        if (cart == null) {
-            return new ArrayList<>();
-        }
+        // 사용자의 장바구니를 조회합니다.
+        Cart cart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 
-        return cart.getCartItems().stream()
+        // 장바구니의 전체 내역을 조회합니다.
+        List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
+
+        return cartItems.stream()
                 .map(CartGetResponseDto::new)
                 .collect(Collectors.toList());
+
     }
 
 
     /**
      * 장바구니 수량을 수정합니다.
-     * @param memberId
-     * @param cartItemId
-     * @param cartCount
      */
     @Transactional
     public void updateCart(Long memberId, Long cartItemId, Integer cartCount) {
@@ -105,18 +104,17 @@ public class CartService {
 
     /**
      * 장바구니 목록을 삭제합니다.
-     * @param memberId
-     * @param cartItemId
      */
     @Transactional
     public void deleteCartItem(Long memberId, Long cartItemId) {
+        // 장바구니 상품이 존재하지 않을 때 예외처리
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
+        // 장바구니의 주인이 아닐 때
         if (!cartItem.getCart().getMemberId().equals(memberId)) {
             throw new CartException(CartErrorCode.NOT_OWNER);
         }
-
         cartItemRepository.delete(cartItem);
     }
 }

@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.carts.model.entity;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,12 +14,11 @@ public class CartItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", nullable = false)
+    @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(name = "product_id")
+    private Long productId;
 
     @Column(name = "cart_count", nullable = false)
     private Integer cartCount;
@@ -30,11 +28,13 @@ public class CartItem {
 
 
     @Builder
-    public CartItem(Cart cart, Product product, Integer cartCount, Long cartPrice) {
+    public CartItem Builder(Cart cart, Long productId, Integer cartCount, Long cartPrice) {
         this.cart = cart;
-        this.product = product;
+        this.productId = productId;
         this.cartCount = cartCount;
         this.cartPrice = cartPrice;
+
+        return this;
     }
 
     /**

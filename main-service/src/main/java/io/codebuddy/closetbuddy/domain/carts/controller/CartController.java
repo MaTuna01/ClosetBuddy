@@ -27,8 +27,6 @@ public class CartController {
 
     /*
      * 장바구니를 생성합니다.
-     * memberId를 받지 않으면 남의 장바구니에 물건을 담아버리거나
-     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받음
      * @param memberPrincipalDetails
      * @param request
      * @return
@@ -56,8 +54,24 @@ public class CartController {
             @CurrentUser CurrentUserInfo currentUser,
             @Valid @RequestBody CartCreateRequestDto request
     ) {
-        Long cartItemId = cartService.createCart(Long.parseLong(currentUser.userId()), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartItemId);
+        Long cartId = cartService.createCart(Long.parseLong(currentUser.userId()), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartId);
+    }
+
+
+    /**
+     * 장바구니에 상품들을 추가합니다.
+     * @param currentUser
+     * @param request
+     * @return
+     */
+    @PostMapping("/items")
+    public ResponseEntity<CartCreateRequestDto> addCart(
+            @CurrentUser CurrentUserInfo currentUser,
+            @Valid @RequestBody CartCreateRequestDto request
+    ){
+        cartService.addToCart(Long.parseLong(currentUser.userId()), request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
@@ -88,7 +102,6 @@ public class CartController {
             @CurrentUser CurrentUserInfo currentUser
     ) {
         List<CartGetResponseDto> cartList = cartService.getCartList(Long.parseLong(currentUser.userId()));
-
         return ResponseEntity.ok(cartList);
     }
 
