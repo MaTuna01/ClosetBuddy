@@ -1,11 +1,11 @@
 package io.codebuddy.userservice.domain.member.service;
 
-import io.codebuddy.userservice.domain.common.model.dto.Role;
-import io.codebuddy.userservice.domain.common.model.entity.Member;
-import io.codebuddy.userservice.domain.common.repository.MemberRepository;
-import io.codebuddy.userservice.domain.common.repository.RefreshTokenRepository;
-import io.codebuddy.userservice.domain.member.model.dto.MemberResponse;
-import io.codebuddy.userservice.domain.member.model.dto.MemberUpdateRequest;
+import io.codebuddy.userservice.domain.member.dto.Role;
+import io.codebuddy.userservice.domain.member.domain.Member;
+import io.codebuddy.userservice.domain.member.repository.MemberRepository;
+import io.codebuddy.userservice.domain.auth.token.repository.RefreshTokenRepository;
+import io.codebuddy.userservice.domain.member.dto.MemberResponse;
+import io.codebuddy.userservice.domain.member.dto.MemberUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

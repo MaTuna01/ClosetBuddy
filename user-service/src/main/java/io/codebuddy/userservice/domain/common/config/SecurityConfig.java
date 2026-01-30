@@ -1,18 +1,16 @@
 package io.codebuddy.userservice.domain.common.config;
 
 
-import io.codebuddy.userservice.domain.common.security.handler.CustomAuthenticationEntryPoint;
-import io.codebuddy.userservice.domain.common.security.auth.JwtExceptionFilter;
-import io.codebuddy.userservice.domain.common.security.auth.JwtAuthenticationFilter;
-import io.codebuddy.userservice.domain.common.security.handler.CustomAccessDeniedHandler;
-import io.codebuddy.userservice.domain.form.login.security.config.CustomAuthenticationFailureHandler;
-import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthSuccessHandler;
-import io.codebuddy.userservice.domain.oauth.config.OAuth2SuccessHandler;
+import io.codebuddy.userservice.domain.auth.token.security.handler.CustomAuthenticationEntryPoint;
+import io.codebuddy.userservice.domain.auth.token.security.filter.JwtExceptionFilter;
+import io.codebuddy.userservice.domain.auth.token.security.filter.JwtAuthenticationFilter;
+import io.codebuddy.userservice.domain.auth.token.security.handler.CustomAccessDeniedHandler;
+import io.codebuddy.userservice.domain.auth.form.security.handler.CustomAuthenticationFailureHandler;
+import io.codebuddy.userservice.domain.auth.form.security.handler.MemberAuthSuccessHandler;
+import io.codebuddy.userservice.domain.auth.oauth.config.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
