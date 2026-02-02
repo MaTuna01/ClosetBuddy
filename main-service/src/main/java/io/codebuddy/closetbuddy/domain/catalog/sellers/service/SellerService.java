@@ -44,13 +44,13 @@ public class SellerService {
         // user-service에 판매자 역할 부여 요청(동기 요청)
         try {
             log.info("user-service에 판매자 역할 부여 요청 - memberId: {}", loginMemberId);
-            userServiceClient.grantSellerRole();
+            userServiceClient.grantSellerRole(loginMemberId);
             log.info("user-service 판매자 역할 부여 완료 - memberId: {}", loginMemberId);
         } catch (SellerException e) {
             log.error("user-service 판매자 역할 부여 실패 - memberId: {}, errorCode: {}", loginMemberId, e.getErrorCode());
             throw e;
         } catch (Exception e) {
-            log.error("user-service 판매자 역할 부여 실패 - memberId: {}, error: {}",  loginMemberId, e.getMessage());
+            log.error("user-service 판매자 역할 부여 실패 - memberId: {}, error: {}", loginMemberId, e.getMessage());
             throw new SellerException(SellerErrorCode.ROLE_GRANT_FAILED);
         }
 
@@ -68,7 +68,7 @@ public class SellerService {
 
     // 판매자 정보 수정(Update)
     @Transactional
-    public  void updateSeller(Long loginMemberId, SellerUpsertRequest request) {
+    public void updateSeller(Long loginMemberId, SellerUpsertRequest request) {
         // 판매자 정보를 우선 불러오기
         Seller seller = sellerJpaRepository.findByMemberId(loginMemberId)
                 .orElseThrow(() -> new SellerException(SellerErrorCode.UNAUTHORIZED_ACCESS));
@@ -90,7 +90,7 @@ public class SellerService {
         // 2. user-service에 판매자 역할 해제 요청 (동기 호출)
         try {
             log.info("user-service에 판매자 역할 해제 요청 - memberId: {}", loginMemberId);
-            userServiceClient.revokeSellerRole();
+            userServiceClient.revokeSellerRole(loginMemberId);
             log.info("user-service 판매자 역할 해제 완료 - memberId: {}", loginMemberId);
         } catch (SellerException e) {
             // FeignErrorDecoder에서 변환된 SellerException은 그대로 전파
