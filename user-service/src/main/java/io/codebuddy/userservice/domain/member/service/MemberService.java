@@ -71,7 +71,24 @@ public class MemberService {
 
         // 3. Member의 권한 변경
         member.setRole(Role.SELLER);
+    }
 
+    /**
+     * 판매자 역할 해제
+     * SELLER 권한을 USER 권한으로 변경
+     */
+    public void revokeSeller(Long memberId) {
+        // 1. 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        // 2. 판매자 권한인지 체크
+        if (member.getRole() != Role.SELLER) {
+            throw new IllegalStateException("판매자 권한이 아닙니다.");
+        }
+
+        // 3. Member의 권한을 MEMBER로 변경
+        member.setRole(Role.MEMBER);
     }
 
 }
