@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.carts.model.entity;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,30 +17,35 @@ public class CartItem {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
 
     @Column(name = "cart_count", nullable = false)
     private Integer cartCount;
 
-    @Column(name = "cart_price", nullable = false)
-    private Long cartPrice;
-
+    private String productName;
 
     @Builder
-    public CartItem(Cart cart, Product product, Integer cartCount, Long cartPrice) {
+    public CartItem(Cart cart, Long productId, Integer cartCount, String productName) {
         this.cart = cart;
-        this.product = product;
+        this.productId = productId;
         this.cartCount = cartCount;
-        this.cartPrice = cartPrice;
+        this.productName = productName;
+    }
+
+    /**
+     * 카트 수량 넣기 (생성할 때)
+     * @param cartCount
+     */
+    public void addCount(Integer cartCount){
+        this.cartCount += cartCount;
     }
 
     /**
      *  cart 수량을 변경합니다.
      */
     public void updateCount(Integer cartCount) {
-        this.cartCount += cartCount;
+        this.cartCount = cartCount;
     }
 
 }
