@@ -2,6 +2,7 @@ package io.codebuddy.closetbuddy.domain.cart.controller;
 
 import io.codebuddy.closetbuddy.domain.carts.controller.CartController;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartCreateRequestDto;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +38,6 @@ class CartControllerTest {
 
     private MockMvc mockMvc;
 
-
     // 테스트가 실행되기 전에 한번 실행
     @BeforeEach
     public void init() {
@@ -44,7 +46,7 @@ class CartControllerTest {
 
     @Test
     @DisplayName("컨트롤러 테스트 - 장바구니 생성 성공시 cartItemId를 반환한다.")
-    void getCartSuccess() throws Exception {
+    void controller_getCartSuccess() throws Exception {
 
         // given
         // userId = 1L, productId = 1L, cartItemId 기댓값 40L
@@ -76,17 +78,30 @@ class CartControllerTest {
 
     @Test
     @DisplayName("컨트롤러 테스트 - 장바구니 조회 테스트")
-    void getCart() throws Exception {
+    void controller_getCart() throws Exception {
+
+        Long memberId = 1L;
 
         // given
+        // 유저 정보를 받아온다.
         CurrentUserInfo userInfo = new CurrentUserInfo("1", "SELLER");
 
         // when
-
+        // 컨트롤러에 userInfo를 주입한다.
+        ResponseEntity<List<CartGetResponseDto>> cartList = cartController.getCart(userInfo);
 
         // then
+        // userInfo를 주입하였을 때 상태코드가 ok라면 성공
+        assertThat(cartList.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+        verify(cartService).getCartList((memberId));
     }
 
 
+    @Test
+    @DisplayName("컨트롤러 테스트 - 장바구니 수정 테스트")
+    void controller_updateCart() throws Exception {
+        Long memberId = 1L;
+
+    }
 }

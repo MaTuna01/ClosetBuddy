@@ -11,14 +11,11 @@ import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
-import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +34,12 @@ public class CartService {
     @Transactional
     public Long createCart(Long memberId, CartCreateRequestDto request) {
 
+        // FeignClient로 정의한 product에서 productId를 가져옵니다.
         ProductResponse product = productClient.getProduct(request.productId());
 
         // 회원 조회
         if(memberId == null) {
-            throw new CartException(CartErrorCode.CART_NOT_FOUND);
+            throw new CartException(CartErrorCode.NOT_MEMBER);
         }
 
         // 장바구니 조회 없으면 생성
@@ -57,6 +55,7 @@ public class CartService {
         // 장바구니에 상품이 있을 경우 수량만 변경
         if(cartItem != null) {
             cartItem.addCount(request.cartCount());
+
         } else {
             // 장바구니 상품에 삼품과 상품 개수를 담습니다.
             cartItem = CartItem.builder()
@@ -84,7 +83,6 @@ public class CartService {
         Cart findCart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND)
                 );
-
 
         // CartItem의 객체를 CartGetResponseDto로 변환한다.
         return findCart.getCartItems()
