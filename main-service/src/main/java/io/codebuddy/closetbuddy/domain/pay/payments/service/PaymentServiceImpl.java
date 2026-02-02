@@ -13,6 +13,7 @@ import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentRequest;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.pay.payments.repository.PaymentRepository;
+import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,8 @@ public class PaymentServiceImpl implements PaymentService{
     private final PaymentRepository paymentRepository;
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
+    private final SettlementRawDataRepository settlementRawDataRepository;
+
 
 
     /**
@@ -84,6 +87,10 @@ public class PaymentServiceImpl implements PaymentService{
                 .build();
 
         accountHistoryRepository.save(history);
+
+        // 정산 데이터 스냅샷
+        // 주문의 상품 목록 조회
+
 
         return PaymentMapper.toPaymentResponse(payment);
     }
