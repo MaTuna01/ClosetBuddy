@@ -39,4 +39,23 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    //회원가입 했을 때 중복된 값을 예외처리해주는 메소드
+    @ExceptionHandler(DuplicateMemberFieldException.class)
+    protected ResponseEntity<ErrorResponse> handleDuplicateMemberField(DuplicateMemberFieldException e) {
+
+        ErrorResponse.FieldErrorDetail detail = ErrorResponse.FieldErrorDetail.builder()
+                .field(e.getField())
+                .value(e.getValue())
+                .reason(e.getMessage())
+                .build();
+
+        ErrorResponse response = ErrorResponse.builder()
+                .code("DUPLICATE_VALUE")
+                .message("중복된 값이 존재합니다.")
+                .errors(List.of(detail))
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
 }
