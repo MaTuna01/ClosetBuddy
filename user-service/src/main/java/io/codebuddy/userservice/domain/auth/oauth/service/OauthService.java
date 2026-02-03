@@ -60,7 +60,7 @@ public class OauthService extends DefaultOAuth2UserService {
         try {
             mainServiceClient.createAccount(new AccountCreateRequest(member.getId()));
         } catch (Exception e) {
-            throw new OAuth2AuthenticationException("계좌 생성 실패");
+            throw new OAuth2AuthenticationException("계좌 생성 실패: "+ e.getMessage());
         }
 
         return memberDetails;
