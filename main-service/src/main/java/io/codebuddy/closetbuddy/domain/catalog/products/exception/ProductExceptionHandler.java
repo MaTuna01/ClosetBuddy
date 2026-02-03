@@ -41,12 +41,5 @@ public class ProductExceptionHandler {
     }
 
 
-    //그 외 서버에러
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        String errorMessage = "상품 서비스에 문제가 발생했습니다. 관리자에게 문의하세요.";
-        log.error("Product Service Unhandled Error: ",e); // 진짜 서버 에러는 Error 로그
-        return ResponseEntity.internalServerError()
-                .body(new ErrorResponse(null, errorMessage, Instant.now()));
-    }
+
 }
