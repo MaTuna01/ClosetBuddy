@@ -26,8 +26,6 @@ public class ProductService {
 
     private final ProductJpaRepository productJpaRepository;
     private final StoreJpaRepository storeJpaRepository;
-    private final SellerJpaRepository sellerJpaRepository;
-    private final SellerService sellerService;
 
     //상품 등록
     @Transactional

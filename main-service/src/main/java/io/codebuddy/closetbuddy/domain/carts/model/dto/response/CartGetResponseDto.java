@@ -6,8 +6,7 @@ public record CartGetResponseDto(
         Long cartItemId,
         Long productId,
         String productName,
-        Integer cartCount,
-        Long cartPrice
+        Integer cartCount
 ) {
 
     /**
@@ -16,10 +15,9 @@ public record CartGetResponseDto(
     public CartGetResponseDto(CartItem entity) {
         this(
                 entity.getId(),
-                entity.getProduct().getProductId(),
-                entity.getProduct().getProductName(),
-                entity.getCartCount(),
-                entity.getCartPrice()
+                entity.getProductId(),
+                entity.getProductName(),
+                entity.getCartCount()
         );
     }
 }

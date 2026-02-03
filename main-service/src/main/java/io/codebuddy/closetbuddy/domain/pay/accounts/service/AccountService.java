@@ -19,4 +19,5 @@ public interface AccountService {
 
     AccountHistoryResponse refund(Long memberId, Long historyId, String reason);
 
+    void createAccount(Long memberId);
 }

@@ -12,7 +12,13 @@ public enum SellerErrorCode {
     SELLER_NOT_FOUND(HttpStatus.NOT_FOUND, "판매자 정보를 찾을 수 없습니다."),
 
     // 권한 없음 등 (403 Forbidden)
-    UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "판매자 권한이 없습니다.");
+    UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "판매자 권한이 없습니다."),
+
+    // 판매자 역할 부여 실패 (503 Service Unavailable)
+    ROLE_GRANT_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "판매자 역할 부여에 실패했습니다. 잠시 후 다시 시도해주세요."),
+
+    //판매자 역할 해제 실패(503 Service Unavailable)
+    ROLE_REVOKE_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "판매자 역할 해제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
 
     private final HttpStatus status;
     private final String message;

@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
+import io.codebuddy.closetbuddy.domain.carts.ProductClient;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartCreateRequestDto;
@@ -9,7 +10,7 @@ import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final ProductJpaRepository productJpaRepository;
+    private final ProductClient productClient;
 
     /**
      * 장바구니가 존재하는지 판단하고 없으면 장바구니 리스트를 만듭니다.
@@ -36,14 +37,12 @@ public class CartService {
     @Transactional
     public Long createCart(Long memberId, CartCreateRequestDto request) {
 
+        ProductResponse product = productClient.getProduct(request.productId());
+
         // 회원 조회
         if(memberId == null) {
             throw new CartException(CartErrorCode.CART_NOT_FOUND);
         }
-
-        // 상품 조회
-        Product product = productJpaRepository.findById(request.productId())
-                .orElseThrow(() -> new CartException(CartErrorCode.PRODUCT_NOT_FOUND));
 
         // 장바구니 조회 없으면 생성
         Cart cart = cartRepository.findByMemberId(memberId)
@@ -52,14 +51,23 @@ public class CartService {
                     return cartRepository.save(newCart);
                 });
 
-        // 장바구니 상품에 삼품과 상품 개수를 담습니다.
-        CartItem cartItem = CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .cartCount(request.cartCount())
-                .build();
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), request.productId())
+                .orElse(null);
 
-        cartItemRepository.save(cartItem);
+        // 장바구니에 상품이 있을 경우 수량만 변경
+        if(cartItem != null) {
+            cartItem.addCount(request.cartCount());
+        } else {
+            // 장바구니 상품에 삼품과 상품 개수를 담습니다.
+            cartItem = CartItem.builder()
+                    .cart(cart)
+                    .productId(request.productId())
+                    .productName(product.productName())
+                    .cartCount(request.cartCount())
+                    .build();
+        }
+
+        cartItemRepository.save(cartItem).getId();
 
         // 아이디 반환
         return cartItem.getId();
@@ -72,15 +80,18 @@ public class CartService {
      * @return
      */
     public List<CartGetResponseDto> getCartList(Long memberId) {
-        Cart cart = cartRepository.findByMemberId(memberId).orElse(null);
 
-        if (cart == null) {
-            return new ArrayList<>();
-        }
+        Cart findCart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND)
+                );
 
-        return cart.getCartItems().stream()
-                .map(CartGetResponseDto::new)
-                .collect(Collectors.toList());
+
+        // CartItem의 객체를 CartGetResponseDto로 변환한다.
+        return findCart.getCartItems()
+                .stream()
+                .map( variable -> new CartGetResponseDto(variable) )
+                .toList();
+
     }
 
 
