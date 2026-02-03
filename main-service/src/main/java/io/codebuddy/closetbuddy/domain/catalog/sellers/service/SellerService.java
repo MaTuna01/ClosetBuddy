@@ -79,6 +79,11 @@ public class SellerService {
         Seller seller = sellerJpaRepository.findByMemberId(loginMemberId)
                 .orElseThrow(() -> new SellerException(SellerErrorCode.UNAUTHORIZED_ACCESS));
 
+        // 자기 자신을 제외한 판매자 이름 중복 체크
+        if (sellerJpaRepository.existsBySellerNameAndSellerIdNot(request.sellerName(), seller.getSellerId())) {
+            throw new SellerException(SellerErrorCode.SELLER_NAME_DUPLICATED);
+        }
+
         seller.update(request.sellerName());
     }
 

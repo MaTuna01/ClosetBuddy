@@ -15,5 +15,8 @@ public interface SellerJpaRepository extends JpaRepository<Seller, Long> {
     // 판매자 이름 중복 체크
     boolean existsBySellerName(String sellerName);
 
+    // 판매자 이름 중복 체크 (수정 시 - 자기 자신 제외)
+    boolean existsBySellerNameAndSellerIdNot(String sellerName, Long sellerId);
+
     Optional<Seller> findByMemberId(Long memberId);
 }
