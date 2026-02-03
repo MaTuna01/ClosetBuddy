@@ -1,5 +1,7 @@
 package io.codebuddy.userservice.domain.auth.oauth.service;
 
+import io.codebuddy.userservice.domain.common.feign.client.MainServiceClient;
+import io.codebuddy.userservice.domain.common.feign.dto.AccountCreateRequest;
 import io.codebuddy.userservice.domain.member.dto.Role;
 import io.codebuddy.userservice.domain.member.domain.Member;
 import io.codebuddy.userservice.domain.member.repository.MemberRepository;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class OauthService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final MainServiceClient mainServiceClient;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -50,6 +53,14 @@ public class OauthService extends DefaultOAuth2UserService {
                                 .role(Role.MEMBER)
                                 .build()
                 ));
+
+        // Main-Service로 계좌 생성 요청 (동기 통신)
+        try {
+            mainServiceClient.createAccount(new AccountCreateRequest(member.getId()));
+        } catch (Exception e) {
+            throw new OAuth2AuthenticationException("계좌 생성 실패");
+        }
+
         return new MemberDetails(member, oAuth2User.getAttributes());
     }
 

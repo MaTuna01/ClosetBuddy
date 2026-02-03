@@ -17,17 +17,16 @@ public class Account {
     @Column(name = "account_id")
     private Long accountId;
 
-    @Column(name = "balance")
-    private Long balance;
+    @Column(name = "balance", nullable = false)
+    private Long balance=0L;
 
     @Column(name = "member_id", nullable = false, unique = true)
     private Long memberId;
 
     @Builder
-    public Account(Long accountId,Long balance,Long memberId){
-        this.accountId=accountId;
-        this.balance=0L;
+    public Account(Long memberId, Long balance){
         this.memberId=memberId;
+        this.balance = (balance != null) ? balance : 0L;
     }
     public static Account createAccount(Long memberId) {
         return Account.builder()
