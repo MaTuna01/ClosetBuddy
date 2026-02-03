@@ -23,14 +23,23 @@ public class CartItem {
     @Column(name = "cart_count", nullable = false)
     private Integer cartCount;
 
+    @Transient
     private String productName;
 
+    @Transient
+    private Long productPrice;
+
+    @Transient
+    private String storeName;
+
     @Builder
-    public CartItem(Cart cart, Long productId, Integer cartCount, String productName) {
+    public CartItem(Cart cart, Long productId, String productName, Integer cartCount, Long productPrice, String storeName) {
         this.cart = cart;
         this.productId = productId;
-        this.cartCount = cartCount;
         this.productName = productName;
+        this.cartCount = cartCount;
+        this.productPrice = productPrice;
+        this.storeName = storeName;
     }
 
     /**

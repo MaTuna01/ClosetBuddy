@@ -1,8 +1,5 @@
 package io.codebuddy.closetbuddy.domain.orders.model.entity;
 
-import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
-import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,52 +14,47 @@ public class OrderItem {
     @Column(name = "order_item_id")
     private Long orderItemId;
 
-    @Column(name = "order_count")
+    @Column(name = "order_count",  nullable = false)
     private Integer orderCount;
 
-    @Column(name = "order_price")
-    private Long orderPrice;
+    @Column(name = "order_price", nullable = false)
+    private Long orderPrice; // 주문 당시 가격 (스냅샷 - 주문 당시 기록을 남겨놔야하기 때문에)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @Column(name = "product_id",  nullable = false)
+    private Long productId;
 
-    @Transient
-    private String productName; // 상품 이름 가져오기
+    @Column(name = "product_name", nullable = false)
+    private String productName; // 상품 이름 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
 
-    @Transient
-    private Long productPrice; // 상품 가격 가져오기
+    @Column(name = "product_price", nullable = false)
+    private Long productPrice; // 상품 가격 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
 
-    @Transient
-    private Long storeName; // 가게 이름 가져오기
+    @Column(name = "store_name", nullable = false)
+    private String storeName; // 가게 이름 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
 
-    public static OrderItem createOrderItem(Product product, Long productPrice, Integer orderCount) {
-        OrderItem orderItem = new OrderItem();
-        orderItem.setProduct(product);
-        orderItem.setOrderCount(orderCount);
-        orderItem.setOrderPrice(productPrice);
 
-        // 주문 수량만큼 재고 감소
-        orderItem.removeStock(orderCount);
-
-        return orderItem;
+    @Builder
+    public OrderItem(Long productId, String storeName, String productName, Long productPrice, Integer orderCount) {
+        this.productId = productId;
+        this.storeName = storeName;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.orderCount = orderCount;
     }
 
-    // 주문 수량만큼 재고를 지우는 로직
-    public void removeStock(Integer orderCount) {
-        Integer count = product.getProductStock();
-        Integer totalCount = count - orderCount;
+    public static OrderItem createOrderItem(Long productId, String storeName, String productName, Long productPrice, Integer orderCount) {
+        return OrderItem.builder()
+                .productId(productId)
+                .storeName(storeName)
+                .productName(productName)
+                .productPrice(productPrice)
+                .orderCount(orderCount)
+                .build();
 
-        if (totalCount < 0) {
-            throw new OrderException(OrderErrorCode.OUT_OF_STOCK);
-        }
-
-        // 상품 재고를 totalCount만큼 제거합니다.
-        product.setProductStock(totalCount);
     }
 
     // 주문 총 가격 구하기

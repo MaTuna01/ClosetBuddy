@@ -5,9 +5,7 @@ import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * 주문 상세 내역을 반환합니다.
- */
+// 주문 상세 내역 반환 Dto
 public record OrderDetailResponseDto(
         Long orderId,
         LocalDateTime createdAt,
