@@ -35,17 +35,18 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
             try {
                 verified = tokenVerifier.verify(authHeader);
             } catch (HttpClientErrorException e) {
-                // 1. User-Service에서 받은 상태 코드를 그대로 설정 (주로 401)
+                // User-Service에서 받은 상태 코드를 그대로 설정
                 response.setStatus(e.getStatusCode().value());
 
-                // 2. 응답 타입 설정 (JSON)
+                // 응답 타입 설정 (JSON)
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 response.setCharacterEncoding("UTF-8");
-                // 3. User-Service가 보낸 에러 바디(JSON)를 그대로 쓰기
+                // User-Service가 보낸 에러 바디(JSON)를 그대로 쓰기
                 response.getWriter().write(e.getResponseBodyAsString());
 
                 return; // 필터 체인 중단
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 // 그 외 예상치 못한 에러 처리
                 ex.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
