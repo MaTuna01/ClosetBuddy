@@ -33,6 +33,12 @@ public class SellerService {
                 .ifPresent(seller -> {
                     throw new SellerException(SellerErrorCode.ALREADY_REGISTERED);
                 });
+
+        // 판매자 이름 중복 체크
+        if (sellerJpaRepository.existsBySellerName(request.sellerName())) {
+            throw new SellerException(SellerErrorCode.SELLER_NAME_DUPLICATED);
+        }
+
         // seller Entity 생성
         Seller seller = Seller.builder()
                 .memberId(loginMemberId)
