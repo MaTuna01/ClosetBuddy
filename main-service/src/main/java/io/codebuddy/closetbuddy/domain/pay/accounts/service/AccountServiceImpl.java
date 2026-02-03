@@ -246,4 +246,10 @@ public class AccountServiceImpl implements AccountService{
         return AccountMapper.toHistoryResponse(history);
     }
 
+    @Override
+    public void createAccount(Long memberId) {
+        Account account= Account.createAccount(memberId);
+        accountRepository.save(account);
+
+    }
 }
