@@ -33,6 +33,12 @@ public class SellerService {
                 .ifPresent(seller -> {
                     throw new SellerException(SellerErrorCode.ALREADY_REGISTERED);
                 });
+
+        // 판매자 이름 중복 체크
+        if (sellerJpaRepository.existsBySellerName(request.sellerName())) {
+            throw new SellerException(SellerErrorCode.SELLER_NAME_DUPLICATED);
+        }
+
         // seller Entity 생성
         Seller seller = Seller.builder()
                 .memberId(loginMemberId)
@@ -72,6 +78,11 @@ public class SellerService {
         // 판매자 정보를 우선 불러오기
         Seller seller = sellerJpaRepository.findByMemberId(loginMemberId)
                 .orElseThrow(() -> new SellerException(SellerErrorCode.UNAUTHORIZED_ACCESS));
+
+        // 자기 자신을 제외한 판매자 이름 중복 체크
+        if (sellerJpaRepository.existsBySellerNameAndSellerIdNot(request.sellerName(), seller.getSellerId())) {
+            throw new SellerException(SellerErrorCode.SELLER_NAME_DUPLICATED);
+        }
 
         seller.update(request.sellerName());
     }
