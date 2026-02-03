@@ -2,7 +2,6 @@ package io.codebuddy.gatewayservice.filter;
 
 import io.codebuddy.gatewayservice.security.TokenVerifier;
 import io.codebuddy.gatewayservice.security.VerifiedUser;
-import io.codebuddy.gatewayservice.web.MutableHttpServletRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
