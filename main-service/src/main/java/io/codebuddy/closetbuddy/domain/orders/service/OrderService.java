@@ -62,8 +62,8 @@ public class OrderService {
             // 상점 이름, 상품 가격, 상품 이름은 FeignClient를 통해 불러와 orderItem 에 추가해줍니다.
             orderItems.add(OrderItem.createOrderItem(
                     itemDto.productId(),
-                    response.storeName(),
                     response.productName(),
+                    response.storeName(),
                     response.productPrice(),
                     itemDto.orderCount()
             ));
@@ -108,8 +108,8 @@ public class OrderService {
             // 상품 ID, 상품 이름, 상품 가격, 가게 이름, 장바구니에 담겨있는 수량을 가져옵니다.
             orderItems.add(OrderItem.createOrderItem(
                     cartDto.productId(),
-                    response.storeName(),
                     response.productName(),
+                    response.storeName(),
                     response.productPrice(),
                     cartDto.cartCount()
             ));
@@ -183,8 +183,8 @@ public class OrderService {
                         oi.getProductId(),
                         oi.getStoreName(),
                         oi.getProductName(),
-                        oi.getOrderCount(),
-                        oi.getOrderPrice()
+                        oi.getOrderPrice(),
+                        oi.getOrderCount()
                 )).toList();
 
         // 최종적으로 orderDetailResponseDto 로 변환해줍니다.

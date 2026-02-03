@@ -14,7 +14,7 @@ public class OrderItem {
     @Column(name = "order_item_id")
     private Long orderItemId;
 
-    @Column(name = "order_count",  nullable = false)
+    @Column(name = "order_count", nullable = false)
     private Integer orderCount;
 
     @Column(name = "order_price", nullable = false)
@@ -24,37 +24,33 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @Column(name = "product_id",  nullable = false)
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
     @Column(name = "product_name", nullable = false)
     private String productName; // 상품 이름 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
-
-    @Column(name = "product_price", nullable = false)
-    private Long productPrice; // 상품 가격 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
 
     @Column(name = "store_name", nullable = false)
     private String storeName; // 가게 이름 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
 
 
     @Builder
-    public OrderItem(Long productId, String storeName, String productName, Long productPrice, Integer orderCount) {
+    public OrderItem(Long productId, String storeName, String productName, Long orderPrice, Integer orderCount) {
         this.productId = productId;
         this.storeName = storeName;
         this.productName = productName;
-        this.productPrice = productPrice;
+        this.orderPrice = orderPrice;
         this.orderCount = orderCount;
     }
 
-    public static OrderItem createOrderItem(Long productId, String storeName, String productName, Long productPrice, Integer orderCount) {
+    public static OrderItem createOrderItem(Long productId, String storeName, String productName, Long orderPrice, Integer orderCount) {
         return OrderItem.builder()
                 .productId(productId)
                 .storeName(storeName)
                 .productName(productName)
-                .productPrice(productPrice)
+                .orderPrice(orderPrice)
                 .orderCount(orderCount)
                 .build();
-
     }
 
     // 주문 총 가격 구하기

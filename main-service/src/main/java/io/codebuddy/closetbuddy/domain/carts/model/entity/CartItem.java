@@ -23,13 +23,13 @@ public class CartItem {
     @Column(name = "cart_count", nullable = false)
     private Integer cartCount;
 
-    @Transient
+    @Column(name = "product_name")
     private String productName;
 
-    @Transient
+    @Column(name = "product_price")
     private Long productPrice;
 
-    @Transient
+    @Column(name = "store_name")
     private String storeName;
 
     @Builder

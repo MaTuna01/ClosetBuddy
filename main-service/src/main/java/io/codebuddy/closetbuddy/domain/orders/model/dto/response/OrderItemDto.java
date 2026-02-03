@@ -5,7 +5,7 @@ public record OrderItemDto(
         Long productId,
         String storeName,
         String productName,
-        Integer orderCount,
-        Long orderPrice
+        Long orderPrice,
+        Integer orderCount
 ) {
 }
