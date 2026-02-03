@@ -2,6 +2,7 @@ package io.codebuddy.gatewayservice.filter;
 
 import io.codebuddy.gatewayservice.security.TokenVerifier;
 import io.codebuddy.gatewayservice.security.VerifiedUser;
+import io.codebuddy.gatewayservice.web.MutableHttpServletRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,9 +14,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-//헤더에 X-User_id, X-User-Role 주입
+//헤더에 X-User-Id, X-User-Role 주입
 @Component
 public class AuthHeaderInjectFilter extends OncePerRequestFilter {
+
+    private static final String USER_ID_HEADER = "X-User-Id";
+    private static final String USER_ROLE_HEADER = "X-User-Role";
 
     private final TokenVerifier tokenVerifier;
 
@@ -28,11 +32,19 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        HttpServletRequest requestToUse = request;
 
         if (authHeader != null) {
             VerifiedUser verified;
             try {
                 verified = tokenVerifier.verify(authHeader);
+
+                // 헤더 주입: MutableHttpServletRequest를 사용하여 X-User-Id, X-User-Role 헤더 추가
+                MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(request);
+                mutableRequest.putHeader(USER_ID_HEADER, verified.userId());
+                mutableRequest.putHeader(USER_ROLE_HEADER, verified.role());
+                requestToUse = mutableRequest;
+
             } catch (HttpClientErrorException e) {
                 // User-Service에서 받은 상태 코드를 그대로 설정
                 response.setStatus(e.getStatusCode().value());
@@ -51,8 +63,8 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-
         }
-        filterChain.doFilter(request, response);
+
+        filterChain.doFilter(requestToUse, response);
     }
 }
