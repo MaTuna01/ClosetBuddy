@@ -54,6 +54,8 @@ public class OauthService extends DefaultOAuth2UserService {
                                 .build()
                 ));
 
+        MemberDetails memberDetails = new MemberDetails(member, oAuth2User.getAttributes());
+
         // Main-Service로 계좌 생성 요청 (동기 통신)
         try {
             mainServiceClient.createAccount(new AccountCreateRequest(member.getId()));
@@ -61,7 +63,7 @@ public class OauthService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException("계좌 생성 실패");
         }
 
-        return new MemberDetails(member, oAuth2User.getAttributes());
+        return memberDetails;
     }
 
     public Optional<Member> findById(Long id) {
