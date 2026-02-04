@@ -42,24 +42,4 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    // 판매자 권한 부여
-    @PostMapping("/me/seller")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Long> registerSeller(
-            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser) {
-
-        memberCommandService.registerSeller(Long.parseLong(currentUser.userId()));
-
-        return ResponseEntity.ok().build();
-    }
-
-    // 판매자 등록 해제 (역할 해제)
-    @DeleteMapping("/me/seller")
-    public ResponseEntity<Void> unregisterSeller(
-            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser) {
-
-        memberCommandService.revokeSeller(Long.parseLong(currentUser.userId()));
-
-        return ResponseEntity.ok().build();
-    }
 }
