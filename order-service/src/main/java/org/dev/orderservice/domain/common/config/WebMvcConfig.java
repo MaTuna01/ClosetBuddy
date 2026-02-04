@@ -1,6 +1,5 @@
 package org.dev.orderservice.domain.common.config;
 
-
 import org.dev.orderservice.domain.common.web.CurrentUserArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

@@ -36,4 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 
+### 맥북 기본 폴더용 ###
 .DS_store/
+
+application.yml
+application-*.yml

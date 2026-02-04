@@ -1,7 +1,5 @@
 package org.dev.orderservice.domain.orders.exception;
 
-
-
 import org.dev.orderservice.domain.orders.controller.OrderController;
 import org.dev.orderservice.domain.orders.service.OrderService;
 import org.slf4j.Logger;
@@ -40,7 +38,7 @@ public class OrderExceptionHandler {
     }
 
     //그 외 서버에러
-    @ExceptionHandler(Exception.class)å
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<OrderErrorResponse> handleException(Exception e) {
         String errorMessage = "주문 서비스에 문제가 발생했습니다. 관리자에게 문의하세요.";
         log.error("Order Service Unhandled Error: ",e);

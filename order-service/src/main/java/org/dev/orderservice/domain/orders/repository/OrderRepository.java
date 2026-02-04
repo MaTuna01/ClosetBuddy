@@ -1,6 +1,6 @@
 package org.dev.orderservice.domain.orders.repository;
 
-import io.codebuddy.closetbuddy.domain.orders.model.entity.Order;
+import org.dev.orderservice.domain.orders.model.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

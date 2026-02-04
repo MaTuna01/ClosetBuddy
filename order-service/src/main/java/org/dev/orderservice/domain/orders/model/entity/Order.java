@@ -1,5 +1,6 @@
 package org.dev.orderservice.domain.orders.model.entity;
 
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class Order {
     private OrderStatus orderStatus;
 
     @Column(name = "order_amount")
-    private Long orderAmount;
+    private Long orderAmount; // 주문 금액
 
     @Column(name = "member_id")
     private Long memberId;
