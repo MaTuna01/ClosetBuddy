@@ -5,15 +5,11 @@ import io.codebuddy.userservice.domain.auth.token.security.principal.MemberDetai
 import io.codebuddy.userservice.domain.member.dto.MemberResponse;
 import io.codebuddy.userservice.domain.member.dto.MemberUpdateRequest;
 import io.codebuddy.userservice.domain.member.service.MemberService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import io.codebuddy.userservice.domain.common.web.CurrentUser;
-import io.codebuddy.userservice.domain.common.web.CurrentUserInfo;
 
 @RestController
 @RequestMapping("/api/v1/members")
