@@ -31,6 +31,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     //feign-client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    // Redis 기본 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // 분산락 구현을 위한 Redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.23.5'
 
     //lombok
     compileOnly 'org.projectlombok:lombok'
