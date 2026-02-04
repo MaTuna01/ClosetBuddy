@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import io.codebuddy.userservice.domain.common.web.CurrentUser;
+import io.codebuddy.userservice.domain.common.web.CurrentUserInfo;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -44,9 +46,9 @@ public class MemberController {
     @PostMapping("/me/seller")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Long> registerSeller(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal) {
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser) {
 
-        memberCommandService.registerSeller(principal.getId());
+        memberCommandService.registerSeller(Long.parseLong(currentUser.userId()));
 
         return ResponseEntity.ok().build();
     }
@@ -54,9 +56,9 @@ public class MemberController {
     // 판매자 등록 해제 (역할 해제)
     @DeleteMapping("/me/seller")
     public ResponseEntity<Void> unregisterSeller(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal) {
+            @Parameter(hidden = true) @CurrentUser CurrentUserInfo currentUser) {
 
-        memberCommandService.revokeSeller(principal.getId());
+        memberCommandService.revokeSeller(Long.parseLong(currentUser.userId()));
 
         return ResponseEntity.ok().build();
     }
