@@ -15,6 +15,8 @@ import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,7 @@ public class ProductService {
     }
 
     //상품 수정
+    @CacheEvict(key="#productId")
     @Transactional
     public void updateProduct(Long memberId, Long productId, UpdateProductRequest request) {
         Product product = productJpaRepository.findById(productId)
@@ -60,6 +63,7 @@ public class ProductService {
     }
 
     //상품 상세조회(단건)
+    @Cacheable
     @Transactional(readOnly = true)
     public ProductResponse getProduct(Long productId) {
         Product product = productJpaRepository.findById(productId)
@@ -69,6 +73,7 @@ public class ProductService {
     }
 
     //특정 가게의 상품 목록 조회 (상점 페이지)
+    @Cacheable
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductByStoreId(Long storeId) {
         if (storeJpaRepository.findById(storeId).isEmpty()) {
@@ -80,6 +85,7 @@ public class ProductService {
     }
 
     //전체 상품목록 조회
+    @Cacheable
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
         return productJpaRepository.findAll().stream()
@@ -88,6 +94,7 @@ public class ProductService {
     }
 
     //상품 삭제
+    @CacheEvict
     @Transactional
     public void deleteProduct(Long memberId, Long productId) {
         Product product = productJpaRepository.findById(productId)
