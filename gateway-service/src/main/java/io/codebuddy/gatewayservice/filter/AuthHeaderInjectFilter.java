@@ -18,8 +18,8 @@ import java.io.IOException;
 @Component
 public class AuthHeaderInjectFilter extends OncePerRequestFilter {
 
-    private static final String USER_ID_HEADER = "X-User-Id";
-    private static final String USER_ROLE_HEADER = "X-User-Role";
+    private static final String USER_ID_HEADER = "X-USER-ID";
+    private static final String USER_ROLE_HEADER = "X-USER-ROLE";
 
     private final TokenVerifier tokenVerifier;
 
@@ -39,7 +39,7 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
             try {
                 verified = tokenVerifier.verify(authHeader);
 
-                // 헤더 주입: MutableHttpServletRequest를 사용하여 X-User-Id, X-User-Role 헤더 추가
+                // 헤더 주입: MutableHttpServletRequest를 사용하여 X-USER-ID, X-USER-ROLE 헤더 추가
                 MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(request);
                 mutableRequest.putHeader(USER_ID_HEADER, verified.userId());
                 mutableRequest.putHeader(USER_ROLE_HEADER, verified.role());
