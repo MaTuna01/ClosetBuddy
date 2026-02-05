@@ -3,7 +3,6 @@ package io.codebuddy.closetbuddy.domain.carts.controller;
 
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartItemAddResponse;
-import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

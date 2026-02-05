@@ -80,15 +80,14 @@ public class CartService {
      */
     public List<CartGetResponseDto> getCartList(Long memberId) {
 
-        if (cartRepository.existsByMemberId(memberId)) {
-            Optional<Cart> findCart = cartRepository.findByMemberId(memberId);
-            // CartItem의 객체를 CartGetResponseDto로 변환한다.
-            return findCart.getCartItems()
-                    .stream()
-                    .map( variable -> new CartGetResponseDto(variable) )
-                    .toList();
-        } else{
-            throw new CartException(CartErrorCode.CART_NOT_FOUND);
+        Cart findCart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+
+        // CartItem의 객체를 CartGetResponseDto로 변환한다.
+        return findCart.getCartItems()
+                .stream()
+                .map( variable -> new CartGetResponseDto(variable) )
+                .toList();
     }
 
 
