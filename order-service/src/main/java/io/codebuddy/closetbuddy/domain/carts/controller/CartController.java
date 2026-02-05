@@ -62,7 +62,7 @@ public class CartController {
     }
 
     //장바구니에 상품 추가
-    @PostMapping("/{items}")
+    @PostMapping("/items")
     public ResponseEntity<CartItemAddResponse<Long>> addItemToCart(
             @CurrentUser CurrentUserInfo currentUser,
             @RequestBody CartItemAddRequest request
