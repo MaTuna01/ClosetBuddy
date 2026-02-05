@@ -4,14 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-##application.yml
-application.yml
-
-##compose
-src/main/resources/docker-compose.yml
-*/docker-compose.yml
-docker-compose.yml
-docker-compose-test.yml
 
 ### STS ###
 .apt_generated
@@ -41,20 +33,11 @@ out/
 /nbdist/
 /.nb-gradle/
 
-# Docker Compose
-docker-compose.yml
-
-# Spring Boot config
-application.yml
-application-*.yml
-
 ### VS Code ###
 .vscode/
-src/main/resources/application.yml
 
-db_data/
-*.dblwr
+### 맥북 기본 폴더용 ###
+.DS_store/
 
-#env
-.env
-.DS_Store
+application.yml
+application-*.yml
