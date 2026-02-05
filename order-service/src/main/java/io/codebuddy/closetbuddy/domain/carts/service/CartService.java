@@ -45,7 +45,7 @@ public class CartService {
     @Transactional
     public Long addCartItemToCart(CartItemAddRequest request, Long memberId){
         // Feign 호출을 통해 상품 정보를 불러와 CartProductResponse에 저장
-        CartProductResponse product = catalogServiceClient.getProductWithCart(request.productId());
+        CartProductResponse product = catalogServiceClient.getCartProductInfo(request.productId());
 
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseGet(() -> cartRepository.save(

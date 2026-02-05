@@ -11,9 +11,9 @@ public interface CatalogServiceClient {
 
     // 상품 Id를 얻어오는 Feign호출 내부 컨트롤러
     @GetMapping("/internal/catalog/products/{productId}")
-    OrderProductResponse getProductWithOrder(@PathVariable("productId") Long productId);
+    OrderProductResponse getOrderProductInfo(@PathVariable("productId") Long productId);
 
     // 장바구니
     @GetMapping("/internal/catalog/products/{productId}")
-    CartProductResponse getProductWithCart(@PathVariable("productId") Long productId);
+    CartProductResponse getCartProductInfo(@PathVariable("productId") Long productId);
 }

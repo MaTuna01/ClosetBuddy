@@ -4,7 +4,7 @@ import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.service.SellerService;
 import io.codebuddy.closetbuddy.domain.catalog.stores.service.StoreService;
 import io.codebuddy.closetbuddy.domain.common.exception.AuthHeaderMissingException;
-import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductController;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.controller.SellerApiController;
 import io.codebuddy.closetbuddy.domain.catalog.stores.controller.StoreApiController;
 
@@ -21,7 +21,7 @@ import java.time.Instant;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
-        ProductApiController.class,
+        ProductController.class,
         StoreApiController.class,
         SellerApiController.class,
         ProductService.class,
