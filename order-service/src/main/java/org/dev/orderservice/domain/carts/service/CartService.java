@@ -10,7 +10,6 @@ import org.dev.orderservice.domain.carts.model.entity.Cart;
 import org.dev.orderservice.domain.carts.model.entity.CartItem;
 import org.dev.orderservice.domain.carts.repository.CartItemRepository;
 import org.dev.orderservice.domain.carts.repository.CartRepository;
-import org.dev.orderservice.domain.common.feign.OrderServiceClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
