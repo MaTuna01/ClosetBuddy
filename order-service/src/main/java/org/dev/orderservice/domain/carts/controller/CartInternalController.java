@@ -3,7 +3,6 @@ package org.dev.orderservice.domain.carts.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dev.orderservice.domain.carts.service.CartService;
-import org.dev.orderservice.domain.orders.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
