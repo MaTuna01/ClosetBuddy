@@ -54,8 +54,7 @@ public class CartController {
     })
     @PostMapping
     public ResponseEntity<Long> createCart(
-            @CurrentUser CurrentUserInfo currentUser,
-            @Valid @RequestBody CartCreateRequestDto request
+            @CurrentUser CurrentUserInfo currentUser
     ) {
         Long cartItemId = cartService.createCart(Long.parseLong(currentUser.userId()), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemId);

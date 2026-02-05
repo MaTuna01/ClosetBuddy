@@ -22,19 +22,15 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final OrderServiceClient orderServiceClient;
 
     /**
-     * 주문을 생성합니다
+     * 장바구니를 생성합니다
      *
      * @param memberId
-     * @param request
      * @return
      */
     @Transactional
-    public Long createCart(Long memberId, CartCreateRequestDto request) {
-
-        CartProductResponse product = orderServiceClient.getProductWithCart(request.productId());
+    public Long createCart(Long memberId) {
 
         // 회원 조회
         if(memberId == null) {
