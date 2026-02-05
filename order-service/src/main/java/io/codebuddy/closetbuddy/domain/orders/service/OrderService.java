@@ -7,7 +7,7 @@ import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
-import org.dev.orderservice.domain.common.feign.OrderServiceClient;
+import io.codebuddy.closetbuddy.domain.common.feign.OrderServiceClient;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderProductResponse;
