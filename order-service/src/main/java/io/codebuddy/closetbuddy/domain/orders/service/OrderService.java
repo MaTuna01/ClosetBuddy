@@ -7,7 +7,7 @@ import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
-import io.codebuddy.closetbuddy.domain.common.feign.OrderServiceClient;
+import io.codebuddy.closetbuddy.domain.common.feign.CatalogServiceClient;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderProductResponse;
@@ -31,7 +31,7 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
-    private final OrderServiceClient orderServiceClient;
+    private final CatalogServiceClient catalogServiceClient;
 
     /**
      * 주문을 생성합니다.
@@ -54,7 +54,7 @@ public class OrderService {
         for (OrderItemCreateRequestDto itemDto : requestDto.orderItems()) {
 
             // FeignClient로 상품 정보를 조회합니다.
-            OrderProductResponse response = orderServiceClient.getProductWithOrder(itemDto.productId());
+            OrderProductResponse response = catalogServiceClient.getProductWithOrder(itemDto.productId());
 
             // 주문 목록 생성 -> 스냅샷을 저장합니다.
             // 생성하기 위해 받았던 Dto에서 상품 아이디와 주문 수량을 받아오고,
@@ -101,7 +101,7 @@ public class OrderService {
         for (CartGetResponseDto cartDto : cartList) {
 
             // Feign Client로 cartDto에 있는 하나의 상품의 상품 ID를 조회합니다.
-            CartProductResponse response = orderServiceClient.getProductWithCart(cartDto.productId());
+            CartProductResponse response = catalogServiceClient.getProductWithCart(cartDto.productId());
 
             // 상품 목록을 추가합니다.
             // 상품 ID, 상품 이름, 상품 가격, 가게 이름, 장바구니에 담겨있는 수량을 가져옵니다.

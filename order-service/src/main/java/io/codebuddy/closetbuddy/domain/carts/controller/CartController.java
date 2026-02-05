@@ -1,6 +1,9 @@
 package io.codebuddy.closetbuddy.domain.carts.controller;
 
 
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartItemAddResponse;
+import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -59,6 +62,33 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResult.messageOnly("장바구니 생성이 완료되었습니다."));
     }
 
+    //장바구니에 상품 추가
+    @PostMapping("/{items}")
+    public ResponseEntity<CartItemAddResponse<Long>> addItemToCart(
+            @CurrentUser CurrentUserInfo currentUser,
+            @RequestBody CartItemAddRequest request
+    ) {
+        // 유효성 검사
+        if (request.productId() == null || request.productId() <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상품 ID 입니다.");
+        }
+        if (request.productCount() == null || request.productCount() < 1) {
+            throw new IllegalArgumentException("수량은 최소 1개 이상이어야 합니다.");
+        }
+
+        Long cartItemId = cartService.addCartItemToCart(
+                request,
+                Long.parseLong(currentUser.userId())
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(CartItemAddResponse.withData(
+                        "장바구니에 상품이 추가되었습니다.",
+                        cartItemId
+                ));
+    }
+
     /**
      * 회원 아이디를 통해 장바구니를 조회합니다.
      * @param currentUser
@@ -90,6 +120,8 @@ public class CartController {
 
         return ResponseEntity.ok(cartList);
     }
+
+
 
 
     /**

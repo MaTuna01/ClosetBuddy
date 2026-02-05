@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "closetBuddy")
-public interface OrderServiceClient {
+public interface CatalogServiceClient {
 
     // 상품 Id를 얻어오는 Feign호출 내부 컨트롤러
     @GetMapping("/internal/catalog/products/{productId}")

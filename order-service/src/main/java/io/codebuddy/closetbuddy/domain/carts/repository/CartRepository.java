@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface CartRepository extends JpaRepository<Cart, Long> {
     // ElseGet 메서드는 Optional 클래스에 있는 기능이기에 Optional을 붙인다.
     Optional<Cart> findByMemberId(Long memberId);
+
+    boolean existsByMemberId(Long memberId);
 }
