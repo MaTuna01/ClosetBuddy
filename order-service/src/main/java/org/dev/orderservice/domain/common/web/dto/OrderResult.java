@@ -1,0 +1,26 @@
+package org.dev.orderservice.domain.common.web.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class OrderResult<T> {
+    private String message;
+    private T data;
+
+    // 데이터 없이 메시지만 반환하는 경우 (등록, 수정, 삭제 성공 등)
+    public static <T> OrderResult<T> messageOnly(String message) {
+        return new OrderResult<>(message, null);
+    }
+
+    // 데이터와 메시지를 함께 반환하는 경우
+    public static <T> OrderResult<T> withData(String message, T data) {
+        return new OrderResult<>(message, data);
+    }
+
+    // 데이터만 반환하는 경우 (조회 등, 메시지가 필요 없다면 null)
+    public static <T> OrderResult<T> dataOnly(T data) {
+        return new OrderResult<>(null, data);
+    }
+}

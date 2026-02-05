@@ -18,7 +18,7 @@ public class Cart {
     @Id
     @Column(name = "cart_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long cartId;
 
     @Column(name = "member_id")
     private Long memberId;
@@ -28,9 +28,7 @@ public class Cart {
 
     // 생성자
     @Builder
-    public static Cart createCart(Long memberId) {
-        Cart cart = new Cart();
-        cart.memberId = memberId;
-        return cart;
+    public Cart (Long memberId) {
+        this.memberId = memberId;
     }
 }

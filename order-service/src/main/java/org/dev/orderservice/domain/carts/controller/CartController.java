@@ -10,6 +10,7 @@ import org.dev.orderservice.domain.carts.model.dto.response.CartGetResponseDto;
 import org.dev.orderservice.domain.carts.service.CartService;
 import org.dev.orderservice.domain.common.web.CurrentUser;
 import org.dev.orderservice.domain.common.web.CurrentUserInfo;
+import org.dev.orderservice.domain.common.web.dto.OrderResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,11 +54,11 @@ public class CartController {
             )
     })
     @PostMapping
-    public ResponseEntity<Long> createCart(
+    public ResponseEntity<OrderResult<Void>> createCart(
             @CurrentUser CurrentUserInfo currentUser
     ) {
-        Long cartItemId = cartService.createCart(Long.parseLong(currentUser.userId()), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cartItemId);
+        cartService.createCart(Long.parseLong(currentUser.userId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(OrderResult.messageOnly("장바구니 생성이 완료되었습니다."));
     }
 
     /**

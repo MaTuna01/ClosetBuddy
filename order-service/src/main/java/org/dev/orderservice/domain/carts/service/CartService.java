@@ -32,40 +32,12 @@ public class CartService {
     @Transactional
     public Long createCart(Long memberId) {
 
-        // 회원 조회
-        if(memberId == null) {
-            throw new CartException(CartErrorCode.CART_NOT_FOUND);
-        }
+        Cart cart = Cart.builder()
+                .memberId(memberId)
+                .build();
 
-        // 장바구니 조회 없으면 생성
-        Cart cart = cartRepository.findByMemberId(memberId)
-                .orElseGet(() -> {
-                    Cart newCart = Cart.createCart(memberId);
-                    return cartRepository.save(newCart);
-                });
-
-        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), request.productId())
-                .orElse(null);
-
-        // 장바구니에 상품이 있을 경우 수량만 변경
-        if(cartItem != null) {
-            cartItem.addCount(request.cartCount());
-        } else {
-            // 장바구니 상품에 삼품과 상품 개수를 담습니다.
-            cartItem = CartItem.builder()
-                    .cart(cart)
-                    .productId(request.productId())
-                    .productName(product.productName())
-                    .productPrice(product.productPrice())
-                    .storeName(product.storeName())
-                    .cartCount(request.cartCount())
-                    .build();
-        }
-
-        cartItemRepository.save(cartItem).getId();
-
-        // 아이디 반환
-        return cartItem.getId();
+        Long cartId = cartRepository.saveAndFlush(cart).getCartId();
+        return cartId;
     }
 
 
