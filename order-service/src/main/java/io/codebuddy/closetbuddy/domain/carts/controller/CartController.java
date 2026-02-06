@@ -2,6 +2,7 @@ package io.codebuddy.closetbuddy.domain.carts.controller;
 
 
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartItemAddResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,6 +12,7 @@ import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.common.web.dto.OrderResult;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +32,7 @@ public class CartController {
     /*
      * 장바구니를 생성합니다.
      * memberId를 받지 않으면 남의 장바구니에 물건을 담아버리거나
-     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받음
+     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받는다
      * @param memberPrincipalDetails
      * @param request
      * @return
@@ -121,14 +123,10 @@ public class CartController {
     }
 
 
-
-
     /**
-     * 장바구니 수량을 수정합니다.
-     * 수량이 1개 미만이면 예외를 발생시킵니다.
+     * 장바구니를 수정합니다.
      * @param currentUser
-     * @param cartItemId
-     * @param cartCount
+     * @param request
      * @return
      */
     @Operation(
@@ -149,17 +147,12 @@ public class CartController {
                     description = "수정할 장바구니 상품 없음"
             )
     })
-    @PatchMapping("/items/{cartItemId}")
+    @PatchMapping("/items")
     public ResponseEntity<Void> updateCartItem(
             @CurrentUser CurrentUserInfo currentUser,
-            @PathVariable Long cartItemId,
-            @RequestParam Integer cartCount
+            @Valid @RequestBody CartUpdateRequest request
     ) {
-        if(cartCount == null || cartCount < 1) {
-            throw new IllegalArgumentException("수량은 최소 1개 이상이어야 합니다.");
-        }
-
-        cartService.updateCart(Long.parseLong(currentUser.userId()), cartItemId, cartCount);
+        cartService.updateCart(Long.parseLong(currentUser.userId()), request);
 
         return ResponseEntity.ok().build();
     }

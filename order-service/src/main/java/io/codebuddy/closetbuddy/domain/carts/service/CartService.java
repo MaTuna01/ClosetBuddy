@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
 import io.codebuddy.closetbuddy.domain.common.feign.CatalogServiceClient;
 import lombok.RequiredArgsConstructor;
@@ -91,22 +92,24 @@ public class CartService {
     }
 
 
-    /**
-     * 장바구니 수량을 수정합니다.
-     * @param memberId
-     * @param cartItemId
-     * @param cartCount
-     */
+
     @Transactional
-    public void updateCart(Long memberId, Long cartItemId, Integer cartCount) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
+    public void updateCart(Long memberId, CartUpdateRequest request) {
+        // 회원의 장바구니가 존재하는지 확인
+        Cart cart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+
+        // cartItem 객체에 cartItemId가 존재하는지 확인 -> 수정할 cartItem 상품이 있는지 확인
+        CartItem cartItem = cartItemRepository.findById(request.cartItemId())
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
-        if (!cartItem.getCart().getMemberId().equals(memberId)) {
-            throw new CartException(CartErrorCode.NOT_OWNER);
+        // cartId와 cartItem이 가지고 있는 cartId가 같은지 확인
+        if(!cart.getCartId().equals(cartItem.getCart().getCartId())) {
+            throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
         }
 
-        cartItem.updateCount(cartCount);
+        // requestDto 를 받아와서 장바구니 수량을 수정합니다.
+        cartItem.updateCount(request.cartCount());
     }
 
 
