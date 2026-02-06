@@ -43,6 +43,13 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
                 MutableHttpServletRequest mutableRequest = new MutableHttpServletRequest(request);
                 mutableRequest.putHeader(USER_ID_HEADER, verified.userId());
                 mutableRequest.putHeader(USER_ROLE_HEADER, verified.role());
+
+                // 추가할 코드: user-service가 아닌 서비스로 라우팅되는 경우 Authorization 헤더 제거
+                String requestPath = request.getRequestURI();
+                if (!isUserServicePath(requestPath)) {
+                    mutableRequest.removeHeader("Authorization");
+                }
+
                 requestToUse = mutableRequest;
 
             } catch (HttpClientErrorException e) {
@@ -67,4 +74,21 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(requestToUse, response);
     }
+
+    /**
+     * user-service로 라우팅되는 경로인지 확인
+     * user-service는 JwtAuthenticationFilter를 통해 JWT 토큰 기반 인증을 사용하므로
+     * Authorization 헤더를 유지해야 하므로 user-service로 라우팅 할 시 헤더 유지
+     *
+     * user-service의 MemberController는 @AuthenticationPrincipal을 사용하여
+     * SecurityContextHolder에서 인증 정보를 가져오므로 JWT가 필수
+     *
+     * 요청 경로를 파악하고 필요에따라 헤더 유지
+     */
+    private boolean isUserServicePath(String path) {
+        return path.startsWith("/api/v1/auth/")
+                || path.startsWith("/api/v1/authc")
+                || path.startsWith("/api/v1/members/");
+    }
+
 }
