@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.exception;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.InternalProductController;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductController;
 import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import io.codebuddy.closetbuddy.domain.catalog.web.ErrorResponse;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 
 //product 도메인에 걸쳐 예외를 처리하는 핸들러
-@RestControllerAdvice(assignableTypes =  {ProductApiController.class, ProductService.class})
+@RestControllerAdvice(assignableTypes =  {ProductController.class, InternalProductController.class, ProductService.class})
 
 public class ProductExceptionHandler {
 

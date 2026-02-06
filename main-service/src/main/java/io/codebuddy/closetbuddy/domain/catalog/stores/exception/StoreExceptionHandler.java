@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.stores.exception;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductController;
 import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import io.codebuddy.closetbuddy.domain.catalog.stores.controller.StoreApiController;
 import io.codebuddy.closetbuddy.domain.catalog.stores.service.StoreService;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 
 //Store 도메인의 예외만 잡도록 격리
-@RestControllerAdvice(assignableTypes = {StoreApiController.class, StoreService.class, ProductService.class, ProductApiController.class})
+@RestControllerAdvice(assignableTypes = {StoreApiController.class, StoreService.class, ProductService.class, ProductController.class})
 public class StoreExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(StoreExceptionHandler.class);
