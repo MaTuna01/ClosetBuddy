@@ -6,6 +6,7 @@ import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductRespons
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.UpdateProductRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductCreateRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductElasticRepository;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 
 import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
@@ -26,10 +27,11 @@ public class ProductService {
 
     private final ProductJpaRepository productJpaRepository;
     private final StoreJpaRepository storeJpaRepository;
+    private final ProductElasticRepository productElasticRepository;
 
     //상품 등록
     @Transactional
-    public Long createProduct(Long memberId, Long storeId, ProductCreateRequest request) {
+    public void createProduct(Long memberId, Long storeId, ProductCreateRequest request) {
         Store store = storeJpaRepository.findById(storeId)
                 .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
 
@@ -38,7 +40,9 @@ public class ProductService {
 
         //상품 생성
         Product product = request.toEntity(store);
-        return productJpaRepository.save(product).getProductId();
+        productJpaRepository.save(product);
+
+
     }
 
     //상품 수정
