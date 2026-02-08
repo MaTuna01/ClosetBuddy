@@ -86,9 +86,7 @@ public class CartController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CartItemAddResponse.withData(
-                        "장바구니에 상품이 추가되었습니다.",
-                        cartItemId
-                ));
+                        "장바구니에 상품이 추가되었습니다.", cartItemId));
     }
 
     /**
