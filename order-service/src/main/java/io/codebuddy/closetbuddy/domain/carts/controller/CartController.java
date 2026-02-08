@@ -191,4 +191,11 @@ public class CartController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteCart(
+            @CurrentUser CurrentUserInfo currentUser
+    ){
+        cartService.deleteCart(Long.parseLong(currentUser.userId()));
+    }
 }

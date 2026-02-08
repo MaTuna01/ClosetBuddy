@@ -20,4 +20,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Modifying
     @Query("DELETE FROM CartItem ci WHERE ci.cart.memberId = :memberId AND ci.id IN :ids")
     void deleteCartItem(@Param("memberId") Long memberId, @Param("ids") List<Long> ids);
+
+    // 회원 탈퇴 시 memberId를 통해 장바구니를 삭제합니다.
+    void deleteCartByMemberId(Long memberId);
 }

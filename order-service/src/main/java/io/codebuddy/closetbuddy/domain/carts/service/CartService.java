@@ -131,4 +131,14 @@ public class CartService {
         }
         cartItemRepository.deleteCartItem(memberId, request.cartItemList());
     }
+
+
+    /**
+     * 회원탈퇴 시 사용하는 삭제 메서드
+     * @param memberId
+     */
+    @Transactional
+    public void deleteCart(Long memberId) {
+        cartItemRepository.deleteCartByMemberId(memberId);
+    }
 }
