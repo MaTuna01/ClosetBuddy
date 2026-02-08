@@ -2,10 +2,12 @@ package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductException;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductMapper;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.UpdateProductRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductCreateRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.ProductDocument;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductElasticRepository;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 
@@ -42,6 +44,10 @@ public class ProductService {
         Product product = request.toEntity(store);
         productJpaRepository.save(product);
 
+        //ELS 상품 등록
+        ProductDocument productDocument= ProductMapper.toProductDocument(product);
+        productElasticRepository.save(productDocument);
+
 
     }
 
@@ -61,6 +67,13 @@ public class ProductService {
                 request.imageUrl(),
                 product.getCategory()
         );
+
+        //ELS 수정
+        ProductDocument productDocument=ProductMapper.toProductDocument(product);
+
+        //ELS의 save : 없으면 create, 있으면 update
+        productElasticRepository.save(productDocument);
+
     }
 
     //상품 상세조회(단건)
@@ -100,6 +113,10 @@ public class ProductService {
         //상품을 삭제할 권한이 있는 회원인지 검증
         validateProductOwner(memberId, product);
         productJpaRepository.delete(product);
+
+        //ELS 데이터 삭제
+        ProductDocument productDocument=ProductMapper.toProductDocument(product);
+        productElasticRepository.delete(productDocument);
     }
 
     // (상점 주인 확인용) 검증 로직
