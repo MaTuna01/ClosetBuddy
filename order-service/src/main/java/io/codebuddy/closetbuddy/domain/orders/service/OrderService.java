@@ -1,6 +1,8 @@
 package io.codebuddy.closetbuddy.domain.orders.service;
 
 
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
+import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import lombok.RequiredArgsConstructor;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
@@ -96,6 +98,8 @@ public class OrderService {
 
         // 주문 리스트를 생성합니다.
         List<OrderItem> orderItems = new ArrayList<>();
+        // 삭제할 장바구니 아이템 ID를 담을 리스트를 생성합니다.
+        List<Long> cartItemIds = new ArrayList<>();
 
         // cartList에 있는 상품들을 주문 목록에 옮겨 담습니다.
         for (CartGetResponseDto cartDto : cartList) {
@@ -112,15 +116,24 @@ public class OrderService {
                     response.productPrice(),
                     cartDto.cartCount()
             ));
+
+            // cartItemId를 담습니다.
+            cartItemIds.add(cartDto.cartItemId());
         }
 
         // 새로운 주문 객체를 만들어 회원 정보와 함께 주문 내역을 생성합니다.
         Order order = Order.createOrder(memberId, orderItems);
         orderRepository.save(order);
 
+        CartDeleteRequest request = new CartDeleteRequest(cartItemIds);
+        cartService.deleteCartItem(memberId, request);
+
+
         // 정상적으로 생성이 되면 장바구니에 있는 상품을 삭제합니다.
+        // 생성이 된 주문 내역을 장바구니에 있는 상품 내역과 비교해서 상품 내역을 삭제해줍니다.
+
         for (CartGetResponseDto cartDto : cartList) {
-            cartService.deleteCartItem(memberId, cartDto.cartItemId());
+            cartService.deleteCartItem(memberId, request);
         }
 
         // 주문 ID를 반환합니다.

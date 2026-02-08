@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
@@ -27,7 +28,7 @@ public class CartService {
     private final CatalogServiceClient catalogServiceClient;
 
     /**
-     * 장바구니를 생성합니다
+     * 회원가입시 장바구니를 생성합니다
      *
      * @param memberId
      * @return
@@ -92,7 +93,11 @@ public class CartService {
     }
 
 
-
+    /**
+     * 장바구니를 수정합니다.
+     * @param memberId
+     * @param request
+     */
     @Transactional
     public void updateCart(Long memberId, CartUpdateRequest request) {
         // 회원의 장바구니가 존재하는지 확인
@@ -114,19 +119,16 @@ public class CartService {
 
 
     /**
-     * 장바구니 목록을 삭제합니다.
+     * 장바구니를 삭제합니다.
      * @param memberId
-     * @param cartItemId
+     * @param request
      */
     @Transactional
-    public void deleteCartItem(Long memberId, Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
-
-        if (!cartItem.getCart().getMemberId().equals(memberId)) {
-            throw new CartException(CartErrorCode.NOT_OWNER);
+    public void deleteCartItem(Long memberId, CartDeleteRequest request) {
+        // 장바구니 상품 리스트가 비어있을 경우, 예외를 반환한다.
+        if(request.cartItemList() == null || request.cartItemList().isEmpty()){
+            throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
         }
-
-        cartItemRepository.delete(cartItem);
+        cartItemRepository.deleteCartItem(memberId, request.cartItemList());
     }
 }

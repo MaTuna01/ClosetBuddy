@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.carts.controller;
 
 
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartItemAddResponse;
@@ -157,11 +158,10 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
-
     /**
-     * 장바구니의 물건을 삭제합니다.
+     * 장바구니에 있는 상품 목록을 삭제합니다.
      * @param currentUser
-     * @param cartItemId
+     * @param request
      * @return
      */
     @Operation(
@@ -182,12 +182,12 @@ public class CartController {
                     description = "삭제할 장바구니 물건이 없음"
             )
     })
-    @DeleteMapping("/items/{cartItemId}")
+    @DeleteMapping("/items")
     public ResponseEntity<Void> deleteCartItem(
             @CurrentUser CurrentUserInfo currentUser,
-            @PathVariable Long cartItemId
+            @Valid @RequestBody CartDeleteRequest request
     ) {
-        cartService.deleteCartItem(Long.parseLong(currentUser.userId()), cartItemId);
+        cartService.deleteCartItem(Long.parseLong(currentUser.userId()), request);
 
         return ResponseEntity.noContent().build();
     }
