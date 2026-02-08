@@ -18,10 +18,18 @@ import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -117,6 +125,35 @@ public class ProductService {
         //ELS 데이터 삭제
         ProductDocument productDocument=ProductMapper.toProductDocument(product);
         productElasticRepository.delete(productDocument);
+    }
+
+    //검색 자동 완성
+    public List<String> getSuggestions(String prefix, Integer limit) {
+
+        // Pageable로 개수 제한
+        Pageable pageable = PageRequest.of(0, limit);
+        // SearchPage : SearchHits + Page
+        SearchPage<ProductDocument> searchPage = productElasticRepository.autoComplete(prefix, pageable);
+        // 검색된 결과에서 searchHits만 분리
+        SearchHits<ProductDocument> searchHits = searchPage.getSearchHits();
+
+        // 결과 담을 리스트와 중복 확인용 Set 생성
+        // '나이키' 검색 시 '나이키 신발'이 100개 출력되지 않도록 중복 제거
+        List<String> resultList = new ArrayList<>();
+        Set<String> uniqueChecker = new HashSet<>();
+
+        for (SearchHit<ProductDocument> hit : searchHits) {
+            ProductDocument product = hit.getContent();
+            String name = product.getProductName();
+
+            // 중복 제거 로직 (Set에 없으면 추가)
+            if (!uniqueChecker.contains(name)) {
+                uniqueChecker.add(name); // Set에 등록
+                resultList.add(name);    // 결과 리스트에 추가
+            }
+        }
+
+        return resultList;
     }
 
     // (상점 주인 확인용) 검증 로직

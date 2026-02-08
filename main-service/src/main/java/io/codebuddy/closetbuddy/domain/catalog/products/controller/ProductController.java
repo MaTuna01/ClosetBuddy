@@ -234,4 +234,16 @@ public class ProductController {
         List<ProductResponse> response = productService.getAllProducts();
         return ResponseEntity.ok(response);
     }
+
+    //자동 완성
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<String>> fetchSuggestions(
+            @RequestParam("prefix") String prefix,
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit
+    ) {
+        List<String> suggestions = productService.getSuggestions(prefix, limit);
+
+        return ResponseEntity.ok(suggestions);
+    }
+
 }
