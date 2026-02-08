@@ -36,6 +36,11 @@ public class CartService {
     @Transactional
     public Long createCart(Long memberId) {
 
+        // 장바구니가 이미 존재하면 409 CONFLICT 에러 발생
+        if(cartRepository.existsByMemberId(memberId)) {
+            throw new CartException(CartErrorCode.CART_ALREADY_EXITS);
+        }
+
         Cart cart = Cart.builder()
                 .memberId(memberId)
                 .build();
@@ -139,6 +144,6 @@ public class CartService {
      */
     @Transactional
     public void deleteCart(Long memberId) {
-        cartItemRepository.deleteCartByMemberId(memberId);
+        cartItemRepository.deleteByCart_MemberId(memberId);
     }
 }
