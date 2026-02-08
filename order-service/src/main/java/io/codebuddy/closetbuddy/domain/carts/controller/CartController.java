@@ -33,7 +33,7 @@ public class CartController {
     /*
      * 장바구니를 생성합니다.
      * memberId를 받지 않으면 남의 장바구니에 물건을 담아버리거나
-     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받는다
+     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받습니다.
      * @param memberPrincipalDetails
      * @param request
      * @return
@@ -192,10 +192,17 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * 회원 탈퇴시 장바구니를 삭제합니다.
+     * @param currentUser
+     * @return
+     */
     @DeleteMapping
     public ResponseEntity<Void> deleteCart(
             @CurrentUser CurrentUserInfo currentUser
     ){
         cartService.deleteCart(Long.parseLong(currentUser.userId()));
+
+        return ResponseEntity.noContent().build();
     }
 }
