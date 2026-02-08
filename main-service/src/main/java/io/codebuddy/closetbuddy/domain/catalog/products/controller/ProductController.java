@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -235,7 +238,7 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    //자동 완성
+    //자동 완성(띄어쓰기 고려)
     @GetMapping("/suggestions")
     public ResponseEntity<List<String>> fetchSuggestions(
             @RequestParam("prefix") String prefix,
@@ -244,6 +247,21 @@ public class ProductController {
         List<String> suggestions = productService.getSuggestions(prefix, limit);
 
         return ResponseEntity.ok(suggestions);
+    }
+
+    /*
+    상품 검색
+    기본 검색 : http://localhost:8080/product/search?keyword=나이키
+    페이징 : http://localhost:8080/product/search?keyword=나이키&page=0&size=10
+     */
+    @GetMapping("/products/search")
+    public ResponseEntity<Page<ProductResponse>> searchProducts(
+            @RequestParam(name = "keyword") String keyword,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<ProductResponse> result = productService.searchProducts(keyword, pageable);
+
+        return ResponseEntity.ok(result);
     }
 
 }

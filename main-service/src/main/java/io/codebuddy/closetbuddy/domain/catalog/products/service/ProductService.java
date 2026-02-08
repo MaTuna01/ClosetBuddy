@@ -2,10 +2,7 @@ package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductException;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductMapper;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.UpdateProductRequest;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductCreateRequest;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.*;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.ProductDocument;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductElasticRepository;
@@ -18,6 +15,8 @@ import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -154,6 +153,27 @@ public class ProductService {
         }
 
         return resultList;
+    }
+
+    // 상품 검색
+    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
+
+        // ELS에서 검색 결과 가져오기
+        SearchPage<ProductDocument> searchPage = productElasticRepository.searchByKeyword(keyword, pageable);
+
+        // 결과를 담을 리스트 생성
+        List<ProductResponse> responseList = new ArrayList<>();
+
+        for (SearchHit<ProductDocument> hit : searchPage.getSearchHits()) {
+            ProductDocument document = hit.getContent();
+
+            ProductResponse dto = ProductResponse.fromDocument(document);
+
+            responseList.add(dto);
+        }
+
+        // PageImpl로 반환 (데이터 리스트, 페이징 정보, 전체 개수)
+        return new PageImpl<>(responseList, pageable, searchPage.getTotalElements());
     }
 
     // (상점 주인 확인용) 검증 로직
