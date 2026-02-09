@@ -13,7 +13,7 @@ public record UpdateProductRequest(
         int productStock,
         @Size(min = 3, max = 999999, message = "Url 경로 길이를 확인하세요")
         String imageUrl,
-        @NotNull(message = "카테고리는 필수 항목 입니다.")
-        Category category
+        @NotNull(message = "카테고리는 필수 항목입니다.")
+        String categoryCode
 ) {
 }

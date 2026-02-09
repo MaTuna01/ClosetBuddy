@@ -1,15 +1,20 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
+import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryErrorCode;
+import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryException;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductException;
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.UpdateProductRequest;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductCreateRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.*;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.repository.CategoryJpaRepository;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.ProductDocument;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductElasticRepository;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 
-import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
-import io.codebuddy.closetbuddy.domain.catalog.sellers.service.SellerService;
 import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
@@ -36,6 +41,7 @@ public class ProductService {
 
     private final ProductJpaRepository productJpaRepository;
     private final StoreJpaRepository storeJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final ProductElasticRepository productElasticRepository;
 
     //상품 등록
@@ -47,15 +53,18 @@ public class ProductService {
         //검증 로직(로그인 한 사람이 이 상품을 올릴 상점 주인이 맞는지?
         validateStoreOwner(memberId, store);
 
-        //상품 생성
-        Product product = request.toEntity(store);
+        // 서비스에서 Category 조회
+        Category category = categoryJpaRepository.findByCode(request.categoryCode())
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+
+        // 조회한 카테고리와 입력받은 request DTO를 통해 product 생성
+        // toEntity에 Category 전달
+        Product product = request.toEntity(store, category);
         productJpaRepository.save(product);
 
         //ELS 상품 등록
         ProductDocument productDocument= ProductMapper.toProductDocument(product);
         productElasticRepository.save(productDocument);
-
-
     }
 
     //상품 수정
@@ -63,6 +72,10 @@ public class ProductService {
     public void updateProduct(Long memberId, Long productId, UpdateProductRequest request) {
         Product product = productJpaRepository.findById(productId)
                 .orElseThrow( () -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        // 서비스에서 Category 조회
+        Category category = categoryJpaRepository.findByCode(request.categoryCode())
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
 
         validateProductOwner(memberId, product);
 
@@ -72,7 +85,7 @@ public class ProductService {
                 request.productStock(),
                 product.getStore(),
                 request.imageUrl(),
-                product.getCategory()
+                category
         );
 
         //ELS 수정
@@ -80,7 +93,6 @@ public class ProductService {
 
         //ELS의 save : 없으면 create, 있으면 update
         productElasticRepository.save(productDocument);
-
     }
 
     //상품 상세조회(단건)
@@ -156,18 +168,18 @@ public class ProductService {
     }
 
     // 상품 검색
-    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
+    public Page<ProductSearchResponse> searchProducts(String keyword, Pageable pageable) {
 
         // ELS에서 검색 결과 가져오기
         SearchPage<ProductDocument> searchPage = productElasticRepository.searchByKeyword(keyword, pageable);
 
         // 결과를 담을 리스트 생성
-        List<ProductResponse> responseList = new ArrayList<>();
+        List<ProductSearchResponse> responseList = new ArrayList<>();
 
         for (SearchHit<ProductDocument> hit : searchPage.getSearchHits()) {
             ProductDocument document = hit.getContent();
 
-            ProductResponse dto = ProductResponse.fromDocument(document);
+            ProductSearchResponse dto = ProductSearchResponse.fromDocument(document);
 
             responseList.add(dto);
         }

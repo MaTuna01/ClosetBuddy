@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.controller;
 
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductSearchResponse;
 import io.codebuddy.closetbuddy.domain.catalog.web.dto.CatalogResult;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
@@ -275,11 +276,11 @@ public class ProductController {
             )
     })
     @GetMapping("/products/search")
-    public ResponseEntity<Page<ProductResponse>> searchProducts(
+    public ResponseEntity<Page<ProductSearchResponse>> searchProducts(
             @RequestParam(name = "keyword") String keyword,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        Page<ProductResponse> result = productService.searchProducts(keyword, pageable);
+        Page<ProductSearchResponse> result = productService.searchProducts(keyword, pageable);
 
         return ResponseEntity.ok(result);
     }
