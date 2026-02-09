@@ -32,14 +32,26 @@ public class CartItem {
     @Column(name = "store_name")
     private String storeName;
 
+    @Column(name = "store_id")
+    private Long storeId;
+
+    @Column(name = "seller_id")
+    private Long sellerId;
+
+    @Column(name = "seller_name")
+    private String sellerName;
+
     @Builder
-    public CartItem(Cart cart, Long productId, String productName, Integer cartCount, Long productPrice, String storeName) {
+    public CartItem(Cart cart, Long sellerId, String sellerName, Long productId, String productName, Long productPrice, Long storeId, String storeName, Integer cartCount) {
         this.cart = cart;
+        this.sellerId = sellerId;
+        this.sellerName = sellerName;
         this.productId = productId;
         this.productName = productName;
-        this.cartCount = cartCount;
         this.productPrice = productPrice;
+        this.storeId = storeId;
         this.storeName = storeName;
+        this.cartCount = cartCount;
     }
 
     /**
