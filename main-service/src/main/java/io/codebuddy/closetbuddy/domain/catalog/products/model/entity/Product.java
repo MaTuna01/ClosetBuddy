@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.model.entity;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,8 +36,9 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "category")
-    @Enumerated(EnumType.STRING)
+    // 계층형 카테고리 구현을 위한
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Builder
@@ -60,5 +61,11 @@ public class Product {
         this.store = store;
         this.imageUrl = imageUrl;
         this.category = category;
+    }
+
+    // 조회를 통해 루트 카테고리 반환
+    public Category getRootCategory() {
+        // 삼항 연산자로 루트 카테고리를 반환
+        return category != null ? category.getParent() : null;
     }
 }

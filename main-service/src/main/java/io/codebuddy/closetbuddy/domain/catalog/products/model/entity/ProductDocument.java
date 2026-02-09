@@ -47,7 +47,7 @@ public class ProductDocument {
 
     // 동의어 설정
     @Field(type = FieldType.Text, analyzer = "nori_synonym_analyzer")
-    private String category;
+    private String categoryName;
 
     // 이미지를 검색할 필요 없으므로 색인 제외 (저장 공간 절약)
     @Field(type = FieldType.Keyword, index = false)

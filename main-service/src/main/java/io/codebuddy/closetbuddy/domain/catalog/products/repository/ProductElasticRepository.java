@@ -3,7 +3,6 @@ package io.codebuddy.closetbuddy.domain.catalog.products.repository;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.ProductDocument;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
