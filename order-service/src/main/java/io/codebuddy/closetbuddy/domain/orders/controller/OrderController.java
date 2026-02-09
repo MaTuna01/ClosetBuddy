@@ -165,7 +165,6 @@ public class OrderController {
      * @param orderId
      * @return
      */
-
     @PostMapping("/cart/{orderId}")
     public ResponseEntity<Long> createOrderFromCart(
             @CurrentUser CurrentUserInfo currentUser,
