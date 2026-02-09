@@ -69,11 +69,14 @@ public class CartService {
         } else {
             CartItem cartItem = CartItem.builder()
                     .cart(cart)
-                    .productId(product.productId())
-                    .productName(product.productName())
-                    .productPrice(product.productPrice())
-                    .storeName(product.storeName())
-                    .cartCount(request.productCount())
+                    .sellerId(product.sellerId()) // 판매자 아이디
+                    .sellerName(product.sellerName()) // 판매자 이름
+                    .productId(request.productId()) // 상품 아이디
+                    .productName(product.productName()) // 상품 이름
+                    .productPrice(product.productPrice()) // 상품 가격
+                    .storeId(product.storeId()) // 가게 아이디
+                    .storeName(product.storeName()) // 가게 이름
+                    .cartCount(request.productCount()) // 상품 개수
                     .build();
             return cartItemRepository.save(cartItem).getId();
         }
@@ -139,7 +142,7 @@ public class CartService {
 
 
     /**
-     * 회원탈퇴 시 사용하는 삭제 메서드
+     * 회원 탈퇴 시 사용하는 삭제 메서드
      * @param memberId
      */
     @Transactional

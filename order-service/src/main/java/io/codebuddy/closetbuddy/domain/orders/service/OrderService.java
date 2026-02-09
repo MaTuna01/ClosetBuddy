@@ -64,6 +64,9 @@ public class OrderService {
             orderItems.add(OrderItem.createOrderItem(
                     itemDto.productId(),
                     response.productName(),
+                    response.sellerId(),
+                    response.sellerName(),
+                    response.storeId(),
                     response.storeName(),
                     response.productPrice(),
                     itemDto.orderCount()
@@ -112,7 +115,10 @@ public class OrderService {
             orderItems.add(OrderItem.createOrderItem(
                     cartDto.productId(),
                     response.productName(),
+                    response.storeId(),
                     response.storeName(),
+                    response.sellerId(),
+                    response.sellerName(),
                     response.productPrice(),
                     cartDto.cartCount()
             ));
@@ -202,10 +208,10 @@ public class OrderService {
         // 최종적으로 orderDetailResponseDto 로 변환해줍니다.
         // 주문 상세 목록 Dto를 생성해줍니다.
         return new OrderDetailResponseDto(
-                order.getOrderId(),
-                order.getCreatedAt(),
-                order.getOrderStatus(),
-                order.getOrderAmount(),
+                order.getOrderId(), // 주문 번호
+                order.getCreatedAt(), // 생성일
+                order.getOrderStatus(), // 주문 상태
+                order.getOrderAmount(), // 주문 수량
                 itemDto
         );
     }
