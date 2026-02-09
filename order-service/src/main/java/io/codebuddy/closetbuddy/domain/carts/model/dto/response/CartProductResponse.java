@@ -4,8 +4,11 @@ package io.codebuddy.closetbuddy.domain.carts.model.dto.response;
 public record CartProductResponse(
         Long productId,
         String productName,
+        Long sellerId,
+        String sellerName,
+        Long storeId,
         Long productPrice,
-        int productStock,
+        Integer productStock,
         String storeName
 ) {
 }
