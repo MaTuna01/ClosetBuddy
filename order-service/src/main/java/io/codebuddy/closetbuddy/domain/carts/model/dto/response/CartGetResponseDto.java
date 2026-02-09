@@ -1,0 +1,20 @@
+package io.codebuddy.closetbuddy.domain.carts.model.dto.response;
+
+
+import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
+
+public record CartGetResponseDto(
+        Long cartItemId,
+        Long productId,
+        Integer cartCount
+) {
+    // Entity -> Dto 변환 로직
+    public CartGetResponseDto(CartItem entity) {
+        this(
+                entity.getId(),
+                entity.getProductId(),
+                entity.getCartCount()
+        );
+    }
+}
+

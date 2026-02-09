@@ -16,6 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import io.jsonwebtoken.security.SignatureException;
+
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +67,9 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         body.put("code", code);
         body.put("message", message);
 
-        objectMapper.writeValue(response.getWriter(), body);
+        String bodyString = objectMapper.writeValueAsString(body);
+        PrintWriter writer = response.getWriter();
+
+        writer.write(bodyString);
     }
 }

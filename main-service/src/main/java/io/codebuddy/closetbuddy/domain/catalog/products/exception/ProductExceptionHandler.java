@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.exception;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductApiController;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.InternalProductController;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductController;
 import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import io.codebuddy.closetbuddy.domain.catalog.web.ErrorResponse;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 
 //product 도메인에 걸쳐 예외를 처리하는 핸들러
-@RestControllerAdvice(assignableTypes =  {ProductApiController.class, ProductService.class})
+@RestControllerAdvice(assignableTypes =  {ProductController.class, InternalProductController.class, ProductService.class})
 
 public class ProductExceptionHandler {
 
@@ -41,12 +42,5 @@ public class ProductExceptionHandler {
     }
 
 
-    //그 외 서버에러
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        String errorMessage = "상품 서비스에 문제가 발생했습니다. 관리자에게 문의하세요.";
-        log.error("Product Service Unhandled Error: ",e); // 진짜 서버 에러는 Error 로그
-        return ResponseEntity.internalServerError()
-                .body(new ErrorResponse(null, errorMessage, Instant.now()));
-    }
+
 }

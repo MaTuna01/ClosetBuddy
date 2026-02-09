@@ -5,10 +5,8 @@ import io.codebuddy.userservice.domain.auth.token.security.principal.MemberDetai
 import io.codebuddy.userservice.domain.member.dto.MemberResponse;
 import io.codebuddy.userservice.domain.member.dto.MemberUpdateRequest;
 import io.codebuddy.userservice.domain.member.service.MemberService;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,24 +38,4 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    // 판매자 권한 부여
-    @PostMapping("/me/seller")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Long> registerSeller(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal) {
-
-        memberCommandService.registerSeller(principal.getId());
-
-        return ResponseEntity.ok().build();
-    }
-
-    // 판매자 등록 해제 (역할 해제)
-    @DeleteMapping("/me/seller")
-    public ResponseEntity<Void> unregisterSeller(
-            @Parameter(hidden = true) @AuthenticationPrincipal MemberDetails principal) {
-
-        memberCommandService.revokeSeller(principal.getId());
-
-        return ResponseEntity.ok().build();
-    }
 }

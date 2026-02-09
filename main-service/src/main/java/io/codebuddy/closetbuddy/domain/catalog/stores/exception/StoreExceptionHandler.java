@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.stores.exception;
 
-import io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerException;
+import io.codebuddy.closetbuddy.domain.catalog.products.controller.ProductController;
+import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import io.codebuddy.closetbuddy.domain.catalog.stores.controller.StoreApiController;
 import io.codebuddy.closetbuddy.domain.catalog.stores.service.StoreService;
 import io.codebuddy.closetbuddy.domain.catalog.web.ErrorResponse;
@@ -15,12 +16,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 
 //Store 도메인의 예외만 잡도록 격리
-@RestControllerAdvice(assignableTypes = {StoreApiController.class, StoreService.class})
+@RestControllerAdvice(assignableTypes = {StoreApiController.class, StoreService.class, ProductService.class, ProductController.class})
 public class StoreExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(StoreExceptionHandler.class);
 
-    @ExceptionHandler(SellerException.class)
+    @ExceptionHandler(StoreException.class)
     public ResponseEntity<ErrorResponse> handleStoreException(StoreException e) {
         StoreErrorCode errorCode = e.getErrorCode();
         //예외를 잡아 서버 로그로 출력

@@ -57,3 +57,4 @@ db_data/
 
 #env
 .env
+.DS_Store
