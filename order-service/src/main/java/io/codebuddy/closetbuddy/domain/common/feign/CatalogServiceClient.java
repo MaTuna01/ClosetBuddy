@@ -1,7 +1,7 @@
 package io.codebuddy.closetbuddy.domain.common.feign;
 
-import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
-import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderProductResponse;
+import io.codebuddy.closetbuddy.domain.common.feign.dto.CartProductResponse;
+import io.codebuddy.closetbuddy.domain.common.feign.dto.OrderProductResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
