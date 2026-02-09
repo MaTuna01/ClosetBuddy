@@ -64,7 +64,12 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResult.messageOnly("장바구니 생성이 완료되었습니다."));
     }
 
-    //장바구니에 상품 추가
+    /**
+     * 장바구니에 상품을 추가합니다.
+     * @param currentUser
+     * @param request
+     * @return
+     */
     @PostMapping("/items")
     public ResponseEntity<CartItemAddResponse<Long>> addItemToCart(
             @CurrentUser CurrentUserInfo currentUser,
@@ -85,8 +90,7 @@ public class CartController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CartItemAddResponse.withData(
-                        "장바구니에 상품이 추가되었습니다.", cartItemId));
+                .body(CartItemAddResponse.withData("장바구니에 상품이 추가되었습니다.", cartItemId));
     }
 
     /**
@@ -189,5 +193,5 @@ public class CartController {
 
         return ResponseEntity.noContent().build();
     }
-    
+
 }

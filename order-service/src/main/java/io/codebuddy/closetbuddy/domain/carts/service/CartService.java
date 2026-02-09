@@ -30,15 +30,14 @@ public class CartService {
 
     /**
      * 회원가입시 장바구니를 생성합니다
+     *
      * @param memberId
      * @return
      */
     @Transactional
     public Long createCart(Long memberId) {
 
-        Cart cart = Cart.builder()
-                .memberId(memberId)
-                .build();
+        Cart cart = Cart.builder().memberId(memberId).build();
 
         Long cartId = cartRepository.saveAndFlush(cart).getCartId();
 
@@ -76,6 +75,7 @@ public class CartService {
 
     /**
      * 회원 아이디로 장바구니를 조회합니다.
+     *
      * @param memberId
      * @return
      */
@@ -88,8 +88,7 @@ public class CartService {
         List<CartGetResponseDto> cartGetResponseDto = new ArrayList<>();
 
         for(CartItem cartItem : cartItems) {
-
-            // 외부 API 호출로 장바구니가 최신 상품 정보를 반영하도록 합니다.
+            // 외부 API 호출을 통해 장바구니가 최신 상품 정보를 반영하도록 합니다.
             CartProductResponse product = catalogServiceClient.getCartProductInfo(cartItem.getProductId());
 
             // DB에 있는 수량과 외부에서 가져온 상품 정보를 합쳐 Dto를 반환합니다.
@@ -99,10 +98,7 @@ public class CartService {
                     product.productName(), // 상품 이름
                     product.productPrice(), // 상품당 가격
                     cartItem.getCartCount(), // 장바구니에 담긴 상품 수량
-                    product.storeId(), // 상점 아이디
-                    product.storeName(),// 상점 이름
-                    product.sellerId(), // 판매자 아이디
-                    product.sellerName() // 판매자 이름
+                    product.storeName() // 상점 이름
             ));
         }
         return cartGetResponseDto;
@@ -111,6 +107,7 @@ public class CartService {
 
     /**
      * 장바구니를 수정합니다.
+     *
      * @param memberId
      * @param request
      */
@@ -136,6 +133,7 @@ public class CartService {
 
     /**
      * 장바구니 상품을 삭제합니다.
+     *
      * @param memberId
      * @param request
      */
@@ -151,6 +149,7 @@ public class CartService {
 
     /**
      * 회원 탈퇴 시 사용하는 삭제 메서드
+     *
      * @param memberId
      */
     @Transactional
