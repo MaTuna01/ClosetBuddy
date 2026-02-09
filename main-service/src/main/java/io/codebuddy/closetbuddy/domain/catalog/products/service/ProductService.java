@@ -60,13 +60,11 @@ public class ProductService {
         // 조회한 카테고리와 입력받은 request DTO를 통해 product 생성
         // toEntity에 Category 전달
         Product product = request.toEntity(store, category);
-        return productJpaRepository.save(product).getProductId();
+        productJpaRepository.save(product).getProductId();
 
         //ELS 상품 등록
         ProductDocument productDocument= ProductMapper.toProductDocument(product);
         productElasticRepository.save(productDocument);
-
-
     }
 
     //상품 수정
@@ -95,7 +93,6 @@ public class ProductService {
 
         //ELS의 save : 없으면 create, 있으면 update
         productElasticRepository.save(productDocument);
-
     }
 
     //상품 상세조회(단건)
@@ -171,18 +168,18 @@ public class ProductService {
     }
 
     // 상품 검색
-    public Page<ProductResponse> searchProducts(String keyword, Pageable pageable) {
+    public Page<ProductSearchResponse> searchProducts(String keyword, Pageable pageable) {
 
         // ELS에서 검색 결과 가져오기
         SearchPage<ProductDocument> searchPage = productElasticRepository.searchByKeyword(keyword, pageable);
 
         // 결과를 담을 리스트 생성
-        List<ProductResponse> responseList = new ArrayList<>();
+        List<ProductSearchResponse> responseList = new ArrayList<>();
 
         for (SearchHit<ProductDocument> hit : searchPage.getSearchHits()) {
             ProductDocument document = hit.getContent();
 
-            ProductResponse dto = ProductResponse.fromDocument(document);
+            ProductSearchResponse dto = ProductSearchResponse.fromDocument(document);
 
             responseList.add(dto);
         }
