@@ -60,7 +60,7 @@ public class ProductService {
         // 조회한 카테고리와 입력받은 request DTO를 통해 product 생성
         // toEntity에 Category 전달
         Product product = request.toEntity(store, category);
-        productJpaRepository.save(product).getProductId();
+        productJpaRepository.save(product);
 
         //ELS 상품 등록
         ProductDocument productDocument= ProductMapper.toProductDocument(product);
