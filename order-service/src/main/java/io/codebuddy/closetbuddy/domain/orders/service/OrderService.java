@@ -2,17 +2,16 @@ package io.codebuddy.closetbuddy.domain.orders.service;
 
 
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
-import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import lombok.RequiredArgsConstructor;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
-import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
+import io.codebuddy.closetbuddy.domain.common.feign.dto.CartProductResponse;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.feign.CatalogServiceClient;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
-import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderProductResponse;
+import io.codebuddy.closetbuddy.domain.common.feign.dto.OrderProductResponse;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderItemCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
@@ -58,23 +57,20 @@ public class OrderService {
             // FeignClient로 상품 정보를 조회합니다.
             OrderProductResponse response = catalogServiceClient.getOrderProductInfo(itemDto.productId());
 
-            // 주문 목록 생성 -> 스냅샷을 저장합니다.
-            // 생성하기 위해 받았던 Dto에서 상품 아이디와 주문 수량을 받아오고,
-            // 상점 이름, 상품 가격, 상품 이름은 FeignClient를 통해 불러와 orderItem 에 추가해줍니다.
+            // 주문 목록 생성
             orderItems.add(OrderItem.createOrderItem(
-                    itemDto.productId(),
-                    response.productName(),
-                    response.sellerId(),
-                    response.sellerName(),
-                    response.storeId(),
-                    response.storeName(),
-                    response.productPrice(),
-                    itemDto.orderCount()
+                    itemDto.productId(), // 상품 아이디
+                    response.productName(), // 상품 이름
+                    response.sellerId(), // 판매자 아이디
+                    response.sellerName(), // 판매자 이름
+                    response.storeId(), // 상점 아이디
+                    response.storeName(), // 상점 이름
+                    response.productPrice(), // 상품 가격
+                    itemDto.orderCount() // 주문 수량
             ));
         }
 
         // 새로운 주문 객체에 orderItem을 저장합니다.
-        // 주문이라는 틀 안에 주문 목록들이 들어갑니다.
         Order order = Order.createOrder(memberId, orderItems);
         orderRepository.save(order);
 
@@ -113,14 +109,14 @@ public class OrderService {
             // 상품 목록을 추가합니다.
             // 상품 ID, 상품 이름, 상품 가격, 가게 이름, 장바구니에 담겨있는 수량을 가져옵니다.
             orderItems.add(OrderItem.createOrderItem(
-                    cartDto.productId(),
-                    response.productName(),
-                    response.storeId(),
-                    response.storeName(),
-                    response.sellerId(),
-                    response.sellerName(),
-                    response.productPrice(),
-                    cartDto.cartCount()
+                    cartDto.productId(), // 상품 아이디
+                    response.productName(), // 상품 이름
+                    response.sellerId(), // 판매자 아이디
+                    response.sellerName(), // 판매자 이름
+                    response.storeId(), // 가게 아이디
+                    response.storeName(), // 가게 이름
+                    response.productPrice(), // 상품 가격
+                    cartDto.cartCount() // 상품 개수
             ));
 
             // cartItemId를 담습니다.
@@ -131,6 +127,7 @@ public class OrderService {
         Order order = Order.createOrder(memberId, orderItems);
         orderRepository.save(order);
 
+        // 주문이 생성되었다면, 장바구니에 있는 주문한 내역을 조회하여 삭제합니다.
         CartDeleteRequest request = new CartDeleteRequest(cartItemIds);
         cartService.deleteCartItem(memberId, request);
 
@@ -142,7 +139,6 @@ public class OrderService {
             cartService.deleteCartItem(memberId, request);
         }
 
-        // 주문 ID를 반환합니다.
         return order.getOrderId();
     }
 
@@ -163,20 +159,26 @@ public class OrderService {
         if (order.isEmpty()) {
             throw new OrderException(OrderErrorCode.ORDER_NOT_FOUND);
         }
+
         return order.stream()
                 .map(o -> {
                     List<OrderItem> orderItems = o.getOrderItem();
 
-                    return new OrderResponseDto(o.getOrderId(),
-                            orderItems.stream()
-                                    .map(oi -> oi.getProductName())
-                                    .toList()
-                            ,
-                            orderItems.stream()
-                                    .mapToLong(OrderItem::getTotalPrice)
-                                    .sum());
-                })
-                .toList();
+                    List<OrderItemDto> itemDtos = orderItems.stream()
+                            .map(item -> new OrderItemDto(
+                                    item.getProductId(),
+                                    item.getStoreName(),
+                                    item.getProductName(),
+                                    item.getOrderPrice(),
+                                    item.getOrderCount()
+                            )).toList();
+
+                    return new OrderResponseDto(
+                            o.getOrderId(),
+                            itemDtos,
+                            orderItems.stream().mapToLong(OrderItem::getTotalPrice).sum()
+                    );
+                }).toList();
     }
 
 
@@ -233,6 +235,5 @@ public class OrderService {
 
         order.changeStatus(OrderStatus.CANCELED);
     }
-
 
 }

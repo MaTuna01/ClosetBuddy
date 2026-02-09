@@ -11,6 +11,7 @@ import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateReque
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -160,7 +161,7 @@ public class OrderController {
     }
 
     /**
-     * 장바구니에 담은 상품들을 주문 할 수 있습니다.
+     * 장바구니에 담은 상품들을 주문합니다.
      * @param currentUser
      * @param orderId
      * @return

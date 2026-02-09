@@ -3,7 +3,7 @@ package io.codebuddy.closetbuddy.domain.orders.model.dto.request;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-// 주문 상품에 대한 Dto
+// 주문 상품 생성 Dto
 public record OrderItemCreateRequestDto(
         @NotNull(message = "상품 ID는 필수입니다.")
         Long productId,

@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.orders.model.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
