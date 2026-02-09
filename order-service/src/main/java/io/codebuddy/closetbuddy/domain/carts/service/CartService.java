@@ -148,5 +148,6 @@ public class CartService {
     @Transactional
     public void deleteCart(Long memberId) {
         cartItemRepository.deleteByCart_MemberId(memberId);
+        cartRepository.deleteById(memberId);
     }
 }
