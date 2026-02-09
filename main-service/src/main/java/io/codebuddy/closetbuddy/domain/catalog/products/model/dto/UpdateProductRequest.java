@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.model.dto;
 
-import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import jakarta.validation.constraints.*;
 
 public record UpdateProductRequest(
@@ -14,7 +13,7 @@ public record UpdateProductRequest(
         int productStock,
         @Size(min = 3, max = 999999, message = "Url 경로 길이를 확인하세요")
         String imageUrl,
-        @NotNull(message = "카테고리는 필수 항목 입니다.")
-        Category category
+        @NotNull(message = "카테고리는 필수 항목입니다.")
+        String categoryCode
 ) {
 }

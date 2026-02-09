@@ -55,6 +55,10 @@ public class ProductService {
         Product product = productJpaRepository.findById(productId)
                 .orElseThrow( () -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        // 서비스에서 Category 조회
+        Category category = categoryJpaRepository.findByCode(request.categoryCode())
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+
         validateProductOwner(memberId, product);
 
         product.update(
@@ -63,7 +67,7 @@ public class ProductService {
                 request.productStock(),
                 product.getStore(),
                 request.imageUrl(),
-                product.getCategory()
+                category
         );
     }
 
