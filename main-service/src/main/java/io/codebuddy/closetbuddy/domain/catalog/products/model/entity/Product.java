@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.model.entity;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import jakarta.persistence.*;
 import lombok.*;

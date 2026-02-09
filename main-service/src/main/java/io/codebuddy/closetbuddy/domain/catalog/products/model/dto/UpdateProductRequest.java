@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.model.dto;
 
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import jakarta.validation.constraints.*;
 
 public record UpdateProductRequest(

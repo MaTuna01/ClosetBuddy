@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.model.dto;
 
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 
 public record ProductResponse(

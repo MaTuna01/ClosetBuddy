@@ -1,10 +1,9 @@
-package io.codebuddy.closetbuddy.domain.catalog.products.model.dto;
+package io.codebuddy.closetbuddy.domain.catalog.category.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.util.ArrayList;
 import java.util.List;

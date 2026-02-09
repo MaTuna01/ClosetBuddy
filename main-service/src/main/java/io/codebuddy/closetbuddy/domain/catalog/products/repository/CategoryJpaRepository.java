@@ -1,12 +1,12 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.repository;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryJpaRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByCode(String code);
     // 루트카테고리만 조회
     List<Category> findByParentIsNull();

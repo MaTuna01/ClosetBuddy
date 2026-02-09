@@ -1,15 +1,17 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
+import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryErrorCode;
+import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryException;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductException;
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.UpdateProductRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductCreateRequest;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.repository.CategoryJpaRepository;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 
-import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
-import io.codebuddy.closetbuddy.domain.catalog.sellers.service.SellerService;
 import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
@@ -26,6 +28,7 @@ public class ProductService {
 
     private final ProductJpaRepository productJpaRepository;
     private final StoreJpaRepository storeJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
 
     //상품 등록
     @Transactional
@@ -37,7 +40,12 @@ public class ProductService {
         validateStoreOwner(memberId, store);
 
         //상품 생성
-        Product product = request.toEntity(store);
+        Category category = categoryJpaRepository.findById(request.category().getCategoryId())
+                .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
+        Product product = Product.builder()
+                .category(category)  // Entity 참조
+                .build();
+
         return productJpaRepository.save(product).getProductId();
     }
 
