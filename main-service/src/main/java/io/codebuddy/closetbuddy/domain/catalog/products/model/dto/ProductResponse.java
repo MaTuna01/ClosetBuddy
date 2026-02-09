@@ -1,6 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.model.dto;
 
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.ProductDocument;
 
 public record ProductResponse(
         Long productId,
@@ -20,6 +21,18 @@ public record ProductResponse(
                 product.getProductStock(),
                 product.getCategory(),
                 product.getStore().getStoreName()
+        );
+    }
+
+    // document -> productResponse
+    public static ProductResponse fromDocument(ProductDocument doc) {
+        return new ProductResponse(
+                Long.parseLong(doc.getId()),
+                doc.getProductName(),
+                doc.getProductPrice(),
+                doc.getProductStock(),
+                Category.valueOf(doc.getCategory()),
+                doc.getStoreName()
         );
     }
 }
