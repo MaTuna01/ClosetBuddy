@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.settlement;
 
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.Category;
+import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
 import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
