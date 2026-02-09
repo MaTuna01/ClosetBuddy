@@ -39,13 +39,13 @@ public class ProductService {
         //검증 로직(로그인 한 사람이 이 상품을 올릴 상점 주인이 맞는지?
         validateStoreOwner(memberId, store);
 
-        //상품 생성
-        Category category = categoryJpaRepository.findById(request.category().getCategoryId())
+        // 서비스에서 Category 조회
+        Category category = categoryJpaRepository.findByCode(request.categoryCode())
                 .orElseThrow(() -> new CategoryException(CategoryErrorCode.CATEGORY_NOT_FOUND));
-        Product product = Product.builder()
-                .category(category)  // Entity 참조
-                .build();
 
+        // 조회한 카테고리와 입력받은 request DTO를 통해 product 생성
+        // toEntity에 Category 전달
+        Product product = request.toEntity(store, category);
         return productJpaRepository.save(product).getProductId();
     }
 

@@ -22,15 +22,15 @@ public record ProductCreateRequest(
         String imgUrl,
 
         @NotNull(message = "카테고리는 필수 항목입니다.")
-        Category category
+        String categoryCode
 ) {
-    public Product toEntity(Store store) {
+    public Product toEntity(Store store, Category category) {
         return Product.builder()
                 .productName(this.productName)
                 .productPrice(this.productPrice)
                 .productStock(this.productStock)
                 .imageUrl(this.imgUrl)
-                .category(this.category)
+                .category(category)
                 .store(store)
                 .build();
     }
