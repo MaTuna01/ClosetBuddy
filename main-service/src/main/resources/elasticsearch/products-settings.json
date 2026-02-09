@@ -33,9 +33,54 @@
       "synonym_filter": {
         "type": "synonym_graph",
         "synonyms": [
-          "삼성,샘숭,삼송,samsung",
-          "lg,엘지,앨지,엘쥐,앨쥐",
-          "바지, 팬츠, pants, 슬랙스, 조거팬츠, 레깅스, 하의"
+          "블랙, black, 검정, 검은색, 흑색",
+          "화이트, white, 흰색, 하얀색, 백색",
+          "그레이, gray, grey, 회색, 쥐색",
+          "차콜, charcoal, 먹색",
+          "네이비, navy, 곤색, 남색",
+          "베이지, beige, 연갈색",
+          "아이보리, ivory, 크림, 크림색",
+          "카키, khaki, 국방색",
+          "브라운, brown, 갈색, 밤색",
+          "블루, blue, 파랑, 파란색",
+          "그린, green, 초록, 초록색, 녹색",
+          "레드, red, 빨강, 빨간색",
+          "옐로우, yellow, 노랑, 노란색",
+          "핑크, pink, 분홍, 분홍색",
+          "퍼플, purple, 보라, 보라색, 바이올렛",
+
+          "코튼, cotton, 면, 순면",
+          "린넨, linen, 마, 리넨",
+          "울, wool, 모, 양모",
+          "폴리, poly, 폴리에스테르, polyester",
+          "데님, denim, 청, 진, jean",
+          "스판, span, spandex, 스판덱스, 신축성",
+          "트위드, tweed",
+
+          "스트라이프, stripe, 줄무늬, 단가라",
+          "체크, check, 격자, 타탄",
+          "도트, dot, 땡땡이, 물방울",
+          "솔리드, solid, 무지, 민무늬",
+
+          "오버핏, overfit, 루즈핏, 박시, 박스핏, oversized",
+          "슬림핏, slimfit, 타이트핏, 스키니",
+
+          "티셔츠, 티, t-shirt, tee, 반팔",
+          "맨투맨, mtm, 스웨트셔츠, sweatshirt",
+          "후드티, 후드, 후디, hoodie, hood",
+          "니트, knit, 스웨터, sweater",
+          "가디건, cardigan, 아우터",
+          "롱슬리브, long sleeve, 긴팔티, 긴팔, 쭉티",
+          "폴로셔츠, polo, 카라티",
+
+          "바지, 팬츠, pants, 하의, 트라우저",
+          "슬랙스, slacks, 정장바지, 수트팬츠",
+          "청바지, jeans, 데님팬츠, 진",
+          "면바지, 치노팬츠, chino, cotton pants",
+          "반바지, 쇼츠, shorts, short pants, 핫팬츠",
+          "조거팬츠, 조거, jogger",
+          "트레이닝팬츠, 트레이닝복, 츄리닝, 운동복, sweat pants",
+          "레깅스, leggings, 쫄바지"
         ],
         "lenient": true
       }
