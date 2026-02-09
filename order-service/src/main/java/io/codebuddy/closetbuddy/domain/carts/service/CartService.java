@@ -3,7 +3,7 @@ package io.codebuddy.closetbuddy.domain.carts.service;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
-import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartProductResponse;
+import io.codebuddy.closetbuddy.domain.common.feign.dto.CartProductResponse;
 import io.codebuddy.closetbuddy.domain.common.feign.CatalogServiceClient;
 import lombok.RequiredArgsConstructor;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
@@ -16,6 +16,7 @@ import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,29 +30,24 @@ public class CartService {
 
     /**
      * 회원가입시 장바구니를 생성합니다
-     *
      * @param memberId
      * @return
      */
     @Transactional
     public Long createCart(Long memberId) {
 
-        // 장바구니가 이미 존재하면 409 CONFLICT 에러 발생
-        if(cartRepository.existsByMemberId(memberId)) {
-            throw new CartException(CartErrorCode.CART_ALREADY_EXITS);
-        }
-
         Cart cart = Cart.builder()
                 .memberId(memberId)
                 .build();
 
         Long cartId = cartRepository.saveAndFlush(cart).getCartId();
+
         return cartId;
     }
 
     @Transactional
     public Long addCartItemToCart(CartItemAddRequest request, Long memberId){
-        // Feign 호출을 통해 상품 정보를 불러와 CartProductResponse에 저장
+        // Feign 호출을 통한 최신 정보 조회
         CartProductResponse product = catalogServiceClient.getCartProductInfo(request.productId());
 
         Cart cart = cartRepository.findByMemberId(memberId)
@@ -66,17 +62,12 @@ public class CartService {
             // 이미 있으면 수량만 추가
             existingItem.get().addCount(request.productCount());
             return existingItem.get().getId();
+
         } else {
             CartItem cartItem = CartItem.builder()
                     .cart(cart)
-                    .sellerId(product.sellerId()) // 판매자 아이디
-                    .sellerName(product.sellerName()) // 판매자 이름
-                    .productId(request.productId()) // 상품 아이디
-                    .productName(product.productName()) // 상품 이름
-                    .productPrice(product.productPrice()) // 상품 가격
-                    .storeId(product.storeId()) // 가게 아이디
-                    .storeName(product.storeName()) // 가게 이름
-                    .cartCount(request.productCount()) // 상품 개수
+                    .productId(request.productId())
+                    .cartCount(request.productCount())
                     .build();
             return cartItemRepository.save(cartItem).getId();
         }
@@ -90,14 +81,31 @@ public class CartService {
      */
     public List<CartGetResponseDto> getCartList(Long memberId) {
 
-        Cart findCart = cartRepository.findByMemberId(memberId)
+        Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 
-        // CartItem의 객체를 CartGetResponseDto로 변환한다.
-        return findCart.getCartItems()
-                .stream()
-                .map( variable -> new CartGetResponseDto(variable) )
-                .toList();
+        List<CartItem> cartItems = cart.getCartItems();
+        List<CartGetResponseDto> cartGetResponseDto = new ArrayList<>();
+
+        for(CartItem cartItem : cartItems) {
+
+            // 외부 API 호출로 장바구니가 최신 상품 정보를 반영하도록 합니다.
+            CartProductResponse product = catalogServiceClient.getCartProductInfo(cartItem.getProductId());
+
+            // DB에 있는 수량과 외부에서 가져온 상품 정보를 합쳐 Dto를 반환합니다.
+            cartGetResponseDto.add(new CartGetResponseDto(
+                    cartItem.getId(), // 장바구니 상품 아이디
+                    cartItem.getProductId(), // 상품 아이디
+                    product.productName(), // 상품 이름
+                    product.productPrice(), // 상품당 가격
+                    cartItem.getCartCount(), // 장바구니에 담긴 상품 수량
+                    product.storeId(), // 상점 아이디
+                    product.storeName(),// 상점 이름
+                    product.sellerId(), // 판매자 아이디
+                    product.sellerName() // 판매자 이름
+            ));
+        }
+        return cartGetResponseDto;
     }
 
 
@@ -127,7 +135,7 @@ public class CartService {
 
 
     /**
-     * 장바구니를 삭제합니다.
+     * 장바구니 상품을 삭제합니다.
      * @param memberId
      * @param request
      */
@@ -147,7 +155,6 @@ public class CartService {
      */
     @Transactional
     public void deleteCart(Long memberId) {
-        cartItemRepository.deleteByCart_MemberId(memberId);
         cartRepository.deleteById(memberId);
     }
 }
