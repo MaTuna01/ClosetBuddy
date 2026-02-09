@@ -189,18 +189,5 @@ public class CartController {
 
         return ResponseEntity.noContent().build();
     }
-
-    /**
-     * 회원 탈퇴시 장바구니를 삭제합니다.
-     * @param currentUser
-     * @return
-     */
-    @DeleteMapping
-    public ResponseEntity<Void> deleteCart(
-            @CurrentUser CurrentUserInfo currentUser
-    ){
-        cartService.deleteCart(Long.parseLong(currentUser.userId()));
-
-        return ResponseEntity.noContent().build();
-    }
+    
 }
