@@ -11,7 +11,8 @@ public record CartGetResponseDto(
         String productName,
         Long productPrice,
         Integer cartCount,
-        String storeName
+        String storeName,
+        String imageUrl
 ) {
     // Entity -> Dto 변환 로직
     public static CartGetResponseDto of(CartItem cartItem, CartProductResponse productResponse) {
@@ -21,7 +22,8 @@ public record CartGetResponseDto(
                 productResponse.productName(),
                 productResponse.productPrice(),
                 cartItem.getCartCount(),
-                productResponse.storeName()
+                productResponse.storeName(),
+                productResponse.imageUrl()
         );
     }
 }

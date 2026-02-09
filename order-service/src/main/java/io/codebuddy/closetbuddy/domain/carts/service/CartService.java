@@ -98,7 +98,8 @@ public class CartService {
                     product.productName(), // 상품 이름
                     product.productPrice(), // 상품당 가격
                     cartItem.getCartCount(), // 장바구니에 담긴 상품 수량
-                    product.storeName() // 상점 이름
+                    product.storeName(), // 상점 이름
+                    product.imageUrl() // 이미지
             ));
         }
         return cartGetResponseDto;

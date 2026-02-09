@@ -8,7 +8,7 @@ public record CartProductResponse(
         String sellerName,
         Long storeId,
         String storeName,
-        Long productPrice
-
+        Long productPrice,
+        String imageUrl
 ) {
 }
