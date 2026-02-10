@@ -21,7 +21,9 @@ import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +49,7 @@ public class ProductService {
     private final ProductElasticRepository productElasticRepository;
 
     //상품 등록
+    @CacheEvict(value = {"product:all, product:store"}, allEntries = true)
     @Transactional
     public void createProduct(Long memberId, Long storeId, ProductCreateRequest request) {
         Store store = storeJpaRepository.findById(storeId)
@@ -70,6 +73,10 @@ public class ProductService {
     }
 
     //상품 수정
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = {"products:all", "products:store"}, allEntries = true)
+    })
     @Transactional
     public void updateProduct(Long memberId, Long productId, UpdateProductRequest request) {
         Product product = productJpaRepository.findById(productId)
@@ -129,6 +136,10 @@ public class ProductService {
     }
 
     //상품 삭제
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = {"products:all", "products:store"}, allEntries = true)
+    })
     @Transactional
     public void deleteProduct(Long memberId, Long productId) {
         Product product = productJpaRepository.findById(productId)
