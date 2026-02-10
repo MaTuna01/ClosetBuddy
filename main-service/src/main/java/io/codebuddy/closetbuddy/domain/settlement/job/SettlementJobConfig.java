@@ -3,6 +3,7 @@ package io.codebuddy.closetbuddy.domain.settlement.job;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
+import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
@@ -85,26 +86,27 @@ public class SettlementJobConfig {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("startDateTime", startDateTime);
         parameters.put("endDateTime", endDateTime);
-        parameters.put("orderStatus", OrderStatus.COMPLETED);
-        parameters.put("paymentStatus", PaymentStatus.APPROVED);
+        parameters.put("status", RawDataStatus.PAYMENT_COMPLETED);
+//        parameters.put("orderStatus", OrderStatus.COMPLETED);
+//        parameters.put("paymentStatus", PaymentStatus.APPROVED);
 
         // join 관계가 너무 복잡하여 JPQL 사용
         String queryString = String.format(
                 "SELECT new io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto(" +
-                        "   o.orderId, oi.id, p.productId, pay.paymentId, " +
-                        "   s.sellerId, st.id, " +
-                        "   p.productName, oi.orderPrice, oi.orderCount " +
+                        "   s.orderId, " +
+                        "   s.orderItemId, " +
+                        "   s.productId, " +
+                        "   s.paymentId, " +
+                        "   s.sellerId, " +
+                        "   s.storeId, " +
+                        "   s.productName, " +
+                        "   s.productPrice, " +
+                        "   s.count " +
                         ") " +
-                        "FROM OrderItem oi " +  // 정산을 위한 주문 상품
-                        "JOIN oi.order o " +    // 이 상품이 포함된 주문 정보
-                        "JOIN Payment pay ON pay.orderId = o.orderId " +    //이 주문에 대한 결제내역
-                        "JOIN oi.product p " +  //이 상품(p)의 상점(st)의 판매자(s)
-                        "JOIN p.store st " +
-                        "JOIN st.seller s " +
-                        "WHERE o.updatedAt >= :startDateTime AND o.updatedAt < :endDateTime " + // 시작일(포함) ~ 종료일(미포함)
-                        "AND o.orderStatus = :orderStatus " +   // 구매 확정 주문
-                        "AND pay.paymentStatus = :paymentStatus " +     // 결제 승인
-                        "ORDER BY oi.id ASC"    // PagingItemReader 사용을 위한 정렬
+                        "FROM SettlementRawData s " +
+                        "WHERE s.confirmedAt >= :startDateTime AND s.confirmedAt < :endDateTime " + // 구매확정일 기준
+                        "AND s.status = :status " + // PAYMENT_COMPLETED 상태
+                        "ORDER BY s.settlementRawDataId ASC"    // PagingItemReader 사용을 위한 정렬
         );
 
         //OOM 방지를 위해 PagingItemReader 사용
