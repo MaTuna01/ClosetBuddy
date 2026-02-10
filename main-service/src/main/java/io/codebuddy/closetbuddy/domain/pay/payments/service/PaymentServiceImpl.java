@@ -5,6 +5,9 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
+import io.codebuddy.closetbuddy.domain.pay.common.dto.InternalOrderItemResponse;
+import io.codebuddy.closetbuddy.domain.pay.common.dto.InternalOrderResponse;
+import io.codebuddy.closetbuddy.domain.pay.common.feign.OrderServiceClient;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayErrorCode;
 import io.codebuddy.closetbuddy.domain.pay.exception.PayException;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.entity.Payment;
@@ -13,11 +16,13 @@ import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentRequest;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.pay.payments.repository.PaymentRepository;
+import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementRawData;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,7 +33,7 @@ public class PaymentServiceImpl implements PaymentService{
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
     private final SettlementRawDataRepository settlementRawDataRepository;
-
+    private final OrderServiceClient orderServiceClient;
 
 
     /**
@@ -88,9 +93,31 @@ public class PaymentServiceImpl implements PaymentService{
 
         accountHistoryRepository.save(history);
 
-        // 정산 데이터 스냅샷
+        // 정산 스냅샷 데이터 생성
         // 주문의 상품 목록 조회
+        InternalOrderResponse orderResponse=orderServiceClient.getOrderInfo(request.orderId());
 
+        List<SettlementRawData> rawDataList=new ArrayList<>();
+
+        for (InternalOrderItemResponse item : orderResponse.orderItem()) {
+            SettlementRawData rawData = SettlementRawData.builder()
+                    .paymentId(payment.getPaymentId())
+                    .orderId(request.orderId())
+                    .orderItemId(item.orderItemId())
+                    .sellerId(item.sellerId())
+                    .memberId(memberId)
+                    .storeId(item.storeId())
+                    .productId(item.productId())
+                    .productName(item.productName())
+                    .productPrice(item.orderPrice())
+                    .count(item.orderCount())
+                    .orderPrice(orderResponse.orderAmount())
+                    .build();
+
+            rawDataList.add(rawData);
+        }
+
+        settlementRawDataRepository.saveAll(rawDataList);
 
         return PaymentMapper.toPaymentResponse(payment);
     }
