@@ -6,7 +6,6 @@ import io.codebuddy.closetbuddy.event.StockCheckResult;
 import io.codebuddy.closetbuddy.event.StockRollbackRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
