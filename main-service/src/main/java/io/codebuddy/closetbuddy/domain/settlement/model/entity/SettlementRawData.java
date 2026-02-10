@@ -40,7 +40,6 @@ public class SettlementRawData {
     private RawDataStatus status;  // PAYMENT_COMPLETED, ORDER_CONFIRMED, SETTLED, CANCELED
 
     private LocalDateTime paidAt;      // 결제일
-    private LocalDateTime confirmedAt; // 구매 확정일 (정산 배치의 기준 날짜)
 
     @Builder
     public SettlementRawData(Long paymentId, Long orderId, Long orderItemId, Long sellerId, Long memberId, Long storeId, Long productId, String productName, Long productPrice, Integer count, Long orderPrice) {
