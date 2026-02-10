@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.controller;
 
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.InternalProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,8 @@ public class InternalProductController {
     private final ProductService productService;
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductResponse>getProductInfo(@PathVariable Long productId) {
-        ProductResponse product = productService.getProduct(productId);
+    public ResponseEntity<InternalProductResponse>getProductInfo(@PathVariable Long productId) {
+        InternalProductResponse product = productService.getInternalProduct(productId);
         return ResponseEntity.ok(product);
     }
 

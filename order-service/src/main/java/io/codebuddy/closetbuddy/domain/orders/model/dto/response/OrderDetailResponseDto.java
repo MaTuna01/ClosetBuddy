@@ -1,7 +1,5 @@
 package io.codebuddy.closetbuddy.domain.orders.model.dto.response;
 
-
-
 import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 
 import java.time.LocalDateTime;

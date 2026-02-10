@@ -1,7 +1,9 @@
 package io.codebuddy.closetbuddy.domain.carts.controller;
 
 
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartItemAddResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,6 +13,7 @@ import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.common.web.dto.OrderResult;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,41 +30,12 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    /*
-     * 장바구니를 생성합니다.
-     * memberId를 받지 않으면 남의 장바구니에 물건을 담아버리거나
-     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받음
-     * @param memberPrincipalDetails
+    /**
+     * 장바구니에 상품을 추가합니다.
+     * @param currentUser
      * @param request
      * @return
      */
-    @Operation(
-            summary = "장바구니 생성",
-            description = "사용자의 장바구니를 생성합니다."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "장바구니 생성 완료"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 장바구니 데이터"
-            )
-    })
-    @PostMapping
-    public ResponseEntity<OrderResult<Void>> createCart(
-            @CurrentUser CurrentUserInfo currentUser
-    ) {
-        cartService.createCart(Long.parseLong(currentUser.userId()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(OrderResult.messageOnly("장바구니 생성이 완료되었습니다."));
-    }
-
-    //장바구니에 상품 추가
     @PostMapping("/items")
     public ResponseEntity<CartItemAddResponse<Long>> addItemToCart(
             @CurrentUser CurrentUserInfo currentUser,
@@ -82,10 +56,7 @@ public class CartController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CartItemAddResponse.withData(
-                        "장바구니에 상품이 추가되었습니다.",
-                        cartItemId
-                ));
+                .body(CartItemAddResponse.withData("장바구니에 상품이 추가되었습니다.", cartItemId));
     }
 
     /**
@@ -121,14 +92,10 @@ public class CartController {
     }
 
 
-
-
     /**
-     * 장바구니 수량을 수정합니다.
-     * 수량이 1개 미만이면 예외를 발생시킵니다.
+     * 장바구니를 수정합니다.
      * @param currentUser
-     * @param cartItemId
-     * @param cartCount
+     * @param request
      * @return
      */
     @Operation(
@@ -149,26 +116,20 @@ public class CartController {
                     description = "수정할 장바구니 상품 없음"
             )
     })
-    @PatchMapping("/items/{cartItemId}")
+    @PatchMapping("/items")
     public ResponseEntity<Void> updateCartItem(
             @CurrentUser CurrentUserInfo currentUser,
-            @PathVariable Long cartItemId,
-            @RequestParam Integer cartCount
+            @Valid @RequestBody CartUpdateRequest request
     ) {
-        if(cartCount == null || cartCount < 1) {
-            throw new IllegalArgumentException("수량은 최소 1개 이상이어야 합니다.");
-        }
-
-        cartService.updateCart(Long.parseLong(currentUser.userId()), cartItemId, cartCount);
+        cartService.updateCart(Long.parseLong(currentUser.userId()), request);
 
         return ResponseEntity.ok().build();
     }
 
-
     /**
-     * 장바구니의 물건을 삭제합니다.
+     * 장바구니에 있는 상품 목록을 삭제합니다.
      * @param currentUser
-     * @param cartItemId
+     * @param request
      * @return
      */
     @Operation(
@@ -189,13 +150,14 @@ public class CartController {
                     description = "삭제할 장바구니 물건이 없음"
             )
     })
-    @DeleteMapping("/items/{cartItemId}")
+    @DeleteMapping("/items")
     public ResponseEntity<Void> deleteCartItem(
             @CurrentUser CurrentUserInfo currentUser,
-            @PathVariable Long cartItemId
+            @Valid @RequestBody CartDeleteRequest request
     ) {
-        cartService.deleteCartItem(Long.parseLong(currentUser.userId()), cartItemId);
+        cartService.deleteCartItem(Long.parseLong(currentUser.userId()), request);
 
         return ResponseEntity.noContent().build();
     }
+
 }

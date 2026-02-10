@@ -12,8 +12,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private static final String USER_ID_HEADER = "X-User-Id";
-    private static final String USER_ROLE_HEADER = "X-User-Role";
+    private static final String USER_ID_HEADER = "X-USER-ID";
+    private static final String USER_ROLE_HEADER = "X-USER-ROLE";
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {

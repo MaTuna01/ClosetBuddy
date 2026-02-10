@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.orders.model.dto.response;
 
-// 주문 내역 Dto
+// 주문 상품 DTO
 public record OrderItemDto(
         Long productId,
         String storeName,
