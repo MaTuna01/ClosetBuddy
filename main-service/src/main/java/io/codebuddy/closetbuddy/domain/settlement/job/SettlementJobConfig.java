@@ -87,10 +87,7 @@ public class SettlementJobConfig {
         parameters.put("startDateTime", startDateTime);
         parameters.put("endDateTime", endDateTime);
         parameters.put("status", RawDataStatus.PAYMENT_COMPLETED);
-//        parameters.put("orderStatus", OrderStatus.COMPLETED);
-//        parameters.put("paymentStatus", PaymentStatus.APPROVED);
 
-        // join 관계가 너무 복잡하여 JPQL 사용
         String queryString = String.format(
                 "SELECT new io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto(" +
                         "   s.orderId, " +
