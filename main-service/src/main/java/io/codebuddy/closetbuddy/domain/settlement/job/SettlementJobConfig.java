@@ -101,7 +101,7 @@ public class SettlementJobConfig {
                         "   s.count " +
                         ") " +
                         "FROM SettlementRawData s " +
-                        "WHERE s.confirmedAt >= :startDateTime AND s.confirmedAt < :endDateTime " + // 구매확정일 기준
+                        "WHERE s.paidAt >= :startDateTime AND s.paidAt < :endDateTime " + // 구매확정일 기준
                         "AND s.status = :status " + // PAYMENT_COMPLETED 상태
                         "ORDER BY s.settlementRawDataId ASC"    // PagingItemReader 사용을 위한 정렬
         );

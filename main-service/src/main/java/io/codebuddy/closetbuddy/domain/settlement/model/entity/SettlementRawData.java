@@ -37,12 +37,12 @@ public class SettlementRawData {
 
     // --- 상태 및 날짜 ---
     @Enumerated(EnumType.STRING)
-    private RawDataStatus status;  // PAYMENT_COMPLETED, ORDER_CONFIRMED, SETTLED, CANCELED
+    private RawDataStatus status;  // PAYMENT_COMPLETED, SETTLED, CANCELED
 
     private LocalDateTime paidAt;      // 결제일
 
     @Builder
-    public SettlementRawData(Long paymentId, Long orderId, Long orderItemId, Long sellerId, Long memberId, Long storeId, Long productId, String productName, Long productPrice, Integer count, Long orderPrice) {
+    public SettlementRawData(Long paymentId, Long orderId, Long orderItemId, Long sellerId, Long memberId, Long storeId, Long productId, String productName, Long productPrice, Integer count, Long orderPrice,LocalDateTime paidAt) {
         this.paymentId = paymentId;
         this.orderId = orderId;
         this.orderItemId = orderItemId;
@@ -55,7 +55,7 @@ public class SettlementRawData {
         this.count = count;
         this.orderPrice = orderPrice;
         this.status = RawDataStatus.PAYMENT_COMPLETED; // 초기 상태: 결제 완료
-        this.paidAt = LocalDateTime.now();
+        this.paidAt = paidAt;
     }
 
 

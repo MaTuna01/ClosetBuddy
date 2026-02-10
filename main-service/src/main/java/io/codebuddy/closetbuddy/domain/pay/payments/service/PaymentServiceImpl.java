@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,6 +113,7 @@ public class PaymentServiceImpl implements PaymentService{
                     .productPrice(item.orderPrice())
                     .count(item.orderCount())
                     .orderPrice(orderResponse.orderAmount())
+                    .paidAt(LocalDateTime.now())
                     .build();
 
             rawDataList.add(rawData);
