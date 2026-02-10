@@ -2,6 +2,7 @@ package io.codebuddy.closetbuddy.domain.orders.service;
 
 
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
@@ -14,9 +15,6 @@ import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
 import io.codebuddy.closetbuddy.domain.common.feign.dto.OrderProductResponse;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderItemCreateRequestDto;
-import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
-import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemDto;
-import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.model.entity.Order;
 import io.codebuddy.closetbuddy.domain.orders.model.entity.OrderItem;
 import io.codebuddy.closetbuddy.domain.orders.repository.OrderRepository;
@@ -234,6 +232,21 @@ public class OrderService {
                 .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
         order.changeStatus(OrderStatus.CANCELED);
+    }
+
+    @Transactional(readOnly = true)
+    public InternalOrderResponse getInternalOrder(Long orderId){
+        Order order=orderRepository.findById(orderId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 주문입니다."));
+
+        List<OrderItem> orderItems=order.getOrderItem();
+        List<InternalOrderItemResponse> internalOrderItemResponseList= new ArrayList<>();
+
+        for(OrderItem oi: orderItems){
+            internalOrderItemResponseList.add(InternalOrderItemResponse.from(oi));
+        }
+        return InternalOrderResponse.from(order,internalOrderItemResponseList);
+
     }
 
 }
