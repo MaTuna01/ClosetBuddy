@@ -75,6 +75,12 @@ dependencies {
     // kafka 이벤트 공통모듈
     implementation project(':common-event')
 
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Redisson (분산락)
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
+
 }
 dependencyManagement {
     imports {
