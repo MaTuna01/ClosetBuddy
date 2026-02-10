@@ -81,6 +81,9 @@ dependencies {
     // Redisson (분산락)
     implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
 
+    // kafka (비동기 통신)
+    implementation 'org.springframework.kafka:spring-kafka'
+
 }
 dependencyManagement {
     imports {
