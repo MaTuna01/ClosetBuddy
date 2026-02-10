@@ -21,6 +21,7 @@ import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -97,6 +98,7 @@ public class ProductService {
     }
 
     //상품 상세조회(단건)
+    @Cacheable(value = "product", key = "#productId")
     @Transactional(readOnly = true)
     public ProductResponse getProduct(Long productId) {
         Product product = productJpaRepository.findById(productId)
@@ -106,6 +108,7 @@ public class ProductService {
     }
 
     //특정 가게의 상품 목록 조회 (상점 페이지)
+    @Cacheable(value = "products:store", key = "#storeId")
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductByStoreId(Long storeId) {
         if (storeJpaRepository.findById(storeId).isEmpty()) {
@@ -117,6 +120,7 @@ public class ProductService {
     }
 
     //전체 상품목록 조회
+    @Cacheable(value = "products:all")
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
         return productJpaRepository.findAll().stream()
