@@ -30,40 +30,6 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    /*
-     * 장바구니를 생성합니다.
-     * memberId를 받지 않으면 남의 장바구니에 물건을 담아버리거나
-     * 남의 장바구니를 엿볼 수 있으므로 memberId를 받습니다.
-     * @param memberPrincipalDetails
-     * @param request
-     * @return
-     */
-    @Operation(
-            summary = "장바구니 생성",
-            description = "사용자의 장바구니를 생성합니다."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "장바구니 생성 완료"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 장바구니 데이터"
-            )
-    })
-    @PostMapping
-    public ResponseEntity<OrderResult<Void>> createCart(
-            @CurrentUser CurrentUserInfo currentUser
-    ) {
-        cartService.createCart(Long.parseLong(currentUser.userId()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(OrderResult.messageOnly("장바구니 생성이 완료되었습니다."));
-    }
-
     /**
      * 장바구니에 상품을 추가합니다.
      * @param currentUser
