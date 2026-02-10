@@ -23,23 +23,11 @@ public class CartItem {
     @Column(name = "cart_count", nullable = false)
     private Integer cartCount;
 
-    @Column(name = "product_name")
-    private String productName;
-
-    @Column(name = "product_price")
-    private Long productPrice;
-
-    @Column(name = "store_name")
-    private String storeName;
-
     @Builder
-    public CartItem(Cart cart, Long productId, String productName, Integer cartCount, Long productPrice, String storeName) {
+    public CartItem(Cart cart, Long productId, Integer cartCount) {
         this.cart = cart;
         this.productId = productId;
-        this.productName = productName;
         this.cartCount = cartCount;
-        this.productPrice = productPrice;
-        this.storeName = storeName;
     }
 
     /**

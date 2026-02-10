@@ -4,6 +4,7 @@ import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryErrorC
 import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryException;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductException;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.InternalProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.UpdateProductRequest;
@@ -202,4 +203,15 @@ public class ProductService {
             throw new ProductException(ProductErrorCode.NOT_OWNER);
         }
     }
+
+    // Order-Service 에서 사용하는 조회 메서드 추가
+    @Transactional(readOnly = true)
+    public InternalProductResponse getInternalProduct(Long productId) {
+        Product product = productJpaRepository.findById(productId)
+                .orElseThrow( () -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
+        return InternalProductResponse.from(product);
+    }
+
+
 }

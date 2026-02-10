@@ -21,4 +21,12 @@ public class CartInternalController {
         log.info("내부 API - 회원 장바구니 생성 성공 - member id {}",  memberId);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<Void> deleteMemberCart(@PathVariable Long memberId) {
+        log.info("내부 API - 회원 장바구니 삭제 요청 - member id {}", memberId);
+        cartService.deleteCart(memberId);
+        log.info("내부 API - 회원 장바구니 삭제 완료 -  member id {}",  memberId);
+        return ResponseEntity.ok().build();
+    }
 }

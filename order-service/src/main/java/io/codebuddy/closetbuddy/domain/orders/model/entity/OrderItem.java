@@ -18,7 +18,7 @@ public class OrderItem {
     private Integer orderCount;
 
     @Column(name = "order_price", nullable = false)
-    private Long orderPrice; // 주문 당시 가격 (스냅샷 - 주문 당시 기록을 남겨놔야하기 때문에)
+    private Long orderPrice; // 주문 당시 가격
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
@@ -28,26 +28,40 @@ public class OrderItem {
     private Long productId;
 
     @Column(name = "product_name", nullable = false)
-    private String productName; // 상품 이름 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
+    private String productName;
+
+    @Column(name = "store_id", nullable = false)
+    private Long storeId;
 
     @Column(name = "store_name", nullable = false)
-    private String storeName; // 가게 이름 가져오기, DB에 저장되어야하므로 @Column으로 선언합니다.
+    private String storeName;
 
+    @Column(name = "seller_id", nullable = false)
+    private Long sellerId;
+
+    @Column(name = "seller_name", nullable = false)
+    private String sellerName;
 
     @Builder
-    public OrderItem(Long productId, String storeName, String productName, Long orderPrice, Integer orderCount) {
+    public OrderItem(Long productId, String productName, Long storeId, String storeName, Long sellerId, String sellerName, Long orderPrice, Integer orderCount) {
         this.productId = productId;
-        this.storeName = storeName;
         this.productName = productName;
+        this.storeId = storeId;
+        this.storeName = storeName;
+        this.sellerId = sellerId;
+        this.sellerName = sellerName;
         this.orderPrice = orderPrice;
         this.orderCount = orderCount;
     }
 
-    public static OrderItem createOrderItem(Long productId, String storeName, String productName, Long orderPrice, Integer orderCount) {
+    public static OrderItem createOrderItem(Long productId, String productName, Long storeId, String storeName, Long sellerId, String sellerName, Long orderPrice, Integer orderCount) {
         return OrderItem.builder()
                 .productId(productId)
-                .storeName(storeName)
                 .productName(productName)
+                .storeId(storeId)
+                .storeName(storeName)
+                .sellerId(sellerId)
+                .sellerName(sellerName)
                 .orderPrice(orderPrice)
                 .orderCount(orderCount)
                 .build();
