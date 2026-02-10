@@ -72,6 +72,9 @@ dependencies {
     //elastic-search
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
+    // kafka 이벤트 공통모듈
+    implementation project(':common-event')
+
 }
 dependencyManagement {
     imports {
