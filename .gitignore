@@ -58,3 +58,31 @@ db_data/
 #env
 .env
 .DS_Store
+
+
+#AIModel
+
+# 가상환경 (Virtual Environment)
+AI/
+
+# 데이터베이스 (ChromaDB 및 SQLite)
+chroma_db/
+chroma_db_path/
+*.sqlite3
+
+# 로그 및 데이터
+scripts/*.log
+
+# 파이썬 캐시
+__pycache__/
+*.py[cod]
+
+# fastapi 연동을 위해 필요한 파일들
+Dockerfile
+requirements.txt
+
+# 로그 출력 파일
+build_index.log
+
+# 테스트 파일
+test.ipynb
