@@ -42,6 +42,13 @@ public class CartService {
         return cartId;
     }
 
+    /**
+     * 장바구니 상품을 추가합니다.
+     *
+     * @param request
+     * @param memberId
+     * @return
+     */
     @Transactional
     public Long addCartItemToCart(CartItemAddRequest request, Long memberId){
         // Feign 호출을 통해 상품 정보를 불러와 CartProductResponse에 저장
@@ -75,6 +82,7 @@ public class CartService {
 
     /**
      * 회원 아이디로 장바구니를 조회합니다.
+     *
      * @param memberId
      * @return
      */
@@ -93,6 +101,7 @@ public class CartService {
 
     /**
      * 장바구니 수량을 수정합니다.
+     *
      * @param memberId
      * @param cartItemId
      * @param cartCount
@@ -112,6 +121,7 @@ public class CartService {
 
     /**
      * 장바구니 목록을 삭제합니다.
+     * 
      * @param memberId
      * @param cartItemId
      */
