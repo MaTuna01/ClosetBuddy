@@ -15,6 +15,8 @@ import io.codebuddy.payservice.domain.pay.accounts.model.vo.TransactionType;
 import io.codebuddy.payservice.domain.pay.accounts.repository.AccountHistoryRepository;
 import io.codebuddy.payservice.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.payservice.domain.pay.accounts.repository.DepositChargeRepository;
+import io.codebuddy.payservice.domain.pay.exception.PayErrorCode;
+import io.codebuddy.payservice.domain.pay.exception.PayException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
