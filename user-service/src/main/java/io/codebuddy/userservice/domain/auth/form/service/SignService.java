@@ -2,8 +2,8 @@ package io.codebuddy.userservice.domain.auth.form.service;
 
 
 import io.codebuddy.userservice.domain.common.exception.DuplicateMemberFieldException;
-import io.codebuddy.userservice.domain.common.feign.client.MainServiceClient;
 import io.codebuddy.userservice.domain.common.feign.client.OrderServiceClient;
+import io.codebuddy.userservice.domain.common.feign.client.PayServiceClient;
 import io.codebuddy.userservice.domain.common.feign.dto.AccountCreateRequest;
 import io.codebuddy.userservice.domain.common.feign.dto.CartCreateRequest;
 import io.codebuddy.userservice.domain.member.dto.Role;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SignService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MainServiceClient mainServiceClient;
+    private final PayServiceClient payServiceClient;
     private final OrderServiceClient orderServiceClient;
 
 
@@ -68,7 +68,7 @@ public class SignService {
 
         // Main-Service로 계좌 생성 요청 (동기 통신)
         try {
-            mainServiceClient.createAccount(new AccountCreateRequest(loginmember.getId()));
+            payServiceClient.createAccount(new AccountCreateRequest(loginmember.getId()));
         } catch (Exception e) {
 
             throw new RuntimeException("계좌 생성 실패: " + e.getMessage());
