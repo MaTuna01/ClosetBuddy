@@ -72,6 +72,21 @@ dependencies {
     //elastic-search
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
+    // kafka 이벤트 공통모듈
+    implementation project(':common-event')
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Redisson (분산락)
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
+
+    // kafka (비동기 통신)
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // KafkaListener 처리기 초기화에 필요한 spring-messaging
+    implementation 'org.springframework:spring-messaging'
+
 }
 dependencyManagement {
     imports {
