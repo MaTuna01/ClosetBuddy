@@ -16,29 +16,52 @@ import java.time.LocalDateTime;
 })
 public class SettlementRawData {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "settlement_raw_data_id")
     private Long settlementRawDataId;
 
     // --- 식별자 정보 ---
+    @Column(name = "payment_id", nullable = false)
     private Long paymentId;
+
+    @Column(name = "order_id", nullable = false)
     private Long orderId;
+
+    @Column(name = "order_item_id", nullable = false)
     private Long orderItemId;
 
     // --- 스냅샷 데이터  ---
+    @Column(name = "seller_id", nullable = false)
     private Long sellerId;
+
+    @Column(name = "member_id", nullable = false)
     private Long memberId;
+
+    @Column(name = "store_id", nullable = false)
     private Long storeId;
+
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
+    @Column(name = "product_name", nullable = false)
     private String productName;
+
+    @Column(name = "product_price", nullable = false)
     private Long productPrice;
+
+    @Column(name = "count", nullable = false)
     private Integer count;
+
+    @Column(name = "order_price", nullable = false)
     private Long orderPrice;       // 최종 결제 금액
 
     // --- 상태 및 날짜 ---
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private RawDataStatus status;  // PAYMENT_COMPLETED, SETTLED, CANCELED
 
+    @Column(name = "paid_at", nullable = false)
     private LocalDateTime paidAt;      // 결제일
 
     @Builder
