@@ -1,10 +1,8 @@
 package io.codebuddy.closetbuddy.domain.settlement.job;
 
-import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
 import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
-import io.codebuddy.closetbuddy.global.config.enumfile.OrderStatus;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

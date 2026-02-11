@@ -8,7 +8,6 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository
 import io.codebuddy.closetbuddy.domain.settlement.job.SettlementItemWriter;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
-import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementRawData;
 import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
@@ -22,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
