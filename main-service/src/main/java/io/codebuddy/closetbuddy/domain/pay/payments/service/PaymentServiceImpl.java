@@ -17,6 +17,7 @@ import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentResponse;
 import io.codebuddy.closetbuddy.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.closetbuddy.domain.pay.payments.repository.PaymentRepository;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementRawData;
+import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -178,6 +179,9 @@ public class PaymentServiceImpl implements PaymentService{
                 .build();
 
         accountHistoryRepository.save(history);
+
+        // SettlementRawData 기록(CANCELED) - bulk update
+        settlementRawDataRepository.updateStatusByPaymentId(paymentId, RawDataStatus.CANCELED);
 
         return PaymentMapper.toPaymentResponse(payment);
     }
