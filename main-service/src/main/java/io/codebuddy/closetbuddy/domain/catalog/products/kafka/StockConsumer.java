@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class StockConsumer {
 
     private final StockService stockService;
+    // KafkaTemplate Bean 등록
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     /**
@@ -34,7 +35,7 @@ public class StockConsumer {
             StockCheckResult result = new StockCheckResult(
                     request.orderId(), true, null
             );
-            kafkaTemplate.send("order.stock-check.result",request);
+            kafkaTemplate.send("order.stock-check.result",result);
             log.info("재고 차감 성공: orderId = {}", request.orderId());
 
         } catch (Exception e){
@@ -43,7 +44,7 @@ public class StockConsumer {
                     // 실패 결과(failReason은 추후 예외 클래스 구현 후 추가 필요)
                     request.orderId(), false, e.getMessage()
             );
-            kafkaTemplate.send("order.stock-check.result",request);
+            kafkaTemplate.send("order.stock-check.result",result);
             log.error("재고 차감 실패: orderId = {}, reason = {}", request.orderId(), e.getMessage());
         }
     }
