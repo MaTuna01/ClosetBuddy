@@ -5,8 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "closetBuddy")
-public interface MainServiceClient {
+@FeignClient(name = "pay-service")
+public interface PayServiceClient {
 
     // 계좌 생성 요청 API
     @PostMapping("/internal/accounts")
