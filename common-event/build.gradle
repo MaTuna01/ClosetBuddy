@@ -1,3 +1,16 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+}
+group = 'io.codebuddy'
+version = '1.0.0'
+java {
+    sourceCompatibility = '17'
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
