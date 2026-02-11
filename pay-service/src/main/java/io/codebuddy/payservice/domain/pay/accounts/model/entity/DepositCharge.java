@@ -1,7 +1,7 @@
 package io.codebuddy.payservice.domain.pay.accounts.model.entity;
 
 
-import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.ChargeStatus;
+import io.codebuddy.payservice.domain.pay.accounts.model.vo.ChargeStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

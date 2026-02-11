@@ -1,6 +1,7 @@
 package io.codebuddy.payservice.domain.pay.accounts.model.entity;
 
 
+import io.codebuddy.payservice.domain.pay.accounts.model.vo.TransactionType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
