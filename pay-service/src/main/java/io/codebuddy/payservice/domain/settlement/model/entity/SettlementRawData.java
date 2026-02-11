@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "settlement_raw_data", indexes = {
-        @Index(name = "idx_settle_target", columnList = "status, confirmed_at") // 배치 성능용 인덱스
+        @Index(name = "idx_settle_target", columnList = "status") // 배치 성능용 인덱스
 })
 public class SettlementRawData {
 
