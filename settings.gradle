@@ -1,7 +1,0 @@
-rootProject.name = 'closetBuddy_MSA'
-
-include 'main-service'
-include 'user-service'
-include 'discovery-service'
-include 'gateway-service'
-include 'order-service'
