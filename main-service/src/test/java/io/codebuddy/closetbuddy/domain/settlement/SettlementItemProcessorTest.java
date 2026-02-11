@@ -23,6 +23,7 @@ class SettlementItemProcessorTest {
                 401L,
                 501L,
                 601L,
+                202L,
                 "테스트 상품",
                 20000L,
                 3

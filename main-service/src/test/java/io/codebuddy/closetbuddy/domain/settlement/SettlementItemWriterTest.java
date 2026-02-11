@@ -8,7 +8,10 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository
 import io.codebuddy.closetbuddy.domain.settlement.job.SettlementItemWriter;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
+import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementRawData;
+import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
+import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +45,9 @@ public class SettlementItemWriterTest {
     private SettlementDetailRepository settlementDetailRepository;
 
     @Mock
+    private SettlementRawDataRepository settlementRawDataRepository;
+
+    @Mock
     private AccountRepository accountRepository;
 
     @Mock
@@ -55,15 +62,22 @@ public class SettlementItemWriterTest {
         Long sellerId1 = 50L;
         Long memberId1 = 1L;
 
+        // 정산 원천 데이터 id 설정
+        Long rawDataId1 = 10L;
+        Long rawDataId2 = 20L;
+
         // 같은 상점
         SettlementDetail item1 = SettlementDetail.builder()
+                .settlementRawDataId(rawDataId1)
                 .storeId(storeId1)
                 .sellerId(sellerId1)
                 .memberId(memberId1)
                 .payoutAmount(5000L)
                 .totalAmount(10000L)
                 .build();
+
         SettlementDetail item2 = SettlementDetail.builder()
+                .settlementRawDataId(rawDataId2)
                 .storeId(storeId1)
                 .sellerId(sellerId1)
                 .memberId(memberId1)
@@ -108,6 +122,9 @@ public class SettlementItemWriterTest {
         // 예치금 내역(AccountHistory) 생성 검증
         verify(accountHistoryRepository).save(any(AccountHistory.class));
 
+        // 정산 원천 데이터 변화 검증 (updateStatusByIds가 호출되었는지 확인)
+        List<Long> expectedRawDataIds = List.of(rawDataId1, rawDataId2);
+        verify(settlementRawDataRepository).updateStatusByIds(expectedRawDataIds, RawDataStatus.SETTLED);
     }
 
 
