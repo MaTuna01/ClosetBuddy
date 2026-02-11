@@ -21,6 +21,9 @@ import io.codebuddy.closetbuddy.domain.catalog.stores.exception.StoreException;
 import io.codebuddy.closetbuddy.domain.catalog.stores.model.entity.Store;
 import io.codebuddy.closetbuddy.domain.catalog.stores.repository.StoreJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +49,7 @@ public class ProductService {
     private final ProductElasticRepository productElasticRepository;
 
     //상품 등록
+    @CacheEvict(value = {"product:all, product:store"}, allEntries = true)
     @Transactional
     public void createProduct(Long memberId, Long storeId, ProductCreateRequest request) {
         Store store = storeJpaRepository.findById(storeId)
@@ -69,6 +73,10 @@ public class ProductService {
     }
 
     //상품 수정
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = {"products:all", "products:store"}, allEntries = true)
+    })
     @Transactional
     public void updateProduct(Long memberId, Long productId, UpdateProductRequest request) {
         Product product = productJpaRepository.findById(productId)
@@ -97,6 +105,7 @@ public class ProductService {
     }
 
     //상품 상세조회(단건)
+    @Cacheable(value = "product", key = "#productId")
     @Transactional(readOnly = true)
     public ProductResponse getProduct(Long productId) {
         Product product = productJpaRepository.findById(productId)
@@ -106,6 +115,7 @@ public class ProductService {
     }
 
     //특정 가게의 상품 목록 조회 (상점 페이지)
+    @Cacheable(value = "products:store", key = "#storeId")
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductByStoreId(Long storeId) {
         if (storeJpaRepository.findById(storeId).isEmpty()) {
@@ -117,6 +127,7 @@ public class ProductService {
     }
 
     //전체 상품목록 조회
+    @Cacheable(value = "products:all")
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
         return productJpaRepository.findAll().stream()
@@ -125,6 +136,10 @@ public class ProductService {
     }
 
     //상품 삭제
+    @Caching(evict = {
+            @CacheEvict(value = "product", key = "#productId"),
+            @CacheEvict(value = {"products:all", "products:store"}, allEntries = true)
+    })
     @Transactional
     public void deleteProduct(Long memberId, Long productId) {
         Product product = productJpaRepository.findById(productId)
