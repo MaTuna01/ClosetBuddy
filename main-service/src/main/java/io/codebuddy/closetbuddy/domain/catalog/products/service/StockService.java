@@ -1,5 +1,7 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
+import io.codebuddy.closetbuddy.domain.catalog.products.exception.StockErrorCode;
+import io.codebuddy.closetbuddy.domain.catalog.products.exception.StockException;
 import io.codebuddy.closetbuddy.event.StockItem;
 import io.codebuddy.closetbuddy.domain.catalog.products.model.entity.Product;
 import io.codebuddy.closetbuddy.domain.catalog.products.repository.ProductJpaRepository;
@@ -52,9 +54,8 @@ public class StockService {
                 boolean acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.SECONDS);
                 // 락 획득 실패시 예외 발생 추후 커스텀 예외 적용
                 if (!acquired) {
-                    throw new RuntimeException(
-                            "재고 락 획득 실패: productId=" + item.productId()
-                    );
+                    throw new StockException(
+                            StockErrorCode.LOCK_ACQUISITION_FAILURE);
                 }
                 acquiredLocks.add(lock);
             }
@@ -62,16 +63,16 @@ public class StockService {
             // 모든 락 획득 성공 → 재고 확인 & 차감 수행
             for (StockItem item : sortedItems) {
                 Product product = productJpaRepository.findById(item.productId())
-                        .orElseThrow(() -> new RuntimeException(
-                                "상품을 찾을 수 없습니다: productId=" + item.productId()
-                        ));
+                        // 상품을 찾을 수 없을 때 productException 예외
+                        .orElseThrow(() -> new StockException(StockErrorCode.PRODUCT_NOT_FOUND));
 
                 if (product.getProductStock() < item.quantity()) {
                     // 재고 차감중 재고 부족 예외처리 -> 추후 커스텀 Exception 구현 후 수정 필수
-                    throw new RuntimeException(
-                            "재고 부족: " + product.getProductName()
-                                    + " (남은 수량: " + product.getProductStock()
-                                    + ", 요청: " + item.quantity() + ")"
+                    throw new StockException(
+                            StockErrorCode.INSUFFICIENT_STOCK
+//                            "재고 부족: " + product.getProductName()
+//                                    + " (남은 수량: " + product.getProductStock()
+//                                    + ", 요청: " + item.quantity() + ")"
                     );
                 }
                 // 재고 차감
@@ -83,7 +84,7 @@ public class StockService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             // RuntimeException을 발생시킨 부분은 추후 커스텀 Exception 구현 후 변경 예정
-            throw new RuntimeException("락 획득 중 인터럽트 발생", e);
+            throw new StockException(StockErrorCode.LOCK_INTERRUPTED);
 
         } finally {
             // 획득한 모든 락 해제
@@ -111,20 +112,20 @@ public class StockService {
                 RLock lock = redissonClient.getLock(LOCK_PREFIX + item.productId());
                 boolean acquired = lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.SECONDS);
                 if (!acquired) {
-                    throw new RuntimeException("재고 복구 락 획득 실패: productId=" + item.productId());
+                    throw new StockException(StockErrorCode.LOCK_ACQUISITION_FAILURE);
                 }
                 acquiredLocks.add(lock);
             }
             for (StockItem item : sortedItems) {
                 Product product = productJpaRepository.findById(item.productId())
-                        .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다"));
+                        .orElseThrow(() -> new StockException(StockErrorCode.PRODUCT_NOT_FOUND));
                 product.setProductStock(product.getProductStock() + item.quantity());
                 log.info("재고 복구 완료: productId={}, 복구수량={}, 현재재고={}",
                         item.productId(), item.quantity(), product.getProductStock());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("락 획득 중 인터럽트 발생", e);
+            throw new StockException(StockErrorCode.LOCK_INTERRUPTED);
         } finally {
             for (RLock lock : acquiredLocks) {
                 if (lock.isHeldByCurrentThread()) {
