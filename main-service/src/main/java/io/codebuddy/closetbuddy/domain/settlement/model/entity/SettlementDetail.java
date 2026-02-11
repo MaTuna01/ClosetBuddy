@@ -28,6 +28,9 @@ public class SettlementDetail {
     private Long settleId;
 
     // [원천 데이터 논리적 참조]
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
+
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
@@ -40,11 +43,14 @@ public class SettlementDetail {
     @Column(name = "payment_id", nullable = false)
     private Long paymentId;
 
+    @Column(name = "settlement_raw_data_id", nullable = false)
+    private Long settlementRawDataId;
+
     // 어느 상점의 정산 내역인지 그룹핑 위함
-    @Transient
+    @Column(name = "store_id", nullable = false)
     private Long storeId;
 
-    @Transient
+    @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
     // [스냅샷 데이터]
@@ -77,15 +83,17 @@ public class SettlementDetail {
     private LocalDateTime createdAt;
 
     @Builder
-    public SettlementDetail(Long settleId, Long orderId, Long orderItemId, Long productId, Long paymentId,
+    public SettlementDetail(Long settleId, Long memberId, Long orderId, Long orderItemId, Long productId, Long paymentId, Long settlementRawDataId,
                             String productName, Long productPrice, Integer quantity,
                             Long totalAmount, BigDecimal feeRate, Long feeAmount, Long payoutAmount, LocalDateTime createdAt,
                             Long storeId, Long sellerId) {
         this.settleId = settleId;
+        this.memberId = memberId;
         this.orderId = orderId;
         this.orderItemId = orderItemId;
         this.productId = productId;
         this.paymentId = paymentId;
+        this.settlementRawDataId=settlementRawDataId;
         this.productName = productName;
         this.productPrice = productPrice;
         this.quantity = quantity;
@@ -93,7 +101,7 @@ public class SettlementDetail {
         this.feeRate = feeRate;
         this.feeAmount = feeAmount;
         this.payoutAmount = payoutAmount;
-        this.createdAt=createdAt;
+        this.createdAt = createdAt;
         this.storeId = storeId;
         this.sellerId = sellerId;
     }

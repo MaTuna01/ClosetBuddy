@@ -7,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -28,6 +27,9 @@ public class Settlement {
     private Long settleId;
 
     // [관계 정보]
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;  // 정산 금액 지급 대상이 되는 번호(=seller의 memberId)
+
     @Column(name = "store_id", nullable = false)
     private Long storeId;
 
@@ -57,14 +59,15 @@ public class Settlement {
     private LocalDateTime completedAt;
 
     @Builder
-    public Settlement(Long storeId, Long sellerId, Long totalSalesAmount, Long payoutAmount, SettlementStatus settleStatus, LocalDate settlementDate, LocalDateTime createdAt) {
+    public Settlement(Long memberId, Long storeId, Long sellerId, Long totalSalesAmount, Long payoutAmount, SettlementStatus settleStatus, LocalDate settlementDate, LocalDateTime createdAt) {
+        this.memberId=memberId;
         this.storeId = storeId;
         this.sellerId = sellerId;
         this.totalSalesAmount = totalSalesAmount;
         this.payoutAmount = payoutAmount;
         this.settleStatus = settleStatus;
         this.settlementDate = settlementDate;
-        this.createdAt= LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     // 매출액 누적
@@ -74,8 +77,8 @@ public class Settlement {
     }
 
     // 상태 변경
-    public void setSettleStatus(SettlementStatus settleStatus){
-        this.settleStatus=settleStatus;
+    public void setSettleStatus(SettlementStatus settleStatus) {
+        this.settleStatus = settleStatus;
     }
 
 }

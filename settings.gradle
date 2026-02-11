@@ -1,4 +1,3 @@
-rootProject.name = 'closetBuddy_MSA'
 
 include 'common-event'
 include 'main-service'
