@@ -57,6 +57,7 @@ public class SettlementItemProcessor implements ItemProcessor<SettlementTargetDt
                 .orderItemId(item.getOrderItemId())
                 .productId(item.getProductId())
                 .paymentId(item.getPaymentId())
+                .settlementRawDataId(item.getSettlementRawDataId())
                 .productName(item.getProductName())
                 .productPrice(item.getPrice())
                 .quantity(item.getCount())

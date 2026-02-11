@@ -7,8 +7,10 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRep
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
+import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.closetbuddy.domain.settlement.model.vo.SettlementStatus;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
+import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
 
     private final SettlementRepository settlementRepository;
     private final SettlementDetailRepository settlementDetailRepository;
+    private final SettlementRawDataRepository settlementRawDataRepository;
 
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
@@ -44,6 +47,8 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
     public void write(Chunk<? extends SettlementDetail> chunk) {
         // Chunk 단위의 데이터를 StoreId 기준으로 그룹핑 (상점 별 정산서)
         Map<Long, List<SettlementDetail>> groupedByStore = new HashMap<>();
+        // rawData의 정산 상태 변경을 위해 미리 id 저장
+        List<Long> rawDataIds= new ArrayList<>();
 
         for (SettlementDetail item : chunk.getItems()) {
             Long storeId = item.getStoreId();
@@ -54,6 +59,9 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
             }
             // storeId 기준으로 그룹핑 하기
             groupedByStore.get(storeId).add(item);
+
+            rawDataIds.add(item.getSettlementRawDataId());
+
         }
 
         // 상점 별로 그룹핑된 데이터 별로 꺼내 정산 내역에 저장
@@ -121,6 +129,11 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 }
 
                 // 성공 시 상태 업데이트
+                // rawData 업데이트
+                if (!rawDataIds.isEmpty()) {
+                    settlementRawDataRepository.updateStatusByIds(rawDataIds, RawDataStatus.SETTLED);
+                }
+                // Settlement 업데이트
                 settlement.setSettleStatus(SettlementStatus.SETTLED);
                 settlementRepository.save(settlement);
 

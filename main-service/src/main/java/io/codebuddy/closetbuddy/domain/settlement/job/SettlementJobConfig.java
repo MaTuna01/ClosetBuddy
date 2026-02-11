@@ -97,6 +97,7 @@ public class SettlementJobConfig {
                         "   s.paymentId, " +
                         "   s.sellerId, " +
                         "   s.storeId, " +
+                        "   s.settlementRawDataId, " +
                         "   s.productName, " +
                         "   s.productPrice, " +
                         "   s.count " +
