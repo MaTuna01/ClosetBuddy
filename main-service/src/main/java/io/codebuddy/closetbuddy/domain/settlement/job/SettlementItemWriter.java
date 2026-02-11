@@ -1,7 +1,5 @@
 package io.codebuddy.closetbuddy.domain.settlement.job;
 
-import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
-import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
@@ -9,8 +7,10 @@ import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountHistoryRep
 import io.codebuddy.closetbuddy.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.Settlement;
 import io.codebuddy.closetbuddy.domain.settlement.model.entity.SettlementDetail;
+import io.codebuddy.closetbuddy.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.closetbuddy.domain.settlement.model.vo.SettlementStatus;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementDetailRepository;
+import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRawDataRepository;
 import io.codebuddy.closetbuddy.domain.settlement.repository.SettlementRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,8 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
 
     private final SettlementRepository settlementRepository;
     private final SettlementDetailRepository settlementDetailRepository;
+    private final SettlementRawDataRepository settlementRawDataRepository;
 
-    private final SellerJpaRepository sellerRepository;
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
 
@@ -47,6 +47,8 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
     public void write(Chunk<? extends SettlementDetail> chunk) {
         // Chunk 단위의 데이터를 StoreId 기준으로 그룹핑 (상점 별 정산서)
         Map<Long, List<SettlementDetail>> groupedByStore = new HashMap<>();
+        // rawData의 정산 상태 변경을 위해 미리 id 저장
+        List<Long> rawDataIds= new ArrayList<>();
 
         for (SettlementDetail item : chunk.getItems()) {
             Long storeId = item.getStoreId();
@@ -57,6 +59,9 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
             }
             // storeId 기준으로 그룹핑 하기
             groupedByStore.get(storeId).add(item);
+
+            rawDataIds.add(item.getSettlementRawDataId());
+
         }
 
         // 상점 별로 그룹핑된 데이터 별로 꺼내 정산 내역에 저장
@@ -64,6 +69,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
             Settlement settlement = null; // try-catch 범위 밖에서 초기화
             try {
                 Long sellerId = details.get(0).getSellerId();
+                Long memberId = details.get(0).getMemberId();
                 LocalDate settlementDate = (targetDateStr != null) ? LocalDate.parse(targetDateStr) : LocalDate.now();
 
                 // Settlement 조회/생성
@@ -71,6 +77,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 settlement = settlementRepository.findByStoreIdAndSettlementDate(storeId, settlementDate)
                         .orElseGet(() -> settlementRepository.save(
                                 Settlement.builder()
+                                        .memberId(memberId)
                                         .storeId(storeId)
                                         .sellerId(sellerId)
                                         .settlementDate(settlementDate)
@@ -96,22 +103,16 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 long payoutAmount = settlement.getPayoutAmount();
 
                 if (payoutAmount > 0) {
-                    // 2. Seller ID로 Member ID 찾기
-                    Seller seller = sellerRepository.findById(sellerId)
-                            .orElseThrow(() -> new RuntimeException("판매자 정보를 찾을 수 없습니다. ID: " + sellerId));
 
-                    // 2. Member ID 추출
-                    Long memberId = seller.getMemberId();
-
-                    // 3. Account 조회
+                    //  Account 조회
                     Account account = accountRepository.findByMemberId(memberId)
                             .orElseThrow(() -> new RuntimeException("정산 계좌를 찾을 수 없습니다. MemberID: " + memberId));
 
-                    // 4. 잔액 충전
+                    //  잔액 충전
                     account.charge(payoutAmount);
                     accountRepository.save(account);
 
-                    // 5. 히스토리 기록
+                    //  히스토리 기록
                     AccountHistory history = AccountHistory.builder()
                             .account(account)
                             .type(TransactionType.SETTLEMENT)
@@ -128,6 +129,11 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 }
 
                 // 성공 시 상태 업데이트
+                // rawData 업데이트
+                if (!rawDataIds.isEmpty()) {
+                    settlementRawDataRepository.updateStatusByIds(rawDataIds, RawDataStatus.SETTLED);
+                }
+                // Settlement 업데이트
                 settlement.setSettleStatus(SettlementStatus.SETTLED);
                 settlementRepository.save(settlement);
 

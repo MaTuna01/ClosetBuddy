@@ -17,11 +17,13 @@ class SettlementItemProcessorTest {
 
         SettlementTargetDto target = new SettlementTargetDto(
                 101L,
+                101L,
                 201L,
                 301L,
                 401L,
                 501L,
                 601L,
+                202L,
                 "테스트 상품",
                 20000L,
                 3
