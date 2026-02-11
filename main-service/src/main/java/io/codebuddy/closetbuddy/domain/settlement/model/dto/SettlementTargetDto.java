@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 public class SettlementTargetDto {
 
     // 원본 데이터 추적용 ID
+    private Long memberId;
     private Long orderId;
     private Long orderItemId;
     private Long productId;
@@ -21,9 +22,10 @@ public class SettlementTargetDto {
     private Integer count; // 구매 수량
 
     // 생성자
-    public SettlementTargetDto(Long orderId, Long orderItemId, Long productId, Long paymentId,
+    public SettlementTargetDto(Long memberId, Long orderId, Long orderItemId, Long productId, Long paymentId,
                                Long sellerId, Long storeId,
                                String productName, Long price, Integer count) {
+        this.memberId = memberId;
         this.orderId = orderId;
         this.orderItemId = orderItemId;
         this.productId = productId;

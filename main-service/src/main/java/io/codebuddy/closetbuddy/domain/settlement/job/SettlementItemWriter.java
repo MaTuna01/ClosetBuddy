@@ -1,7 +1,5 @@
 package io.codebuddy.closetbuddy.domain.settlement.job;
 
-import io.codebuddy.closetbuddy.domain.catalog.sellers.model.entity.Seller;
-import io.codebuddy.closetbuddy.domain.catalog.sellers.repository.SellerJpaRepository;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.closetbuddy.domain.pay.accounts.model.vo.TransactionType;
@@ -36,7 +34,6 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
     private final SettlementRepository settlementRepository;
     private final SettlementDetailRepository settlementDetailRepository;
 
-    private final SellerJpaRepository sellerRepository;
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
 
@@ -64,6 +61,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
             Settlement settlement = null; // try-catch 범위 밖에서 초기화
             try {
                 Long sellerId = details.get(0).getSellerId();
+                Long memberId = details.get(0).getMemberId();
                 LocalDate settlementDate = (targetDateStr != null) ? LocalDate.parse(targetDateStr) : LocalDate.now();
 
                 // Settlement 조회/생성
@@ -71,6 +69,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 settlement = settlementRepository.findByStoreIdAndSettlementDate(storeId, settlementDate)
                         .orElseGet(() -> settlementRepository.save(
                                 Settlement.builder()
+                                        .memberId(memberId)
                                         .storeId(storeId)
                                         .sellerId(sellerId)
                                         .settlementDate(settlementDate)
@@ -96,22 +95,16 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 long payoutAmount = settlement.getPayoutAmount();
 
                 if (payoutAmount > 0) {
-                    // 2. Seller ID로 Member ID 찾기
-                    Seller seller = sellerRepository.findById(sellerId)
-                            .orElseThrow(() -> new RuntimeException("판매자 정보를 찾을 수 없습니다. ID: " + sellerId));
 
-                    // 2. Member ID 추출
-                    Long memberId = seller.getMemberId();
-
-                    // 3. Account 조회
+                    //  Account 조회
                     Account account = accountRepository.findByMemberId(memberId)
                             .orElseThrow(() -> new RuntimeException("정산 계좌를 찾을 수 없습니다. MemberID: " + memberId));
 
-                    // 4. 잔액 충전
+                    //  잔액 충전
                     account.charge(payoutAmount);
                     accountRepository.save(account);
 
-                    // 5. 히스토리 기록
+                    //  히스토리 기록
                     AccountHistory history = AccountHistory.builder()
                             .account(account)
                             .type(TransactionType.SETTLEMENT)

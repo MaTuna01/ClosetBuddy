@@ -52,6 +52,7 @@ public class SettlementItemProcessor implements ItemProcessor<SettlementTargetDt
 
         // 5. Entity 변환
         return SettlementDetail.builder()
+                .memberId(item.getMemberId())
                 .orderId(item.getOrderId())
                 .orderItemId(item.getOrderItemId())
                 .productId(item.getProductId())

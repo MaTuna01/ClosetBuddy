@@ -28,6 +28,9 @@ public class SettlementDetail {
     private Long settleId;
 
     // [원천 데이터 논리적 참조]
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
+
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
@@ -77,11 +80,12 @@ public class SettlementDetail {
     private LocalDateTime createdAt;
 
     @Builder
-    public SettlementDetail(Long settleId, Long orderId, Long orderItemId, Long productId, Long paymentId,
+    public SettlementDetail(Long settleId, Long memberId, Long orderId, Long orderItemId, Long productId, Long paymentId,
                             String productName, Long productPrice, Integer quantity,
                             Long totalAmount, BigDecimal feeRate, Long feeAmount, Long payoutAmount, LocalDateTime createdAt,
                             Long storeId, Long sellerId) {
         this.settleId = settleId;
+        this.memberId = memberId;
         this.orderId = orderId;
         this.orderItemId = orderItemId;
         this.productId = productId;
@@ -93,7 +97,7 @@ public class SettlementDetail {
         this.feeRate = feeRate;
         this.feeAmount = feeAmount;
         this.payoutAmount = payoutAmount;
-        this.createdAt=createdAt;
+        this.createdAt = createdAt;
         this.storeId = storeId;
         this.sellerId = sellerId;
     }

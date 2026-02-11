@@ -90,6 +90,7 @@ public class SettlementJobConfig {
 
         String queryString = String.format(
                 "SELECT new io.codebuddy.closetbuddy.domain.settlement.model.dto.SettlementTargetDto(" +
+                        "   s.memberId, " +
                         "   s.orderId, " +
                         "   s.orderItemId, " +
                         "   s.productId, " +
