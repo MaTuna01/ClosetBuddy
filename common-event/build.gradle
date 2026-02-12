@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 group = 'io.codebuddy'
-version = '1.0.0'
+version = '1.0.1'
 java {
     sourceCompatibility = '17'
 }
