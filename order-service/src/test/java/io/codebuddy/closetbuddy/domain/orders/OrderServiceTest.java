@@ -11,6 +11,7 @@ import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderItemCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
+import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.model.entity.Order;
 import io.codebuddy.closetbuddy.domain.orders.model.entity.OrderItem;
@@ -187,7 +188,11 @@ class OrderServiceTest {
         // given
         Long memberId = 1L;
         Long orderId = 100L;
-        Order order = Order.createOrder(memberId, new ArrayList<>());
+
+        OrderItem item = OrderItem.createOrderItem(2L, "테스트상품", 1L, "판매자", 1L, "가게", 5000L, 2);
+
+        Order order = Order.createOrder(memberId, List.of(item));
+        ReflectionTestUtils.setField(order, "orderId", orderId);
 
         given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
         ReflectionTestUtils.setField(order, "orderId", orderId);
@@ -196,8 +201,11 @@ class OrderServiceTest {
         OrderDetailResponseDto responseDto = orderService.getDetailOrder(memberId, orderId);
 
         // then
-        assertThat(responseDto).isNotNull();
         assertThat(responseDto.orderId()).isEqualTo(orderId);
+        assertThat(responseDto.orderStatus()).isEqualTo(OrderStatus.CREATED);
+
+        assertThat(responseDto.orderItems().get(0).productName());
+        assertThat(responseDto.orderItems().get(0).orderPrice());
 
         log.info("주문 상세 조회 테스트 완료");
     }
