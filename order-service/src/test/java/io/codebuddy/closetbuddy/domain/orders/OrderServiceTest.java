@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.orders;
 
+import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.feign.CatalogServiceClient;
@@ -28,7 +29,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -58,26 +60,24 @@ class OrderServiceTest {
         Long memberId = 1L;
         Long productId = 2L;
         Integer orderCount = 3;
-        String expectedProductName = "네모 바지";
-        Long expectedSellerId = 1L;
-        Long expectedPrice = 1000L;
+        Long expectedOrderId = 1L;
 
         OrderItemCreateRequestDto itemDto = new OrderItemCreateRequestDto(productId, orderCount);
         OrderCreateRequestDto requestDto = new OrderCreateRequestDto(List.of(itemDto));
 
-        // Feign Client 에서 받아온 product 정보
         OrderProductResponse productResponse = new OrderProductResponse(
-                productId, expectedProductName, expectedSellerId,
-                "판매자 1", 1L, "뉴발란스", expectedPrice
+                productId, "네모바지", 1L,
+                "판매자 1", 1L, "뉴발란스", 1000L
         );
 
         given(catalogServiceClient.getOrderProductInfo(productId))
                 .willReturn(productResponse);
 
-        given(orderRepository.save(any(Order.class))).willAnswer(invocationOnMock -> {
-            Order SavingOrder = invocationOnMock.getArgument(0);
-            ReflectionTestUtils.setField(SavingOrder, "orderId", 1L);
-            return SavingOrder;
+        // save 가 호출되면 저장된 객체의 Id를 10L로 세팅해서 돌려준다고 가정한다.
+        given(orderRepository.save(any(Order.class))).willAnswer(invocation -> {
+            Order order = invocation.getArgument(0);
+            ReflectionTestUtils.setField(order, "orderId", 1L);
+            return order;
         });
 
         // when
@@ -85,8 +85,9 @@ class OrderServiceTest {
 
         // then
         // 반환된 주문 ID가 1L 인지 확인한다.
-        assertThat(resultOrderId).isEqualTo(1L);
+        assertThat(resultOrderId).isEqualTo(expectedOrderId);
 
+        // repository로 넘어간 시점의 Order 객체를 가져온다.
         ArgumentCaptor<Order> orderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository).save(orderArgumentCaptor.capture());
 
@@ -95,15 +96,15 @@ class OrderServiceTest {
         // savedOrderId가 멤버 아이디와 같은지
         assertThat(savedOrder.getOrderId()).isEqualTo(memberId);
         assertThat(savedOrder.getOrderStatus()).isEqualTo(OrderStatus.CREATED);
-        assertThat(orderArgumentCaptor.getValue().getOrderId()).isEqualTo(resultOrderId);
 
-
+        // saveItem에 있는 값과 예상 값 검증
         OrderItem savedItem = savedOrder.getOrderItem().get(0);
         assertThat(savedItem.getProductId()).isEqualTo(productId);
-        assertThat(savedItem.getProductName()).isEqualTo(expectedProductName);
-        assertThat(savedItem.getOrderPrice()).isEqualTo(expectedPrice);
-        assertThat(savedItem.getOrderCount()).isEqualTo(orderCount);
+        assertThat(savedItem.getProductName()).isEqualTo("네모바지");
+        assertThat(savedItem.getOrderPrice()).isEqualTo(1000L);
+        assertThat(savedItem.getTotalPrice()).isEqualTo(3000L);
 
+        log.info("주문 생성 테스트 성공");
     }
 
 
@@ -131,20 +132,24 @@ class OrderServiceTest {
         orderService.createOrderFromCart(memberId);
 
         // then
+        // 주문 repository가 1번 동작했는지 검증
         verify(orderRepository, times(1)).save(any(Order.class));
         // 장바구니 -> 주문 생성 후 deleteCartItem이 실제로 이루어졌는지
         verify(cartService, times(1)).deleteCartItem(any(), any());
+
         log.info("장바구니의 상품 주문 테스트 완료");
     }
 
     @Test
     @DisplayName("주문 목록 조회 성공 테스트")
     void success_getCart(){
-        // 주문 목록을 지정하였을 때 정해진 값이 나오는 로직 추가 필요
         // given
         Long memberId = 1L;
 
+        // 객체 생성
         Order order = Order.createOrder(memberId, new ArrayList<>());
+
+        // findAllByMemberId를 했을 때, order 리스트를 반환
         given(orderRepository.findAllByMemberId(memberId)).willReturn(List.of(order));
         ReflectionTestUtils.setField(order, "orderId", 1L);
 
