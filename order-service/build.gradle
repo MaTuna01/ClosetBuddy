@@ -52,7 +52,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // kafka 이벤트 공통 라이브러리
-    implementation 'io.codebuddy:common-event:1.0.0'
+    implementation 'io.codebuddy:common-event:1.0.1'
 
 }
 dependencyManagement {
