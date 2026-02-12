@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.orders;
 
-import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseDto;
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.feign.CatalogServiceClient;
@@ -11,7 +10,6 @@ import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderItemCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
-import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderItemDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderResponseDto;
 import io.codebuddy.closetbuddy.domain.orders.model.entity.Order;
 import io.codebuddy.closetbuddy.domain.orders.model.entity.OrderItem;
@@ -204,8 +202,8 @@ class OrderServiceTest {
         assertThat(responseDto.orderId()).isEqualTo(orderId);
         assertThat(responseDto.orderStatus()).isEqualTo(OrderStatus.CREATED);
 
-        assertThat(responseDto.orderItems().get(0).productName());
-        assertThat(responseDto.orderItems().get(0).orderPrice());
+        assertThat(responseDto.orderItems().get(0).productName()).isEqualTo(item.getProductName());
+        assertThat(responseDto.orderItems().get(0).orderPrice()).isEqualTo(item.getOrderPrice());
 
         log.info("주문 상세 조회 테스트 완료");
     }
