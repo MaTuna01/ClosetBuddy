@@ -76,11 +76,8 @@ class CartServiceTest {
     @DisplayName("장바구니 상품 넣기 성공 테스트 - 장바구니 안에 상품이 없을 경우")
     void success_addCartItemToCart() {
 
-
-        /**
-         *  1. 장바구니에 상품이 없을 때 -> CartItem이 제대로 들어가는지
-         *  2. 저장했을 때, 주문 Id가 잘 반환이 되는지
-         */
+        // 장바구니에 상품이 없을 때 -> CartItem이 제대로 들어가는지
+        // 저장했을 때, 주문 Id가 잘 반환이 되는지
 
         // given
         Long memberId = 1L;
