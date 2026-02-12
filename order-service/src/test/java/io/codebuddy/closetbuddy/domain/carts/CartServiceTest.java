@@ -188,11 +188,9 @@ class CartServiceTest {
         // 상품 1
         CartProductResponse productResponse1 = new CartProductResponse(
                 1L, "네모바지", 10000L, "스펀지밥", 1L, "나이키", 10000L, "square.png");
-        log.info("상품 1 내역: {}", productResponse1);
         // 상품 2
         CartProductResponse productResponse2 = new CartProductResponse(
                 3L, "빨간티셔츠", 200000L, "뚱이", 2L, "에르메스", 20000L, "redpants.png");
-        log.info("상품 2 내역: {}", productResponse2);
 
         // Catalog 서비스 클라이언트(Feign Client)에 productId를 넣고 productResponse를 뱉는다고 가정한다.
         given(catalogServiceClient.getCartProductInfo(1L)).willReturn(productResponse1);
@@ -222,7 +220,6 @@ class CartServiceTest {
 
         // when
         List<CartGetResponseDto> testList = cartService.getCartList(memberId);
-        log.info("testList: {}", testList);
 
         // then
         // 리스트 안의 상품이 2개인지 확인
