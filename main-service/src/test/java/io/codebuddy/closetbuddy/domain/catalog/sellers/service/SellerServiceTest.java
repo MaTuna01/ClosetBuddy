@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerErrorCode.ROLE_GRANT_FAILED;
+import static io.codebuddy.closetbuddy.domain.catalog.sellers.exception.SellerErrorCode.ROLE_REVOKE_FAILED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -127,7 +129,7 @@ class SellerServiceTest {
             when(sellerJpaRepository.findByMemberId(memberId)).thenReturn(Optional.empty());
             when(sellerJpaRepository.existsBySellerName("테스트 판매자")).thenReturn(false);
             when(sellerJpaRepository.saveAndFlush(any(Seller.class))).thenReturn(savedSeller);
-            when(userServiceClient.grantSellerRole(memberId)).thenThrow(new RuntimeException("Connection refused"));
+            when(userServiceClient.grantSellerRole(memberId)).thenThrow(new SellerException(ROLE_GRANT_FAILED));
 
             assertThatThrownBy(() -> sellerService.registerSeller(memberId, request))
                     .isInstanceOf(SellerException.class)
@@ -270,12 +272,12 @@ class SellerServiceTest {
 
             when(sellerJpaRepository.findByMemberId(memberId)).thenReturn(Optional.of(seller));
             when(storeJpaRepository.findAllBySeller(seller)).thenReturn(Collections.emptyList());
-            when(userServiceClient.revokeSellerRole(memberId)).thenThrow(new RuntimeException("Connection refused"));
+            when(userServiceClient.revokeSellerRole(memberId)).thenThrow(new SellerException(ROLE_REVOKE_FAILED));
 
             assertThatThrownBy(() -> sellerService.unregisterSeller(memberId))
                     .isInstanceOf(SellerException.class)
                     .satisfies(ex -> assertThat(((SellerException) ex).getErrorCode())
-                            .isEqualTo(SellerErrorCode.ROLE_REVOKE_FAILED));
+                            .isEqualTo(ROLE_REVOKE_FAILED));
         }
     }
 }

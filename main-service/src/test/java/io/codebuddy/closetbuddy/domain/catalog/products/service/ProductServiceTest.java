@@ -38,6 +38,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
+import static io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryErrorCode.CATEGORY_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -91,7 +92,7 @@ class ProductServiceTest {
             setField(category, "parent", parent);
             return category;
         } catch (Exception e) {
-            throw new RuntimeException("Category 생성 실패", e);
+            throw new CategoryException(CATEGORY_NOT_FOUND);
         }
     }
 
@@ -194,7 +195,7 @@ class ProductServiceTest {
             assertThatThrownBy(() -> productService.createProduct(memberId, storeId, request))
                     .isInstanceOf(CategoryException.class)
                     .satisfies(ex -> assertThat(((CategoryException) ex).getErrorCode())
-                            .isEqualTo(CategoryErrorCode.CATEGORY_NOT_FOUND));
+                            .isEqualTo(CATEGORY_NOT_FOUND));
         }
 
         @Test

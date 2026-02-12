@@ -61,15 +61,15 @@ class StoreServiceTest {
                 .build();
     }
 
-    // ========== 상점 등록 ==========
+    // 상점 등록
     @Nested
     @DisplayName("상점 등록 (createStore)")
     class CreateStore {
 
         @Test
         @DisplayName("정상 등록 시 상점 ID 반환")
-        void createStore_성공() {
-            // given
+        void createStore_success() {
+
             Long memberId = 1L;
             UpsertStoreRequest request = new UpsertStoreRequest("테스트 상점");
             Seller seller = createSeller(100L, memberId, "테스트 판매자");
@@ -78,24 +78,21 @@ class StoreServiceTest {
             when(sellerJpaRepository.findByMemberId(memberId)).thenReturn(Optional.of(seller));
             when(storeJpaRepository.save(any(Store.class))).thenReturn(savedStore);
 
-            // when
             Long storeId = storeService.createStore(memberId, request);
 
-            // then
             assertThat(storeId).isEqualTo(200L);
             verify(storeJpaRepository).save(any(Store.class));
         }
 
         @Test
         @DisplayName("판매자가 아닌 회원이 상점 등록 시 UNAUTHORIZED_ACCESS 예외")
-        void createStore_판매자아님_예외() {
-            // given
+        void createStore_UNAUTHORIZED_ACCESS_exception() {
+
             Long memberId = 999L;
             UpsertStoreRequest request = new UpsertStoreRequest("테스트 상점");
 
             when(sellerJpaRepository.findByMemberId(memberId)).thenReturn(Optional.empty());
 
-            // when & then
             assertThatThrownBy(() -> storeService.createStore(memberId, request))
                     .isInstanceOf(StoreException.class)
                     .satisfies(ex -> assertThat(((StoreException) ex).getErrorCode())
