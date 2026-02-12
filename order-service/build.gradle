@@ -19,6 +19,7 @@ java {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -51,7 +52,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // kafka이벤트 공통 모듈
-//    implementation project(':common-event')
+    implementation project(':common-event')
 
 }
 dependencyManagement {
