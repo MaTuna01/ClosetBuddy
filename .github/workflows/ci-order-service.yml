@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - closetBuddy-MSA-dev
+      - rksdu/217
     paths:
       - "order-service/**"
       - "common-event/**"

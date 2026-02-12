@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - closetBuddy-MSA-dev
+      - rksdu/217
     paths:
       - "discovery-service/**"
       - "common-event/**"
