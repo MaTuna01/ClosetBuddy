@@ -34,7 +34,7 @@ public class SettlementRawData {
     private Long sellerId;
 
     @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    private Long memberId; // 정산 금액을 지급 받을 판매자의 memberId
 
     @Column(name = "store_id", nullable = false)
     private Long storeId;

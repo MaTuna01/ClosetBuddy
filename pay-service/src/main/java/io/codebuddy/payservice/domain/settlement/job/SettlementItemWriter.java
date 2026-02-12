@@ -99,7 +99,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 settlementRepository.save(settlement); // 변경된 총액 업데이트 (상태는 아직 SCHEDULED)
 
                 // 예치금 지급 및 이력 저장
-                // 1. 지급할 금액이 있는지 확인 (0원이면 지급 스킵)
+                // 지급할 금액이 있는지 확인 (0원이면 지급 스킵)
                 long payoutAmount = settlement.getPayoutAmount();
 
                 if (payoutAmount > 0) {
@@ -109,8 +109,12 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                             .orElseThrow(() -> new RuntimeException("정산 계좌를 찾을 수 없습니다. MemberID: " + memberId));
 
                     //  잔액 충전
+                    log.info("잔액을 충전할 계좌의 회원번호 : {}",memberId);
+                    log.info("충전 전 잔액 : {}",account.getBalance());
                     account.charge(payoutAmount);
                     accountRepository.save(account);
+//                    accountRepository.saveAndFlush(account);
+                    log.info("충전 후 잔액 : {}",account.getBalance());
 
                     //  히스토리 기록
                     AccountHistory history = AccountHistory.builder()
@@ -133,12 +137,12 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                 if (!rawDataIds.isEmpty()) {
                     settlementRawDataRepository.updateStatusByIds(rawDataIds, RawDataStatus.SETTLED);
                 }
-                // Settlement 업데이트
+                // Settlement 상태 업데이트
                 settlement.setSettleStatus(SettlementStatus.SETTLED);
                 settlementRepository.save(settlement);
 
             } catch (Exception e) {
-                // [예외 처리] 해당 상점의 정산 실패 처리 (로그 남기기 + DB 상태 변경)
+                // 해당 상점의 정산 실패 처리
                 log.error("정산 실패 - StoreId: {}, 사유: {}", storeId, e.getMessage(), e);
 
                 if (settlement != null) {

@@ -107,7 +107,7 @@ public class PaymentServiceImpl implements PaymentService{
                     .orderId(request.orderId())
                     .orderItemId(item.orderItemId())
                     .sellerId(item.sellerId())
-                    .memberId(memberId)
+                    .memberId(item.sellerId())
                     .storeId(item.storeId())
                     .productId(item.productId())
                     .productName(item.productName())

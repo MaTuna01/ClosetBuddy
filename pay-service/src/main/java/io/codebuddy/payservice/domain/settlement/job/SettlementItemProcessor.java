@@ -50,7 +50,6 @@ public class SettlementItemProcessor implements ItemProcessor<SettlementTargetDt
         log.info("정산 계산 - 주문ID: {}, 총액: {}, 수수료({}%): {}, 지급액: {}",
                 item.getOrderId(), totalAmount, feeRate, feeAmount, payoutAmount);
 
-        // 5. Entity 변환
         return SettlementDetail.builder()
                 .memberId(item.getMemberId())
                 .orderId(item.getOrderId())
