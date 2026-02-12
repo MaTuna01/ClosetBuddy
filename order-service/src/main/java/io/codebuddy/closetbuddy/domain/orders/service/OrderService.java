@@ -130,9 +130,7 @@ public class OrderService {
 
         // 정상적으로 생성이 되면 장바구니에 있는 상품을 삭제합니다.
         // 생성이 된 주문 내역을 장바구니에 있는 상품 내역과 비교해서 상품 내역을 삭제해줍니다.
-        for (CartGetResponseDto cartDto : cartList) {
-            cartService.deleteCartItem(memberId, request);
-        }
+        cartService.deleteCartItem(memberId, request);
 
         return order.getOrderId();
     }
