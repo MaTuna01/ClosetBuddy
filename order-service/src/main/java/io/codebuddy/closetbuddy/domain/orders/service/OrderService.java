@@ -127,8 +127,6 @@ public class OrderService {
 
         // 주문이 생성되었다면, 장바구니에 있는 주문한 내역을 조회하여 삭제합니다.
         CartDeleteRequest request = new CartDeleteRequest(cartItemIds);
-//        cartService.deleteCartItem(memberId, request);
-
 
         // 정상적으로 생성이 되면 장바구니에 있는 상품을 삭제합니다.
         // 생성이 된 주문 내역을 장바구니에 있는 상품 내역과 비교해서 상품 내역을 삭제해줍니다.
