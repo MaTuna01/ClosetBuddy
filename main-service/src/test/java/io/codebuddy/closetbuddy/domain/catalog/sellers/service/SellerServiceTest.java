@@ -231,7 +231,7 @@ class SellerServiceTest {
 
         @Test
         @DisplayName("정상 삭제 시 스토어/판매자 삭제 및 Feign revokeSellerRole 호출")
-        void unregisterSeller_성공() {
+        void unregisterSeller_success() {
 
             Long memberId = 1L;
             Seller seller = createSeller(100L, memberId, "테스트 판매자");
