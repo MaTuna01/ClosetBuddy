@@ -112,8 +112,7 @@ public class SettlementItemWriter implements ItemWriter<SettlementDetail> {
                     log.info("잔액을 충전할 계좌의 회원번호 : {}",memberId);
                     log.info("충전 전 잔액 : {}",account.getBalance());
                     account.charge(payoutAmount);
-                    accountRepository.save(account);
-//                    accountRepository.saveAndFlush(account);
+                    accountRepository.saveAndFlush(account);
                     log.info("충전 후 잔액 : {}",account.getBalance());
 
                     //  히스토리 기록
