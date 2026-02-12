@@ -70,7 +70,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
     // kafka 이벤트 공통 라이브러리
-    implementation 'io.codebuddy:common-event:1.0.0'
+    implementation 'io.codebuddy:common-event:1.0.1'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
