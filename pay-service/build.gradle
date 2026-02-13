@@ -59,6 +59,16 @@ dependencies {
 
     //h2
     testImplementation 'com.h2database:h2'
+
+    // kafka 이벤트 공통 라이브러리
+    implementation 'io.codebuddy:common-event:1.0.1'
+
+    // kafka (비동기 통신)
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // KafkaListener 처리기 초기화에 필요한 spring-messaging
+    implementation 'org.springframework:spring-messaging'
+
 }
 
 dependencyManagement {
