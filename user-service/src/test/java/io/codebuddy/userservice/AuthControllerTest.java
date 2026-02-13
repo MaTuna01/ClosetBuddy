@@ -1,12 +1,12 @@
 package io.codebuddy.userservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.codebuddy.userservice.domain.common.model.dto.Role;
-import io.codebuddy.userservice.domain.common.model.dto.SignReqDTO;
-import io.codebuddy.userservice.domain.common.model.entity.Member;
-import io.codebuddy.userservice.domain.common.model.entity.RefreshToken;
-import io.codebuddy.userservice.domain.common.repository.MemberRepository;
-import io.codebuddy.userservice.domain.common.repository.RefreshTokenRepository;
+import io.codebuddy.userservice.domain.auth.token.domain.RefreshToken;
+import io.codebuddy.userservice.domain.auth.token.dto.SignReqDTO;
+import io.codebuddy.userservice.domain.auth.token.repository.RefreshTokenRepository;
+import io.codebuddy.userservice.domain.member.domain.Member;
+import io.codebuddy.userservice.domain.member.dto.Role;
+import io.codebuddy.userservice.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

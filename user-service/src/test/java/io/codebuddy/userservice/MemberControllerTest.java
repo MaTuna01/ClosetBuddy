@@ -1,16 +1,16 @@
 package io.codebuddy.userservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.codebuddy.userservice.domain.auth.form.security.handler.CustomAuthenticationFailureHandler;
+import io.codebuddy.userservice.domain.auth.form.security.handler.MemberAuthSuccessHandler;
+import io.codebuddy.userservice.domain.auth.oauth.config.OAuth2SuccessHandler;
+import io.codebuddy.userservice.domain.auth.token.security.filter.JwtAuthenticationFilter;
+import io.codebuddy.userservice.domain.auth.token.security.filter.JwtExceptionFilter;
+import io.codebuddy.userservice.domain.auth.token.security.handler.CustomAccessDeniedHandler;
+import io.codebuddy.userservice.domain.auth.token.security.handler.CustomAuthenticationEntryPoint;
 import io.codebuddy.userservice.domain.member.controller.MemberController;
-import io.codebuddy.userservice.domain.member.model.dto.MemberUpdateRequest;
+import io.codebuddy.userservice.domain.member.dto.MemberUpdateRequest;
 import io.codebuddy.userservice.domain.member.service.MemberService;
-import io.codebuddy.userservice.domain.common.security.auth.JwtAuthenticationFilter;
-import io.codebuddy.userservice.domain.common.security.auth.JwtExceptionFilter;
-import io.codebuddy.userservice.domain.common.security.handler.CustomAuthenticationEntryPoint;
-import io.codebuddy.userservice.domain.common.security.handler.CustomAccessDeniedHandler;
-import io.codebuddy.userservice.domain.form.login.security.config.CustomAuthenticationFailureHandler;
-import io.codebuddy.userservice.domain.form.login.security.config.MemberAuthSuccessHandler;
-import io.codebuddy.userservice.domain.oauth.config.OAuth2SuccessHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
