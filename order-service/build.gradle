@@ -53,6 +53,8 @@ dependencies {
 
     // kafka 이벤트 공통 라이브러리
     implementation 'io.codebuddy:common-event:1.0.1'
+    // kafka 비동기 통신
+    implementation 'org.springframework.kafka:spring-kafka'
 
 }
 dependencyManagement {
