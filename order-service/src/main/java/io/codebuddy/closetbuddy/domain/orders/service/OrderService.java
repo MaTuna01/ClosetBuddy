@@ -2,7 +2,12 @@ package io.codebuddy.closetbuddy.domain.orders.service;
 
 
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
+import io.codebuddy.closetbuddy.domain.orders.kafka.OrderEventProducer;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.*;
+import io.codebuddy.closetbuddy.event.PaymentRollbackRequest;
+import io.codebuddy.closetbuddy.event.StockCheckRequest;
+import io.codebuddy.closetbuddy.event.StockItem;
+import io.codebuddy.closetbuddy.event.StockRollbackRequest;
 import lombok.RequiredArgsConstructor;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartErrorCode;
 import io.codebuddy.closetbuddy.domain.carts.exception.CartException;
@@ -31,6 +36,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
     private final CatalogServiceClient catalogServiceClient;
+    private final OrderEventProducer orderEventProducer;
 
     /**
      * 주문을 생성합니다.
@@ -48,6 +54,7 @@ public class OrderService {
         }
 
         List<OrderItem> orderItems = new ArrayList<>();
+        List<StockItem> stockItems = new ArrayList<>();
 
         // 요청 받은 Dto의 orderItems 를 꺼내 주문 생성 Dto에 옮겨 담습니다.
         for (OrderItemCreateRequestDto itemDto : requestDto.orderItems()) {
@@ -66,11 +73,26 @@ public class OrderService {
                     response.productPrice(), // 상품 가격
                     itemDto.orderCount() // 주문 수량
             ));
+
+            // 재고 확인을 위한 StockItem 생성
+            stockItems.add(new StockItem(
+                    itemDto.productId(),
+                    itemDto.orderCount()
+            ));
         }
 
         // 새로운 주문 객체에 orderItem을 저장합니다.
         Order order = Order.createOrder(memberId, orderItems);
         orderRepository.save(order);
+
+        // 재고 확인 요청 이벤트 발행
+        StockCheckRequest stockCheckRequest = new StockCheckRequest(
+                order.getOrderId(),
+                memberId,
+                stockItems
+        );
+
+        orderEventProducer.sendStockCheckRequest(stockCheckRequest);
 
         // 생성된 주문 아이디를 반환합니다.
         return order.getOrderId();
@@ -221,13 +243,41 @@ public class OrderService {
      */
     @Transactional
     public void cancelOrder(Long memberId, Long orderId) {
-
-        // 주문 ID를 통해 삭제할 주문 내역이 없으면 주문을 찾을 수 없다는 예외를 반환해줍니다.
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
+        OrderStatus currentStatus = order.getOrderStatus();
         order.changeStatus(OrderStatus.CANCELED);
+
+        // 상태별 보상 트랜잭션
+        switch (currentStatus) {
+            case PAID, COMPLETED -> {
+                // 결제 + 재고 모두 롤백
+                orderEventProducer.sendPaymentRollback(
+                        new PaymentRollbackRequest(orderId, memberId)
+                );
+                List<StockItem> stockItems = order.getOrderItem().stream()
+                        .map(orderItem -> new StockItem(orderItem.getProductId(), orderItem.getOrderCount()))
+                        .toList();
+                orderEventProducer.sendStockRollback(
+                        new StockRollbackRequest(orderId, stockItems)
+                );
+            }
+            case STOCK_CONFIRMED -> {
+                // 재고만 롤백
+                List<StockItem> stockItems = order.getOrderItem().stream()
+                        .map(orderItem -> new StockItem(orderItem.getProductId(), orderItem.getOrderCount()))
+                        .toList();
+                orderEventProducer.sendStockRollback(
+                        new StockRollbackRequest(orderId, stockItems)
+                );
+            }
+            case CREATED -> {
+            }
+            default -> throw new OrderException(OrderErrorCode.CANCEL_NOT_ALLOWED);
+        }
     }
+
 
     @Transactional(readOnly = true)
     public InternalOrderResponse getInternalOrder(Long orderId){

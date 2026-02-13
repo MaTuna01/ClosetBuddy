@@ -13,7 +13,9 @@ public enum OrderErrorCode {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
     // 상품의 재고가 적어 주문할 수 없는 경우 (409 CONFLICT)
-    OUT_OF_STOCK(HttpStatus.CONFLICT, "남은 재고가 없습니다.");
+    OUT_OF_STOCK(HttpStatus.CONFLICT, "남은 재고가 없습니다."),
+
+    CANCEL_NOT_ALLOWED(HttpStatus.CONFLICT, "주문취소 실패");
 
     private final HttpStatus status;
     private final String message;
