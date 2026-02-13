@@ -107,7 +107,7 @@ public class CartService {
 
 
     /**
-     * 장바구니를 수정합니다.
+     * 장바구니를 수량을 수정합니다.
      *
      * @param memberId
      * @param request
