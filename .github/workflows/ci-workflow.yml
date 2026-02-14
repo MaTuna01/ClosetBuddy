@@ -35,7 +35,7 @@ jobs:
 
         # GITHUB_ACTOR / GITHUB_TOKEN 환경변수 매핑
       - name: Build ${{ inputs.service-name }}
-        run: ./gradlew :${{ inputs.service-name }}:build
+        run: ./gradlew :${{ inputs.service-name }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
