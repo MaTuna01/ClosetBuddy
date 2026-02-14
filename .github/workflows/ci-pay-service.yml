@@ -5,19 +5,10 @@ on:
     branches:
       - main
       - closetBuddy-MSA-dev
-      - rksdu/231
     paths:
       - "pay-service/**"
       - "common-event/**"
 
-  push:
-    branches:
-      - main
-      - closetBuddy-MSA-dev
-      - rksdu/231
-    paths:
-      - "pay-service/**"
-      - "common-event/**"
 jobs:
   execute-test:
     uses: ./.github/workflows/ci-workflow.yml

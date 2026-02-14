@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 group = 'io.codebuddy'
-version = "1.0.2-${System.currentTimeMillis()}"
+version = '1.0.1'
 java {
     sourceCompatibility = '17'
 }
@@ -23,6 +23,4 @@ publishing {
             }
         }
     }
-    // 테스트를 위한 주석 추가
-    //2
 }
