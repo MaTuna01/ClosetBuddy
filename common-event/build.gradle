@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 group = 'io.codebuddy'
-version = '1.0.1'
+version = "1.0.2-${System.currentTimeMillis()}"
 java {
     sourceCompatibility = '17'
 }
