@@ -11,8 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     defaults:
-      run:
-        working-directory: . # 루트에서 실행됩니다.
+      run: # 루트가 아니라 파라미터로 받은 서비스 폴더로 기본 작업 경로 변경
+        working-directory: ${{ inputs.service-name }}
 
     permissions:
       contents: read
