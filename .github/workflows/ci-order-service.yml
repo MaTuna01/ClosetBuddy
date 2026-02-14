@@ -1,0 +1,26 @@
+name: order-service CI 스크립트
+
+on:
+  pull_request:
+    branches:
+      - main
+      - closetBuddy-MSA-dev
+      - rksdu/231
+    paths:
+      - "order-service/**"
+      - "common-event/**"
+
+  push:
+    branches:
+      - main
+      - closetBuddy-MSA-dev
+      - rksdu/231
+    paths:
+      - "order-service/**"
+      - "common-event/**"
+jobs:
+  execute-test:
+    uses: ./.github/workflows/ci-workflow.yml
+    secrets: inherit # 부모의 GITHUB_TOKEN을 자식에게 넘겨둠
+    with:
+      service-name: order-service
