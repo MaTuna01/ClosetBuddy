@@ -2,7 +2,7 @@ name: Publish common-event
 
 on:
   push:
-    branches: [ main, closetBuddy-MSA-dev ]
+    branches: [ main, closetBuddy-MSA-dev, rksdu/231 ] #테스트 용으로 현재 개발 브랜치 추가
     paths:
       - 'common-event/**'          # common-event 디렉토리가 변경될 때 실행
 
