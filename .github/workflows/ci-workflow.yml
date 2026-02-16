@@ -39,7 +39,7 @@ jobs:
           - 9200:9200
 
       kafka:
-        image: bitnami/kafka:3.4
+        image: bitnami/kafka:latest
         env:
           KAFKA_ENABLE_KRAFT: yes
           KAFKA_CFG_NODE_ID: 1
