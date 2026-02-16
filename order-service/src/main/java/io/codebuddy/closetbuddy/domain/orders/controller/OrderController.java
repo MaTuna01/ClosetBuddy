@@ -57,7 +57,8 @@ public class OrderController {
 
         Long memberId = Long.parseLong(currentUser.userId());
         Long orderId = orderService.createOrder(memberId, request);
-        return ResponseEntity.ok(orderId);
+        // 비동기 처리이므로 ACCEPTED로 상태 변경
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orderId);
     }
 
     /**
