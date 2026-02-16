@@ -35,8 +35,8 @@ jobs:
           xpack.security.enabled: "false"
           xpack.security.http.ssl.enabled: "false"
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-          ports:
-            - 9200:9200
+        ports:
+          - 9200:9200
 
       kafka:
         image: bitnami/kafka:3.4
