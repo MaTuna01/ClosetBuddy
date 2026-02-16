@@ -39,7 +39,7 @@ jobs:
           - 9200:9200
 
       kafka:
-        image: confluentinc/cp-kafka:7.5.0
+        image: bitnami/kafka:3.7.0
         env:
           KAFKA_ENABLE_KRAFT: yes
           KAFKA_CFG_NODE_ID: 1
@@ -57,8 +57,8 @@ jobs:
         ports:
           - "8000:8000"
         env:
-          - IS_PERSISTENT=TRUE
-          - ANONYMIZED_TELEMETRY=TRUE
+          - IS_PERSISTENT: "TRUE"
+          - ANONYMIZED_TELEMETRY: "TRUE"
 
     defaults:
       run: # 루트가 아니라 파라미터로 받은 서비스 폴더로 기본 작업 경로 변경
