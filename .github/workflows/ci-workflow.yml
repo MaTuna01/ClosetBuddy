@@ -57,8 +57,8 @@ jobs:
         ports:
           - "8000:8000"
         env:
-          - IS_PERSISTENT: "TRUE"
-          - ANONYMIZED_TELEMETRY: "TRUE"
+          IS_PERSISTENT: "TRUE"
+          ANONYMIZED_TELEMETRY: "TRUE"
 
     defaults:
       run: # 루트가 아니라 파라미터로 받은 서비스 폴더로 기본 작업 경로 변경
