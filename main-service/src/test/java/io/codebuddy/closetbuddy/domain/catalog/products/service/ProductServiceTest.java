@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
-import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryException;
 import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;
@@ -226,7 +225,7 @@ class ProductServiceTest {
 
         @Test
         @DisplayName("정상 수정 시 상품 및 ELS 업데이트")
-        void updateProduct_성공() {
+        void updateProduct_success() {
 
             Long memberId = 1L;
             Long productId = 300L;
@@ -272,7 +271,7 @@ class ProductServiceTest {
 
         @Test
         @DisplayName("비소유자가 수정하면 NOT_OWNER 예외")
-        void updateProduct_비소유자_예외() {
+        void updateProduct_NOT_OWNER_exception() {
 
             Long otherMemberId = 999L;
             Long productId = 300L;
