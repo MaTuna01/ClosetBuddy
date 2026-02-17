@@ -44,3 +44,7 @@ payment:
 
 jwt:
   secret: "this-is-dummy-secret-key-for-test-do-not-use-in-prod-key-length-must-be-long"
+
+eureka:
+  client:
+    enabled: false
