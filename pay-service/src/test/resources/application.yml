@@ -4,21 +4,21 @@ spring:
       on-profile: test
 
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MySQL;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:testdb;MODE=MySQL;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1 # MySQL의 문법과 동작 방식을 위해 설정
     driver-class-name: org.h2.Driver
     username: sa
     password:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create-drop # 애플리케이션이 시작될 때 생성 후 삭제
     show-sql: true
 
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
-    defer-datasource-initialization: true
+    defer-datasource-initialization: true # 초기 데이터 삽입
 
   sql:
     init:

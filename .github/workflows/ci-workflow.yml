@@ -43,7 +43,7 @@ jobs:
         ports:
           - 9092:9092
 
-      chromadb: # 추후 AI-Service를 위해 넣어두기
+      chromadb: # 추후 AI-Service 도입
         image: chromadb/chroma:latest
         env:
           IS_PERSISTENT: "TRUE"
@@ -71,8 +71,6 @@ jobs:
 
       - name: gradlew 권한 설정
         run: chmod +x gradlew
-
-        # 기존의 publishToMavenLocal 삭제
 
         # GITHUB_ACTOR / GITHUB_TOKEN 환경변수 매핑
       - name: Build ${{ inputs.service-name }}
