@@ -19,19 +19,33 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     defer-datasource-initialization: true
 
-
   sql:
     init:
       mode: always
       continue-on-error: true
 
-  kafka:
-    bootstrap-servers: localhost:9092
-
   data:
     redis:
       host: localhost
       port: 6379
+
+  # 카프카는 spring 하위에 위치!
+  kafka:
+    bootstrap-servers: localhost:9092
+
+# 메인 yml과 동일하게 custom 하위에 배치 완료!
+custom:
+  jwt:
+    validation:
+      access: "dummy-access-key"
+      refresh: "dummy-refresh-key"
+
+    secrets:
+      origin-key: "dummy-origin-key"
+      app-key: "dummy-app-key"
+
+    redirection:
+      base: "https://dummy-redirection.com"
 
 eureka:
   client:
