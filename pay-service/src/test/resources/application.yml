@@ -50,4 +50,4 @@ custom:
       secrets: "test-toss-secrets"
 
   settlement:
-    free-rate: 3.0
+    fee-rate: 3.0
