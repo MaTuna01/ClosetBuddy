@@ -2,9 +2,6 @@ package io.codebuddy.payservice.domain.pay.payments.service;
 
 import io.codebuddy.closetbuddy.event.PaymentRequestEvent;
 import io.codebuddy.closetbuddy.event.PaymentRollbackRequest;
-import io.codebuddy.payservice.domain.common.feign.client.OrderServiceClient;
-import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderItemResponse;
-import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderResponse;
 import io.codebuddy.payservice.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.payservice.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.payservice.domain.pay.accounts.model.vo.TransactionType;
@@ -14,7 +11,6 @@ import io.codebuddy.payservice.domain.pay.exception.PayErrorCode;
 import io.codebuddy.payservice.domain.pay.exception.PayException;
 import io.codebuddy.payservice.domain.pay.payments.model.entity.Payment;
 import io.codebuddy.payservice.domain.pay.payments.model.mapper.PaymentMapper;
-import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentRequest;
 import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentResponse;
 import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.payservice.domain.pay.payments.repository.PaymentRepository;
