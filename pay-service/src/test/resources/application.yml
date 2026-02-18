@@ -13,6 +13,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+
     properties:
       hibernate:
         format_sql: true
@@ -31,20 +32,21 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
+
   data:
     redis:
       host: localhost
       port: 6379
 
-payment:
+payments:
   toss:
-    secret-key: "test-toss-secret-key"
-    client-key: "test-toss-client-key"
-    url: "https://api.tosspayments.com"
+    url: "https://dummy.toss.com"
+    secrets: "test-toss-secrets"
 
-jwt:
-  secret: "this-is-dummy-secret-key-for-test-do-not-use-in-prod-key-length-must-be-long"
+  settlement:
+    free-rate: 3.0
 
+# 스프링부트의 자동 설정 때문에 넣음
 eureka:
   client:
     enabled: false
