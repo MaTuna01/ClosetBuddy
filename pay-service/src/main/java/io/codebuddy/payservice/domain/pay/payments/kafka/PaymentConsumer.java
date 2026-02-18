@@ -26,6 +26,8 @@ public class PaymentConsumer {
     @KafkaListener(topics = "order.payment.request", groupId = "pay-service-group")
     public void handlePaymentRequest(PaymentRequestEvent event){
 
+        log.info("결제 요청 이벤트 수신 : orderId = {}, memberId = {}", event.orderId(), event.memberId());
+
         try{
             // 결제 수행
             paymentService.payOrder(event);
@@ -34,8 +36,11 @@ public class PaymentConsumer {
             PaymentResultEvent resultEvent = new PaymentResultEvent(event.orderId(),true,null);
 
             kafkaTemplate.send("order.payment.result",resultEvent);
+            log.info("결제 성공 이벤트 발행 : orderId = {}", event.orderId());
+
         } catch (Exception e) {
             // 결제 실패 이벤트 발행
+            log.info("결제 실패 : {}", e.getMessage());
             PaymentResultEvent resultEvent = new PaymentResultEvent(event.orderId(), false, e.getMessage());
 
             kafkaTemplate.send("order.payment.result", resultEvent);
@@ -50,11 +55,16 @@ public class PaymentConsumer {
      */
     @KafkaListener(topics = "order.payment.rollback", groupId = "pay-service-group")
     public void handlePaymentRollback(PaymentRollbackRequest event){
+
+        log.info("결제 롤백(환불) 요청 수신: orderId = {}, memberId = {}", event.orderId(), event.memberId());
+
         try {
             // 결제 취소
             paymentService.payCancel(event);
+            log.info("결제 롤백 완료");
         } catch (Exception e) {
             // TO-DO : 롤백 실패 시 어떻게 처리할 지
+            log.error("결제 롤백 실패");
             throw new RuntimeException(e);
         }
 
