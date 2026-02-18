@@ -44,8 +44,7 @@ public class PaymentServiceImpl implements PaymentService{
      * 결제 수행
      * 예치금 잔액을 차감하고 결제 내역과 예치금 사용 이력에 기록합니다.
      *
-     * @param memberId
-     * @param request - 주문번호, 금액
+     * @param event 주문 정보가 담긴 kafka event
      * @return 결제 금액, 결제 상태, 승인 시각, 업데이트 시각
      *
      * 1. 중복 결제 체크
@@ -131,8 +130,7 @@ public class PaymentServiceImpl implements PaymentService{
      * 결제 취소
      * 결제 상태를 변경(CANCELED)하고 예치금을 환불합니다.
      *
-     * @param memberId
-     * @param paymentId
+     * @param event rollback할 orderId와 memberId가 담긴 event
      * @return 결제 금액, 결제 상태, 승인 시각, 업데이트 시각
      * 1. 결제 정보 조회
      * 2. 본인 확인 및 상태 검증
@@ -142,14 +140,15 @@ public class PaymentServiceImpl implements PaymentService{
      */
     @Transactional
     @Override
-    public PaymentResponse payCancel(PaymentRollbackRequest request) {
+    public PaymentResponse payCancel(PaymentRollbackRequest event) {
 
         // 결제 정보 조회
-        Payment payment = paymentRepository.findById(paymentId)
+        // 주문id와 결제id는 동일함
+        Payment payment = paymentRepository.findById(event.orderId())
                 .orElseThrow(() -> new PayException(PayErrorCode.PAYMENT_NOT_FOUND));
 
         // 본인 확인
-        if (!payment.getMemberId().equals(memberId)) {
+        if (!payment.getMemberId().equals(event.memberId())) {
             throw new PayException(PayErrorCode.PAYMENT_NOT_FOUND);
         }
         // 상태 확인 (이미 취소된 건인지)
@@ -161,7 +160,7 @@ public class PaymentServiceImpl implements PaymentService{
         payment.canceled();
 
         // 계좌 조회
-        Account account = accountRepository.findByMemberId(memberId)
+        Account account = accountRepository.findByMemberId(event.memberId())
                 .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_NOT_FOUND));
 
         // 환불
@@ -181,7 +180,7 @@ public class PaymentServiceImpl implements PaymentService{
         accountHistoryRepository.save(history);
 
         // SettlementRawData 기록(CANCELED) - bulk update
-        settlementRawDataRepository.updateStatusByPaymentId(paymentId, RawDataStatus.CANCELED);
+        settlementRawDataRepository.updateStatusByPaymentId(event.orderId(), RawDataStatus.CANCELED);
 
         return PaymentMapper.toPaymentResponse(payment);
     }

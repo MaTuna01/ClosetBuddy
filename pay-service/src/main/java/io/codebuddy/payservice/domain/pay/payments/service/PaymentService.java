@@ -11,7 +11,7 @@ public interface PaymentService {
 
     public PaymentResponse payOrder(PaymentRequestEvent event);
 
-    public PaymentResponse payCancel(PaymentRollbackRequest request);
+    public PaymentResponse payCancel(PaymentRollbackRequest event);
 
     PaymentResponse getPayment(Long memberId, Long orderId);
 
