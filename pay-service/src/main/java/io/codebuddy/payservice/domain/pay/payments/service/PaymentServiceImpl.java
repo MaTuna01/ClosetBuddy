@@ -1,5 +1,7 @@
 package io.codebuddy.payservice.domain.pay.payments.service;
 
+import io.codebuddy.closetbuddy.event.PaymentRequestEvent;
+import io.codebuddy.closetbuddy.event.PaymentRollbackRequest;
 import io.codebuddy.payservice.domain.common.feign.client.OrderServiceClient;
 import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderItemResponse;
 import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderResponse;
@@ -35,7 +37,7 @@ public class PaymentServiceImpl implements PaymentService{
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
     private final SettlementRawDataRepository settlementRawDataRepository;
-    private final OrderServiceClient orderServiceClient;
+//    private final OrderServiceClient orderServiceClient;
 
 
     /**
@@ -54,31 +56,31 @@ public class PaymentServiceImpl implements PaymentService{
      */
     @Transactional
     @Override
-    public PaymentResponse payOrder(Long memberId, PaymentRequest request) {
+    public PaymentResponse payOrder(PaymentRequestEvent event) {
 
         // 중복 결제 방지
-        if (paymentRepository.existsByOrderId(request.orderId())) {
+        if (paymentRepository.existsByOrderId(event.orderId())) {
             throw new PayException(PayErrorCode.DUPLICATE_ORDER);
         }
 
         // 결제 데이터 생성 (상태: PENDING)
         Payment payment = Payment.builder()
-                .memberId(memberId)
-                .orderId(request.orderId())
-                .paymentAmount(request.amount())
+                .memberId(event.memberId())
+                .orderId(event.orderId())
+                .paymentAmount(event.orderAmount())
                 .build();
         paymentRepository.save(payment);
 
         // 계좌 조회 및 잔액 확인
-        Account account = accountRepository.findByMemberId(memberId)
+        Account account = accountRepository.findByMemberId(event.memberId())
                 .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_NOT_FOUND));
 
-        if (account.getBalance() < request.amount()) {
+        if (account.getBalance() < event.orderAmount()) {
             throw new PayException(PayErrorCode.NOT_ENOUGH_BALANCE);
         }
 
         // 예치금 차감
-        account.withdraw(request.amount());
+        account.withdraw(event.orderAmount());
 
         // 결제 상태 승인 변경 (PENDING -> APPROVED)
         payment.approved();
@@ -87,7 +89,7 @@ public class PaymentServiceImpl implements PaymentService{
         AccountHistory history = AccountHistory.builder()
                 .account(account)
                 .type(TransactionType.USE)
-                .amount(-request.amount())
+                .amount(-event.orderAmount())
                 .balanceSnapshot(account.getBalance())
                 .refId(payment.getPaymentId())        // Payment ID 저장
                 .createdAt(payment.getApprovedAt())
@@ -97,14 +99,12 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 정산 스냅샷 데이터 생성
         // 주문의 상품 목록 조회
-        InternalOrderResponse orderResponse=orderServiceClient.getOrderInfo(request.orderId());
-
         List<SettlementRawData> rawDataList=new ArrayList<>();
 
-        for (InternalOrderItemResponse item : orderResponse.orderItem()) {
+        for (PaymentRequestEvent.OrderItemRequest item : event.orderItem()) {
             SettlementRawData rawData = SettlementRawData.builder()
                     .paymentId(payment.getPaymentId())
-                    .orderId(request.orderId())
+                    .orderId(event.orderId())
                     .orderItemId(item.orderItemId())
                     .sellerId(item.sellerId())
                     .memberId(item.sellerId())
@@ -113,7 +113,7 @@ public class PaymentServiceImpl implements PaymentService{
                     .productName(item.productName())
                     .productPrice(item.orderPrice())
                     .count(item.orderCount())
-                    .orderPrice(orderResponse.orderAmount())
+                    .orderPrice(item.orderPrice())
                     .paidAt(LocalDateTime.now())
                     .build();
 
@@ -142,7 +142,7 @@ public class PaymentServiceImpl implements PaymentService{
      */
     @Transactional
     @Override
-    public PaymentResponse payCancel(Long memberId, Long paymentId) {
+    public PaymentResponse payCancel(PaymentRollbackRequest request) {
 
         // 결제 정보 조회
         Payment payment = paymentRepository.findById(paymentId)
