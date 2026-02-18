@@ -143,8 +143,7 @@ public class PaymentServiceImpl implements PaymentService{
     public PaymentResponse payCancel(PaymentRollbackRequest event) {
 
         // 결제 정보 조회
-        // 주문id와 결제id는 동일함
-        Payment payment = paymentRepository.findById(event.orderId())
+        Payment payment = paymentRepository.findByOrderId(event.orderId())
                 .orElseThrow(() -> new PayException(PayErrorCode.PAYMENT_NOT_FOUND));
 
         // 본인 확인
