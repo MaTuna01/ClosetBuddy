@@ -2,6 +2,7 @@ package io.codebuddy.payservice.domain.pay.payments.kafka;
 
 import io.codebuddy.closetbuddy.event.PaymentRequestEvent;
 import io.codebuddy.closetbuddy.event.PaymentResultEvent;
+import io.codebuddy.closetbuddy.event.PaymentRollbackRequest;
 import io.codebuddy.payservice.domain.pay.payments.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,5 +42,23 @@ public class PaymentConsumer {
         }
 
     }
+
+    /**
+     * 결제 롤백 요청 Listener
+     * @param event 롤백 요청 event
+     * 주문이 최종 실패하였거나 취소되었을 때 이미 결제된 내역을 환불
+     */
+    @KafkaListener(topics = "order.payment.rollback", groupId = "pay-service-group")
+    public void handlePaymentRollback(PaymentRollbackRequest event){
+        try {
+            // 결제 취소
+            paymentService.payCancel(event);
+        } catch (Exception e) {
+            // TO-DO : 롤백 실패 시 어떻게 처리할 지
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
 }
