@@ -38,15 +38,16 @@ spring:
       host: localhost
       port: 6379
 
-payments:
-  toss:
-    url: "https://dummy.toss.com"
-    secrets: "test-toss-secrets"
-
-  settlement:
-    free-rate: 3.0
-
 # 스프링부트의 자동 설정 때문에 넣음
 eureka:
   client:
     enabled: false
+
+custom:
+  payments:
+    toss:
+      url: "https://dummy.toss.com"
+      secrets: "test-toss-secrets"
+
+  settlement:
+    free-rate: 3.0
