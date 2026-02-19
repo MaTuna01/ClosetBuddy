@@ -18,7 +18,7 @@ public class Account {
     private Long accountId;
 
     @Column(name = "balance", nullable = false)
-    private Long balance=0L;
+    private Long balance;
 
     @Column(name = "member_id", nullable = false, unique = true)
     private Long memberId;

@@ -18,6 +18,7 @@ import io.codebuddy.payservice.domain.settlement.model.entity.SettlementRawData;
 import io.codebuddy.payservice.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.payservice.domain.settlement.repository.SettlementRawDataRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService{
@@ -158,9 +160,11 @@ public class PaymentServiceImpl implements PaymentService{
         Account account = accountRepository.findByMemberId(event.memberId())
                 .orElseThrow(() -> new PayException(PayErrorCode.ACCOUNT_NOT_FOUND));
 
+        log.info("환불 전 계좌 금액 : {}",account.getBalance());
         // 환불
         long refundAmount = payment.getPaymentAmount();
         account.charge(refundAmount);
+        log.info("환불 후 계좌 금액 : {}",account.getBalance());
 
         //AccountHistory 기록 (REFUND)
         AccountHistory history = AccountHistory.builder()
