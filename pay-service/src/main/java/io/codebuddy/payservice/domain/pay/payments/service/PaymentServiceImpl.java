@@ -35,7 +35,6 @@ public class PaymentServiceImpl implements PaymentService{
     private final AccountRepository accountRepository;
     private final AccountHistoryRepository accountHistoryRepository;
     private final SettlementRawDataRepository settlementRawDataRepository;
-//    private final OrderServiceClient orderServiceClient;
 
 
     /**

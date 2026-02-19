@@ -3,15 +3,12 @@ package io.codebuddy.payservice.domain.pay.payments.controller;
 
 import io.codebuddy.payservice.domain.common.web.CurrentUser;
 import io.codebuddy.payservice.domain.common.web.CurrentUserInfo;
-import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentRequest;
 import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentResponse;
 import io.codebuddy.payservice.domain.pay.payments.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
