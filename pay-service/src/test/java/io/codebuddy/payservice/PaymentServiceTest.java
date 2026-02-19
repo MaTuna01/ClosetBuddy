@@ -1,9 +1,6 @@
 package io.codebuddy.payservice;
 
 
-import io.codebuddy.payservice.domain.common.feign.client.OrderServiceClient;
-import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderItemResponse;
-import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderResponse;
 import io.codebuddy.payservice.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.payservice.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.payservice.domain.pay.accounts.repository.AccountHistoryRepository;
@@ -47,8 +44,6 @@ class PaymentServiceTest {
     private AccountRepository accountRepository;
     @Mock
     private AccountHistoryRepository accountHistoryRepository;
-    @Mock
-    private OrderServiceClient orderServiceClient;
     @Mock
     private SettlementRawDataRepository settlementRawDataRepository;
 
