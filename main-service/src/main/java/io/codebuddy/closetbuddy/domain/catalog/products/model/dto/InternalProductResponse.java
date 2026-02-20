@@ -9,7 +9,7 @@ public record InternalProductResponse(
         Long productPrice, // 상품 가격
         int productStock, // 상품 재고
         Long storeId, // 상점 아이디
-        String storeName, // 상품 이름
+        String storeName, // 상점 이름
         Long sellerId, // 판매자 아이디
         String sellerName // 판매자 이름
 ) {
