@@ -20,7 +20,7 @@ public interface ProductElasticRepository extends ElasticsearchRepository<Produc
                     "multi_match": {
                         "query": "?0",
                             "fields": [
-                                "subCategory^5",     // 카테고리명 일치 시 가장 상위 노출
+                                "subCategory^5",     // 하위 카테고리 일치 시 가장 상위 노출
                                 "topCategory^3",
                                 "productName^3",
                                 "productName.ngram^2",
@@ -34,6 +34,36 @@ public interface ProductElasticRepository extends ElasticsearchRepository<Produc
     }
     """)
     SearchPage<ProductDocument> searchByKeyword(String keyword, Pageable pageable);
+
+    // 하위 카테고리 내에서 검색 (카테고리 탭을 누른 후 검색했을 때)
+    @Query("""
+    {
+        "bool": {
+            "filter": [
+                {
+                    "term": {
+                        "subCategory.keyword": "?0" // ?0 : 하위 카테고리명
+                    }
+                }
+            ],
+            "must": [
+                {
+                    "multi_match": {
+                        "query": "?1",              // ?1 : 검색 키워드
+                        "fields": [
+                            "productName^3",
+                            "productName.ngram^2",
+                            "storeName"
+                        ],
+                        "type": "best_fields",
+                        "fuzziness": "AUTO"
+                    }
+                }
+            ]
+        }
+    }
+    """)
+    SearchPage<ProductDocument> searchByCategoryAndKeyword(String category, String keyword, Pageable pageable);
 
     // bool_prefix : 띄어쓰기가 포함된 자동완성
     @Query("""
