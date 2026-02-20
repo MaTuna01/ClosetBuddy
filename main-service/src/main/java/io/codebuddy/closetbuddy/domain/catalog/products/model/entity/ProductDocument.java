@@ -25,8 +25,6 @@ public class ProductDocument {
             otherFields = {
                     // 부분일치
                     @InnerField(suffix = "ngram", type = FieldType.Text, analyzer = "edge_ngram_analyzer", searchAnalyzer = "nori_synonym_analyzer"),
-                    // 상품명 정렬, 정확히 그 이름인 상품 검색
-                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
             }
     )
     private String productName;
