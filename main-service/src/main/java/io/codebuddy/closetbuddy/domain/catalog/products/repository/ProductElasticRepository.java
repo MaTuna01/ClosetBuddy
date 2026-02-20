@@ -14,16 +14,22 @@ public interface ProductElasticRepository extends ElasticsearchRepository<Produc
     // fuzziness:  오타 허용 범위
     @Query("""
     {
-        "multi_match": {
-            "query": "?0",
-            "fields": [
-                "productName^3",
-                "productName.ngram^3",
-                "storeName^2",
-                "category"
-            ],
-            "type": "best_fields",
-            "fuzziness": "AUTO"
+        "bool": {
+            "must": [
+                {
+                    "multi_match": {
+                        "query": "?0",
+                            "fields": [
+                                "subCategory^5",     // 카테고리명 일치 시 가장 상위 노출
+                                "topCategory^3",
+                                "productName^3",
+                                "productName.ngram^2",
+                                "storeName^2"],
+                            "type": "best_fields",
+                            "fuzziness": "AUTO"
+                    }
+                }
+            ]
         }
     }
     """)
