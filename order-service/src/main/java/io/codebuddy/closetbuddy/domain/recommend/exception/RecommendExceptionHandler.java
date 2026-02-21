@@ -39,7 +39,7 @@ public class RecommendExceptionHandler {
                 .body(new RecommendErrorResponse("INVALID_REQUEST", errorMessage, Instant.now()));
     }
 
-    //그 외 서버에러
+    // 그 외 서버에러
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RecommendErrorResponse> handleException(Exception e) {
         String errorMessage = "장바구니 서비스에 문제가 발생했습니다. 관리자에게 문의하세요.";
