@@ -22,7 +22,7 @@ class ClosetBuddyApplicationTests {
         @ServiceConnection
         static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0");
 
-        // Rdis 컨테이너
+        // Redis 컨테이너
         @Container
         @ServiceConnection
         static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:latest"))
