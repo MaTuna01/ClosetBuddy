@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.service;
 
-import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryErrorCode;
 import io.codebuddy.closetbuddy.domain.catalog.category.exception.CategoryException;
 import io.codebuddy.closetbuddy.domain.catalog.category.model.entity.Category;
 import io.codebuddy.closetbuddy.domain.catalog.products.exception.ProductErrorCode;

@@ -12,7 +12,6 @@ import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartGetResponseD
 import io.codebuddy.closetbuddy.domain.carts.service.CartService;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
-import io.codebuddy.closetbuddy.domain.common.web.dto.OrderResult;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
