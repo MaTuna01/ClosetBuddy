@@ -1,11 +1,13 @@
 package io.codebuddy.closetbuddy.domain.catalog.products.controller;
 
 import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.InternalProductResponse;
-import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.ProductResponse;
+import io.codebuddy.closetbuddy.domain.catalog.products.model.dto.InternalRecommendProductResponse;
 import io.codebuddy.closetbuddy.domain.catalog.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/internal/catalog")
@@ -20,4 +22,11 @@ public class InternalProductController {
         return ResponseEntity.ok(product);
     }
 
+    @GetMapping("/products")
+    public ResponseEntity<List<InternalRecommendProductResponse>>getProductInfos(
+            @RequestParam("productIds") List<Long> productIds
+    ) {
+        List<InternalRecommendProductResponse> products = productService.getInternalProducts(productIds);
+        return ResponseEntity.ok(products);
+    }
 }
