@@ -9,6 +9,7 @@ public record CartProductResponse(
         Long storeId,
         String storeName,
         Long productPrice,
+        String categoryCode,
         String imageUrl
 ) {
 }
