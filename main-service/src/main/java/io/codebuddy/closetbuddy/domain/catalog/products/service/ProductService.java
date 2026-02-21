@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -228,5 +230,13 @@ public class ProductService {
         return InternalProductResponse.from(product);
     }
 
+    // Order-Service 의 추천 시스템에서 사용하는 조회 메서드 추가
+    @Transactional
+    public List<InternalRecommendProductResponse> getInternalProducts(List<Long> productIds) {
+        List<Product> products = productJpaRepository.findRecommendProductWithStore(productIds);
 
+        return products.stream()
+                .map(InternalRecommendProductResponse::from)
+                .collect(Collectors.toList());
+    }
 }
