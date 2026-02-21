@@ -42,6 +42,12 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     //feign-client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    //test 환경 구성
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:elasticsearch'
+    testImplementation 'org.testcontainers:kafka'
+    testImplementation 'org.testcontainers:mysql'
 
     //lombok
     compileOnly 'org.projectlombok:lombok'
