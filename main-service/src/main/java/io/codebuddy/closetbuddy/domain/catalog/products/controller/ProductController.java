@@ -298,7 +298,7 @@ public class ProductController {
     @GetMapping("/category/{categoryName}")
     public ResponseEntity<Page<ProductSearchResponse>> searchProducts(
             @PathVariable String categoryName,
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<ProductSearchResponse> result = productService.searchProductsByCategoryAndKeyword(categoryName,keyword,pageable);
