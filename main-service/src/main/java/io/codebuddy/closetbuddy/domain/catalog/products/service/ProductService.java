@@ -33,6 +33,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -195,9 +196,16 @@ public class ProductService {
     // 하위 카테고리 내에서 검색
     public Page<ProductSearchResponse> searchProductsByCategoryAndKeyword(String category, String keyword, Pageable pageable) {
 
-        // ELS에서 검색 결과 가져오기
-        SearchPage<ProductDocument> searchPage = productElasticRepository.searchByCategoryAndKeyword(category,keyword,pageable);
+        SearchPage<ProductDocument> searchPage;
 
+        // 키워드가 존재하는지 확인
+        if (StringUtils.hasText(keyword)) { // null,공백 확인
+            // 카테고리 선택 후 키워드 검색
+            searchPage = productElasticRepository.searchByCategoryAndKeyword(category, keyword, pageable);
+        } else {
+            // 카테고리만 선택한 경우 (해당 카테고리의 전체 상품 조회)
+            searchPage = productElasticRepository.searchByCategory(category, pageable);
+        }
         return searchToPage(searchPage,pageable);
     }
 
