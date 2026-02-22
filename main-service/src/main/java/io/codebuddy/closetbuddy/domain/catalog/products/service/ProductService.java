@@ -189,19 +189,7 @@ public class ProductService {
         // ELS에서 검색 결과 가져오기
         SearchPage<ProductDocument> searchPage = productElasticRepository.searchByKeyword(keyword, pageable);
 
-        // 결과를 담을 리스트 생성
-        List<ProductSearchResponse> responseList = new ArrayList<>();
-
-        for (SearchHit<ProductDocument> hit : searchPage.getSearchHits()) {
-            ProductDocument document = hit.getContent();
-
-            ProductSearchResponse dto = ProductSearchResponse.fromDocument(document);
-
-            responseList.add(dto);
-        }
-
-        // PageImpl로 반환 (데이터 리스트, 페이징 정보, 전체 개수)
-        return new PageImpl<>(responseList, pageable, searchPage.getTotalElements());
+        return searchToPage(searchPage,pageable);
     }
 
     // 하위 카테고리 내에서 검색
@@ -209,6 +197,12 @@ public class ProductService {
 
         // ELS에서 검색 결과 가져오기
         SearchPage<ProductDocument> searchPage = productElasticRepository.searchByCategoryAndKeyword(category,keyword,pageable);
+
+        return searchToPage(searchPage,pageable);
+    }
+
+    // searchPage -> Response 변환
+    private Page<ProductSearchResponse> searchToPage(SearchPage<ProductDocument> searchPage, Pageable pageable) {
 
         // 결과를 담을 리스트 생성
         List<ProductSearchResponse> responseList = new ArrayList<>();
