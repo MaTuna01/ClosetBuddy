@@ -252,7 +252,7 @@ public class ProductController {
     })
     @GetMapping("/suggestions")
     public ResponseEntity<List<String>> fetchSuggestions(
-            @RequestParam("prefix") String prefix,
+            @RequestParam String prefix,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
         List<String> suggestions = productService.getSuggestions(prefix, limit);
@@ -277,10 +277,31 @@ public class ProductController {
     })
     @GetMapping("/products/search")
     public ResponseEntity<Page<ProductSearchResponse>> searchProducts(
-            @RequestParam(name = "keyword") String keyword,
+            @RequestParam String keyword,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<ProductSearchResponse> result = productService.searchProducts(keyword, pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @Operation(
+            summary = "카테고리 기반 상품 검색",
+            description = "카테고리를 선택한 후 관련 상품을 검색합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "검색 성공"
+            )
+    })
+    @GetMapping("/category/{categoryName}")
+    public ResponseEntity<Page<ProductSearchResponse>> searchProducts(
+            @PathVariable String categoryName,
+            @RequestParam String keyword,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<ProductSearchResponse> result = productService.searchProductsByCategoryAndKeyword(categoryName,keyword,pageable);
 
         return ResponseEntity.ok(result);
     }
