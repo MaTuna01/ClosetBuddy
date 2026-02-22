@@ -204,6 +204,26 @@ public class ProductService {
         return new PageImpl<>(responseList, pageable, searchPage.getTotalElements());
     }
 
+    // 하위 카테고리 내에서 검색
+    public Page<ProductSearchResponse> searchProductsByCategoryAndKeyword(String category, String keyword, Pageable pageable) {
+
+        // ELS에서 검색 결과 가져오기
+        SearchPage<ProductDocument> searchPage = productElasticRepository.searchByCategoryAndKeyword(category,keyword,pageable);
+
+        // 결과를 담을 리스트 생성
+        List<ProductSearchResponse> responseList = new ArrayList<>();
+
+        for (SearchHit<ProductDocument> hit : searchPage.getSearchHits()) {
+            ProductDocument document = hit.getContent();
+
+            ProductSearchResponse dto = ProductSearchResponse.fromDocument(document);
+
+            responseList.add(dto);
+        }
+
+        return new PageImpl<>(responseList, pageable, searchPage.getTotalElements());
+    }
+
     // (상점 주인 확인용) 검증 로직
     private void validateStoreOwner(Long memberId, Store store) {
         if (!store.getSeller().getMemberId().equals(memberId)) {
