@@ -19,13 +19,18 @@ public class RecommendController {
 
     private final RecommendService recommendService;
 
+    /**
+     * 로그인 된 정보를 통해 장바구니에 있는 상품 기반으로 상품을 추천합니다.
+     *
+     * @param currentUser
+     * @return
+     */
     @GetMapping("/items")
     public ResponseEntity<List<RecommendProductInfoResponse>> recommend(
             @CurrentUser CurrentUserInfo currentUser
     ) {
         List<RecommendProductInfoResponse> resultList = recommendService.getCartListForRecommend(Long.parseLong(currentUser.userId()));
 
-        // 요청 보내기 성공값을 반환해야함
         return ResponseEntity.ok(resultList);
     }
 }
