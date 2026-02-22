@@ -65,6 +65,22 @@ public interface ProductElasticRepository extends ElasticsearchRepository<Produc
     """)
     SearchPage<ProductDocument> searchByCategoryAndKeyword(String category, String keyword, Pageable pageable);
 
+    // 키워드 없이 카테고리만 선택
+    @Query("""
+    {
+        "bool": {
+            "filter": [
+                {
+                    "term": {
+                        "subCategory.keyword": "?0"
+                    }
+                }
+            ]
+        }
+    }
+    """)
+    SearchPage<ProductDocument> searchByCategory(String category, Pageable pageable);
+
     // bool_prefix : 띄어쓰기가 포함된 자동완성
     @Query("""
     {
