@@ -66,10 +66,13 @@
           "슬림핏, slimfit, 타이트핏, 스키니",
 
           "티셔츠, 티, t-shirt, tee, 반팔",
+          "셔츠, shirt, 남방, 와이셔츠, 드레스셔츠",
           "맨투맨, mtm, 스웨트셔츠, sweatshirt",
           "후드티, 후드, 후디, hoodie, hood",
           "니트, knit, 스웨터, sweater",
           "가디건, cardigan, 아우터",
+          "베스트, 조끼, vest, 웨이스트코트, 슬리브리스",
+          "블라우스, blouse, 여성셔츠, 튜닉, 여성남방",
           "롱슬리브, long sleeve, 긴팔티, 긴팔, 쭉티",
           "폴로셔츠, polo, 카라티",
 
@@ -77,6 +80,8 @@
           "슬랙스, slacks, 정장바지, 수트팬츠",
           "청바지, jeans, 데님팬츠, 진",
           "면바지, 치노팬츠, chino, cotton pants",
+          "카고팬츠, cargo, cargo pants, 건빵바지, 유틸리티팬츠",
+          "치노팬츠, 치노, chino",
           "반바지, 쇼츠, shorts, short pants, 핫팬츠",
           "조거팬츠, 조거, jogger",
           "트레이닝팬츠, 트레이닝복, 츄리닝, 운동복, sweat pants",
