@@ -7,7 +7,8 @@ public record ProductSearchResponse(
         String productName,
         Long productPrice,
         int productStock,
-        String categoryName,      // 카테고리명
+        String topCategory,
+        String subCategory,
         String storeName
 ) {
     // document -> productResponse
@@ -17,7 +18,8 @@ public record ProductSearchResponse(
                 doc.getProductName(),
                 doc.getProductPrice(),
                 doc.getProductStock(),
-                doc.getCategoryName(),
+                doc.getTopCategory(),
+                doc.getSubCategory(),
                 doc.getStoreName()
         );
     }
