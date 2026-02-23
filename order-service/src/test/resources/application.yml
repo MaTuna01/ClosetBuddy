@@ -32,3 +32,8 @@ spring:
     consumer:
       group-id: order-service-test-group
       auto-offset-reset: earliest
+
+custom:
+  ai:
+    base-url: http://localhost:9090
+    timeout: 15000

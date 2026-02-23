@@ -90,7 +90,7 @@ class CartServiceTest {
 
         CartProductResponse productResponse = new CartProductResponse(
                 productId, "네모바지", 10L, "판매자 1",
-                1L, "뉴발란스", 10000L, "square.png");
+                1L, "뉴발란스", 10000L, "PANTS", "square.png");
 
         // getCartProductInfo에 product를 넣었을 때, productResponse를 반환하도록 한다.
         given(catalogServiceClient.getCartProductInfo(productId)).willReturn(productResponse);
@@ -136,7 +136,7 @@ class CartServiceTest {
 
         CartProductResponse productResponse = new CartProductResponse(
                 productId, "네모바지", 10L, "판매자1",
-                1L, "뉴발란스", 10000L, "square.png");
+                1L, "뉴발란스", 10000L, "PANTS", "square.png");
 
         given(catalogServiceClient.getCartProductInfo(productId)).willReturn(productResponse);
 
@@ -187,10 +187,10 @@ class CartServiceTest {
         // CartProductResponseDto에 장바구니에 있는 상품의 정보를 넣어준다.
         // 상품 1
         CartProductResponse productResponse1 = new CartProductResponse(
-                1L, "네모바지", 10000L, "스펀지밥", 1L, "나이키", 10000L, "square.png");
+                1L, "네모바지", 10000L, "스펀지밥", 1L, "나이키", 10000L, "PANTS", "square.png");
         // 상품 2
         CartProductResponse productResponse2 = new CartProductResponse(
-                3L, "빨간티셔츠", 200000L, "뚱이", 2L, "에르메스", 20000L, "redpants.png");
+                3L, "빨간티셔츠", 200000L, "뚱이", 2L, "에르메스", 20000L, "TOP", "redpants.png");
 
         // Catalog 서비스 클라이언트(Feign Client)에 productId를 넣고 productResponse를 뱉는다고 가정한다.
         given(catalogServiceClient.getCartProductInfo(1L)).willReturn(productResponse1);

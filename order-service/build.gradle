@@ -66,6 +66,7 @@ dependencies {
     implementation 'io.codebuddy:common-event:1.0.1'
     // kafka 비동기 통신
     implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 }
 dependencyManagement {
