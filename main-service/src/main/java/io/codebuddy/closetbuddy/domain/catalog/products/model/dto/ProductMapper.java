@@ -11,8 +11,9 @@ public class ProductMapper {
                 product.getProductName(),
                 product.getProductPrice(),
                 product.getProductStock(),
-                String.valueOf(product.getCategory()),
-                product.getStore().getStoreName(),
+                String.valueOf(product.getStore().getStoreName()),
+                String.valueOf(product.getCategory().getParent().getCode()),
+                String.valueOf(product.getCategory().getCode()),
                 product.getImageUrl()
         );
 
