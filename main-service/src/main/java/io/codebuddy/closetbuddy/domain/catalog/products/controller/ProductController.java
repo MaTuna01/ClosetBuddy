@@ -262,8 +262,8 @@ public class ProductController {
 
     /*
     상품 검색
-    기본 검색 : http://localhost:8090/product/search?keyword=나이키
-    페이징 : http://localhost:8090/product/search?keyword=나이키&page=0&size=10
+    기본 검색 : http://localhost:8090/api/v1/catalog/products/search?keyword=나이키
+    페이징 : http://localhost:8090/api/v1/catalog/products/search?keyword=나이키&page=0&size=10
      */
     @Operation(
             summary = "상품 검색",
