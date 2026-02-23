@@ -115,14 +115,15 @@ class ProductServiceTest {
                 .build();
     }
 
-    private ProductDocument createProductDocument(String id, String name, Long price, int stock, String storeName, String categoryName) {
+    private ProductDocument createProductDocument(String id, String name, Long price, int stock, String storeName, String topCategory, String subCategory) {
         return ProductDocument.builder()
                 .id(id)
                 .productName(name)
                 .productPrice(price)
                 .productStock(stock)
                 .storeName(storeName)
-                .categoryName(categoryName)
+                .topCategory(topCategory)
+                .subCategory(subCategory)
                 .imageUrl("https://img.jpg")
                 .build();
     }
@@ -438,9 +439,9 @@ class ProductServiceTest {
             SearchHit<ProductDocument> hit2 = mock(SearchHit.class);
             SearchHit<ProductDocument> hit3 = mock(SearchHit.class);
 
-            ProductDocument nike1 = createProductDocument("1", "나이키 반팔", 10000L, 3, "A상점", "티셔츠");
-            ProductDocument nike2 = createProductDocument("2", "나이키 반팔", 11000L, 4, "B상점", "티셔츠");
-            ProductDocument adidas = createProductDocument("3", "아디다스 반팔", 9000L, 2, "C상점", "티셔츠");
+            ProductDocument nike1 = createProductDocument("1", "나이키 반팔", 10000L, 3, "A상점", "TOP", "TSHIRT" );
+            ProductDocument nike2 = createProductDocument("2", "나이키 반팔", 11000L, 4, "B상점", "TOP", "TSHIRT");
+            ProductDocument adidas = createProductDocument("3", "아디다스 반팔", 9000L, 2, "C상점", "TOP", "TSHIRT");
 
             when(hit1.getContent()).thenReturn(nike1);
             when(hit2.getContent()).thenReturn(nike2);
@@ -464,8 +465,8 @@ class ProductServiceTest {
             SearchHit<ProductDocument> hit1 = mock(SearchHit.class);
             SearchHit<ProductDocument> hit2 = mock(SearchHit.class);
 
-            ProductDocument doc1 = createProductDocument("1", "티셔츠1", 10000L, 5, "상점1", "티셔츠");
-            ProductDocument doc2 = createProductDocument("2", "티셔츠2", 20000L, 3, "상점2", "티셔츠");
+            ProductDocument doc1 = createProductDocument("1", "티셔츠1", 10000L, 5, "상점1", "TOP","TSHIRT");
+            ProductDocument doc2 = createProductDocument("2", "티셔츠2", 20000L, 3, "상점2", "TOP","TSHIRT");
 
             when(hit1.getContent()).thenReturn(doc1);
             when(hit2.getContent()).thenReturn(doc2);
