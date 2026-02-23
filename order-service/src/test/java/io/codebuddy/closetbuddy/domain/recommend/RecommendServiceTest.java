@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
-public class RecommendServiceTest {
+class RecommendServiceTest {
 
     @InjectMocks
     private RecommendService recommendService;
