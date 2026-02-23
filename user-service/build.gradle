@@ -56,6 +56,10 @@ dependencies {
 
     //openFeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 dependencyManagement {

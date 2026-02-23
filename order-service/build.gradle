@@ -67,6 +67,10 @@ dependencies {
     // kafka 비동기 통신
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 dependencyManagement {
     imports {
