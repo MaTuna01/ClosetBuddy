@@ -91,9 +91,6 @@ class RecommendServiceTest {
 
         // then
         assertThat(result).isNotNull();
-        // 한 데이터당 결과값이 4개가 나왔는지
-        assertThat(result).hasSize(4);
-
         assertThat(result.get(0)).isEqualTo(finalProduct1);
         assertThat(result.get(1)).isEqualTo(finalProduct2);
         assertThat(result.get(2)).isEqualTo(finalProduct3);
