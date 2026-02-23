@@ -123,11 +123,11 @@ public class RecommendServiceTest {
         Cart mockCart = mock(Cart.class);
 
         when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.of(mockCart));
-        when(mockCart.getCartItems()).thenReturn(List.of());
+        when(mockCart.getCartItems()).thenReturn(null);
 
         assertThatThrownBy(() -> recommendService.getCartListForRecommend(memberId))
                 .isInstanceOf(RecommendException.class)
-                .hasMessageContaining("추천 상품을 찾을 수 없습니다.");
+                .hasMessageContaining("장바구니 안에 상품이 없습니다.");
     }
 
 }
