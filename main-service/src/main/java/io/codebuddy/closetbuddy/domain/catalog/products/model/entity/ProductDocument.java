@@ -49,7 +49,7 @@ public class ProductDocument {
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "nori_synonym_analyzer"),
             otherFields = {
-                    @InnerField(suffix = "keyword", type = FieldType.Keyword)
+                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
             }
     )
     private String topCategory;
@@ -58,7 +58,7 @@ public class ProductDocument {
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "nori_synonym_analyzer"),
             otherFields = {
-                    @InnerField(suffix = "keyword", type = FieldType.Keyword)
+                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
             }
     )
     private String subCategory;
