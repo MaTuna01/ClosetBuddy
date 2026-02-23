@@ -1,5 +1,7 @@
 package io.codebuddy.payservice.domain.pay.payments.service;
 
+import io.codebuddy.closetbuddy.event.PaymentRequestEvent;
+import io.codebuddy.closetbuddy.event.PaymentRollbackRequest;
 import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentRequest;
 import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentResponse;
 
@@ -7,9 +9,9 @@ import java.util.List;
 
 public interface PaymentService {
 
-    public PaymentResponse payOrder(Long memberId, PaymentRequest request);
+    public PaymentResponse payOrder(PaymentRequestEvent event);
 
-    public PaymentResponse payCancel(Long memberId, Long paymentId);
+    public PaymentResponse payCancel(PaymentRollbackRequest event);
 
     PaymentResponse getPayment(Long memberId, Long orderId);
 
