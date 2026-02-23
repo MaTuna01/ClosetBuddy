@@ -1,9 +1,8 @@
 package io.codebuddy.payservice;
 
 
-import io.codebuddy.payservice.domain.common.feign.client.OrderServiceClient;
-import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderItemResponse;
-import io.codebuddy.payservice.domain.common.feign.dto.InternalOrderResponse;
+import io.codebuddy.closetbuddy.event.PaymentRequestEvent;
+import io.codebuddy.closetbuddy.event.PaymentRollbackRequest;
 import io.codebuddy.payservice.domain.pay.accounts.model.entity.Account;
 import io.codebuddy.payservice.domain.pay.accounts.model.entity.AccountHistory;
 import io.codebuddy.payservice.domain.pay.accounts.repository.AccountHistoryRepository;
@@ -11,11 +10,10 @@ import io.codebuddy.payservice.domain.pay.accounts.repository.AccountRepository;
 import io.codebuddy.payservice.domain.pay.exception.PayErrorCode;
 import io.codebuddy.payservice.domain.pay.exception.PayException;
 import io.codebuddy.payservice.domain.pay.payments.model.entity.Payment;
-import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentRequest;
 import io.codebuddy.payservice.domain.pay.payments.model.vo.PaymentStatus;
 import io.codebuddy.payservice.domain.pay.payments.repository.PaymentRepository;
 import io.codebuddy.payservice.domain.pay.payments.service.PaymentServiceImpl;
-import io.codebuddy.payservice.domain.settlement.model.entity.SettlementRawData;
+import io.codebuddy.payservice.domain.settlement.model.vo.RawDataStatus;
 import io.codebuddy.payservice.domain.settlement.repository.SettlementRawDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +28,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -48,8 +46,6 @@ class PaymentServiceTest {
     @Mock
     private AccountHistoryRepository accountHistoryRepository;
     @Mock
-    private OrderServiceClient orderServiceClient;
-    @Mock
     private SettlementRawDataRepository settlementRawDataRepository;
 
     @Test
@@ -57,9 +53,17 @@ class PaymentServiceTest {
     void payOrder_Success() {
         // given
         Long memberId=1L;
-        PaymentRequest request= new PaymentRequest(1L, 5000L);
+        Long orderId=1L;
+        Long orderAmount=5000L;
 
-        given(paymentRepository.existsByOrderId(request.orderId())).willReturn(false);
+        // Kafka Event 파라미터 세팅
+        PaymentRequestEvent.OrderItemRequest mockItem = new PaymentRequestEvent.OrderItemRequest(
+                10L, 20L, 30L, 40L, 1, orderAmount, "테스트 상품", "테스트 상점", "테스트 판매자"
+        );
+        PaymentRequestEvent event = new PaymentRequestEvent(orderId, memberId, orderAmount, List.of(mockItem));
+
+
+        given(paymentRepository.existsByOrderId(event.orderId())).willReturn(false);
 
         given(paymentRepository.save(any(Payment.class))).willAnswer(inv -> inv.getArgument(0));
 
@@ -69,20 +73,14 @@ class PaymentServiceTest {
 
         given(accountHistoryRepository.save(any(AccountHistory.class))).willAnswer(inv -> inv.getArgument(0));
 
-        InternalOrderItemResponse mockItem = new InternalOrderItemResponse(10L, 20L, 30L, 40L, 1, 5000L, "테스트 상품","테스트 상점","테스트 판매자");
-        InternalOrderResponse mockOrderResponse = new InternalOrderResponse(5000L, List.of(mockItem));
-
-        given(orderServiceClient.getOrderInfo(request.orderId())).willReturn(mockOrderResponse);
-
         // when
-        paymentService.payOrder(memberId, request);
+        paymentService.payOrder(event);
 
         // then
         assertThat(account.getBalance()).isEqualTo(5000L);
         verify(paymentRepository).save(any(Payment.class));
-
         verify(accountHistoryRepository).save(any(AccountHistory.class));
-
+        verify(settlementRawDataRepository).saveAll(anyList());
     }
 
     @Test
@@ -90,13 +88,12 @@ class PaymentServiceTest {
     void payOrder_Fail_DuplicateOrder() {
 
         // given
-        Long memberId=1L;
-        PaymentRequest request= new PaymentRequest(1L, 5000L);
+        PaymentRequestEvent event = new PaymentRequestEvent(1L, 1L, 5000L, List.of());
 
-        given(paymentRepository.existsByOrderId(request.orderId())).willReturn(true);
+        given(paymentRepository.existsByOrderId(event.orderId())).willReturn(true);
 
         // when & then
-        assertThatThrownBy(()->paymentService.payOrder(memberId, request))
+        assertThatThrownBy(()->paymentService.payOrder(event))
                 .isInstanceOf(PayException.class)
                 .hasMessage(PayErrorCode.DUPLICATE_ORDER.getMessage());
 
@@ -109,14 +106,14 @@ class PaymentServiceTest {
 
         // given
         Long memberId=1L;
-        PaymentRequest request= new PaymentRequest(1L, 5000L);
+        PaymentRequestEvent event = new PaymentRequestEvent(1L, memberId, 5000L, List.of());
 
         Account account=Account.createAccount(memberId);
         account.charge(1000L);
         given(accountRepository.findByMemberId(memberId)).willReturn(Optional.of(account));
 
         // when & then
-        assertThatThrownBy(()->paymentService.payOrder(memberId,request))
+        assertThatThrownBy(()->paymentService.payOrder(event))
                 .isInstanceOf(PayException.class)
                 .hasMessage(PayErrorCode.NOT_ENOUGH_BALANCE.getMessage());
 
@@ -129,8 +126,10 @@ class PaymentServiceTest {
 
         // given
         Long memberId = 1L;
-        Long paymentId = 100L;
+        Long orderId=1L;
         Long payAmount = 5000L;
+
+        PaymentRollbackRequest event = new PaymentRollbackRequest(orderId, memberId);
 
         Payment payment = Payment.builder()
                 .memberId(memberId)
@@ -139,20 +138,20 @@ class PaymentServiceTest {
                 .build();
         payment.approved();
 
-        given(paymentRepository.findById(paymentId)).willReturn(Optional.of(payment));
+        given(paymentRepository.findByOrderId(orderId)).willReturn(Optional.of(payment));
 
         Account account = Account.createAccount(memberId);
         account.charge(5000L);
         given(accountRepository.findByMemberId(memberId)).willReturn(Optional.of(account));
 
         // when
-        paymentService.payCancel(memberId,paymentId);
+        paymentService.payCancel(event);
 
         // then
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELED);
         assertThat(account.getBalance()).isEqualTo(10000L);
         verify(accountHistoryRepository).save(any(AccountHistory.class));
-
+        verify(settlementRawDataRepository).updateStatusByPaymentId(eq(orderId), eq(RawDataStatus.CANCELED));
 
     }
 
@@ -162,16 +161,17 @@ class PaymentServiceTest {
         // given
         Long requesterId = 1L;    // 요청자
         Long ownerId = 2L;        // 실제 결제자
-        Long paymentId = 100L;
+        Long orderId = 1L;
+        PaymentRollbackRequest event = new PaymentRollbackRequest(orderId, requesterId);
 
         Payment payment = Payment.builder()
                 .memberId(ownerId)
                 .build();
 
-        given(paymentRepository.findById(paymentId)).willReturn(Optional.of(payment));
+        given(paymentRepository.findByOrderId(orderId)).willReturn(Optional.of(payment));
 
         // when & then
-        assertThatThrownBy(() -> paymentService.payCancel(requesterId, paymentId))
+        assertThatThrownBy(() -> paymentService.payCancel(event))
                 .isInstanceOf(PayException.class)
                 .hasMessage(PayErrorCode.PAYMENT_NOT_FOUND.getMessage());
 
@@ -182,17 +182,18 @@ class PaymentServiceTest {
     void payCancel_Fail_AlreadyCanceled() {
         // given
         Long memberId = 1L;
-        Long paymentId = 100L;
+        Long orderId = 1L;
+        PaymentRollbackRequest event = new PaymentRollbackRequest(orderId, memberId);
 
         Payment payment = Payment.builder()
                 .memberId(memberId)
                 .build();
         payment.canceled(); // 이미 취소된 상태
 
-        given(paymentRepository.findById(paymentId)).willReturn(Optional.of(payment));
+        given(paymentRepository.findByOrderId(orderId)).willReturn(Optional.of(payment));
 
         // when & then
-        assertThatThrownBy(() -> paymentService.payCancel(memberId, paymentId))
+        assertThatThrownBy(() -> paymentService.payCancel(event))
                 .isInstanceOf(PayException.class)
                 .hasMessage(PayErrorCode.ALREADY_CANCELED_TRANSACTION.getMessage());
 

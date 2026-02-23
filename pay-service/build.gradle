@@ -28,7 +28,7 @@ repositories {
     mavenLocal()
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/https://github.com/prgrms-be-adv-devcourse/beadv3_3_CodeBuddy_BE")
+        url = uri("https://maven.pkg.github.com/prgrms-be-adv-devcourse/beadv3_3_CodeBuddy_BE")
         credentials {
             // 로컬에서 빌드할때에는 gradle.properties 에서 gpr.user을 찾아 username으로 사용
             // Github Actions에서 CI 빌드시에는 GitHub Actions가 넣은 GITHUB_ACTOR를 사용
@@ -70,6 +70,16 @@ dependencies {
 
     //h2
     testImplementation 'com.h2database:h2'
+
+    // kafka 이벤트 공통 라이브러리
+    implementation 'io.codebuddy:common-event:1.0.1'
+
+    // kafka (비동기 통신)
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // KafkaListener 처리기 초기화에 필요한 spring-messaging
+    implementation 'org.springframework:spring-messaging'
+
 }
 
 dependencyManagement {

@@ -278,20 +278,4 @@ public class OrderService {
         }
     }
 
-
-    @Transactional(readOnly = true)
-    public InternalOrderResponse getInternalOrder(Long orderId){
-        Order order=orderRepository.findById(orderId)
-                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 주문입니다."));
-
-        List<OrderItem> orderItems=order.getOrderItem();
-        List<InternalOrderItemResponse> internalOrderItemResponseList= new ArrayList<>();
-
-        for(OrderItem oi: orderItems){
-            internalOrderItemResponseList.add(InternalOrderItemResponse.from(oi));
-        }
-        return InternalOrderResponse.from(order,internalOrderItemResponseList);
-
-    }
-
 }

@@ -22,7 +22,7 @@ repositories {
     mavenLocal()
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/https://github.com/prgrms-be-adv-devcourse/beadv3_3_CodeBuddy_BE")
+        url = uri("https://maven.pkg.github.com/prgrms-be-adv-devcourse/beadv3_3_CodeBuddy_BE")
         credentials {
             // 로컬에서 빌드할때에는 gradle.properties 에서 gpr.user을 찾아 username으로 사용
             // Github Actions에서 CI 빌드시에는 GitHub Actions가 넣은 GITHUB_ACTOR를 사용
@@ -42,6 +42,12 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     //feign-client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    //test 환경 구성
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:elasticsearch'
+    testImplementation 'org.testcontainers:kafka'
+    testImplementation 'org.testcontainers:mysql'
 
     //lombok
     compileOnly 'org.projectlombok:lombok'
