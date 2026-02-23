@@ -26,7 +26,7 @@ public class ProductDocument {
                     // 부분일치
                     @InnerField(suffix = "ngram", type = FieldType.Text, analyzer = "edge_ngram_analyzer", searchAnalyzer = "nori_synonym_analyzer"),
                     // 상품명 정렬, 정확히 그 이름인 상품 검색
-                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
+//                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
             }
     )
     private String productName;
@@ -45,9 +45,23 @@ public class ProductDocument {
     )
     private String storeName;
 
-    // 동의어 설정
-    @Field(type = FieldType.Text, analyzer = "nori_synonym_analyzer")
-    private String categoryName;
+    // 상위 카테고리
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "nori_synonym_analyzer"),
+            otherFields = {
+                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
+            }
+    )
+    private String topCategory;
+
+    // 하위 카테고리
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "nori_synonym_analyzer"),
+            otherFields = {
+                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "lowercase_normalizer")
+            }
+    )
+    private String subCategory;
 
     // 이미지를 검색할 필요 없으므로 색인 제외 (저장 공간 절약)
     @Field(type = FieldType.Keyword, index = false)

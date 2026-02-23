@@ -114,7 +114,7 @@ class SettlementItemWriterTest {
         verify(settlementRepository, times(3)).save(any(Settlement.class));
 
         // 계좌(Account) 충전 및 저장 검증
-        verify(accountRepository).save(any(Account.class));
+        verify(accountRepository).saveAndFlush(any(Account.class));
         assertThat(mockAccount.getBalance()).isEqualTo(8000L); // 잔액이 8000원 충전되었는지 확인
 
         // 예치금 내역(AccountHistory) 생성 검증

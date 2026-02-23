@@ -20,7 +20,7 @@ public interface SettlementRawDataRepository extends JpaRepository<SettlementRaw
 
     // 결제 취소 시 rawData의 상태를 bulk update 하기 위한 update query
     // paymentId에 맞는 모든 rawData를 한번에 update
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("UPDATE SettlementRawData s SET s.status = :status WHERE s.paymentId = :paymentId")
     void updateStatusByPaymentId(@Param("paymentId") Long paymentId, @Param("status") RawDataStatus status);
 
