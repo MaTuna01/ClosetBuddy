@@ -54,7 +54,9 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/v1/authc/**").permitAll()
                                                 // 내부 서비스 간 통신용 API - 인증 불필요
                                                 .requestMatchers("/internal/**").permitAll()
-                                                // Prometheus 테스트를 위해 인가
+                                                // Prometheus 테스트를 위해 인가, 배포 시 주석 처리된 부분 활용
+                                                //.requestMatchers("/actuator/prometheus", "/actuator/health", "/actuator/info").permitAll()
+                                                //.requestMatchers("/actuator/**").denyAll()
                                                 .requestMatchers("/actuator/**").permitAll()
 
                                                 .requestMatchers("/api/v1/members/**")
