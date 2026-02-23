@@ -73,7 +73,7 @@ public class CartController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CartResult.success("장바구니에 상품이 추가 성공", cartItemId));
+                .body(CartResult.success("장바구니에 상품 추가 성공", cartItemId));
     }
 
     /**
