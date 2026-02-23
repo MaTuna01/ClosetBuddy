@@ -4,7 +4,7 @@ package io.codebuddy.closetbuddy.domain.carts.controller;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
-import io.codebuddy.closetbuddy.domain.carts.model.dto.response.CartItemAddResponse;
+import io.codebuddy.closetbuddy.domain.common.web.dto.CartResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,8 +35,26 @@ public class CartController {
      * @param request
      * @return
      */
+    @Operation(
+            summary = "장바구니 상품 추가",
+            description = "사용자의 장바구니에 상품을 추가합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "장바구니 상품 추가 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 사용자 또는 찾을 수 없는 상품"
+            )
+    })
     @PostMapping("/items")
-    public ResponseEntity<CartItemAddResponse<Long>> addItemToCart(
+    public ResponseEntity<CartResult<Long>> addItemToCart(
             @CurrentUser CurrentUserInfo currentUser,
             @RequestBody CartItemAddRequest request
     ) {
@@ -55,7 +73,7 @@ public class CartController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CartItemAddResponse.withData("장바구니에 상품이 추가되었습니다.", cartItemId));
+                .body(CartResult.success("장바구니에 상품이 추가 성공", cartItemId));
     }
 
     /**
@@ -70,7 +88,7 @@ public class CartController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "주문 조회 성공"
+                    description = "장바구니 조회 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -82,12 +100,14 @@ public class CartController {
             )
     })
     @GetMapping
-    public ResponseEntity<List<CartGetResponseDto>> getCart(
+    public ResponseEntity<CartResult<List<CartGetResponseDto>>> getCart(
             @CurrentUser CurrentUserInfo currentUser
     ) {
         List<CartGetResponseDto> cartList = cartService.getCartList(Long.parseLong(currentUser.userId()));
 
-        return ResponseEntity.ok(cartList);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CartResult.success("장바구니 조회 성공", cartList));
     }
 
 
@@ -104,7 +124,7 @@ public class CartController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
-                    description = "수량 수정 성공"
+                    description = "상품 수량 수정 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -116,13 +136,15 @@ public class CartController {
             )
     })
     @PatchMapping("/items")
-    public ResponseEntity<Void> updateCartItem(
+    public ResponseEntity<CartResult<Void>> updateCartItem(
             @CurrentUser CurrentUserInfo currentUser,
             @Valid @RequestBody CartUpdateRequest request
     ) {
         cartService.updateCart(Long.parseLong(currentUser.userId()), request);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CartResult.success("상품 수량 수정 성공"));
     }
 
     /**
@@ -138,7 +160,7 @@ public class CartController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
-                    description = "장바구니 물건 삭제 성공"
+                    description = "장바구니 상품 삭제 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
@@ -150,13 +172,15 @@ public class CartController {
             )
     })
     @DeleteMapping("/items")
-    public ResponseEntity<Void> deleteCartItem(
+    public ResponseEntity<CartResult<Void>> deleteCartItem(
             @CurrentUser CurrentUserInfo currentUser,
             @Valid @RequestBody CartDeleteRequest request
     ) {
         cartService.deleteCartItem(Long.parseLong(currentUser.userId()), request);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(CartResult.success("장바구니 상품 삭제 성공"));
     }
 
 }
