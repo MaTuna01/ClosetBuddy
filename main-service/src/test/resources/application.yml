@@ -1,0 +1,51 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1 # MySQL의 문법과 동작 방식을 위해 설정
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 애플리케이션이 시작될 때 생성 후 삭제
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    defer-datasource-initialization: true # 초기 데이터 삽입
+
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+custom: # main-service에서 사용하고 있는 환경 변수
+  jwt:
+    validation:
+      access: "dummy-access-key"
+      refresh: "dummy-refresh-key"
+
+    secrets:
+      origin-key: "dummy-origin-key"
+      app-key: "dummy-app-key"
+
+    redirection:
+      base: "https://dummy-redirection.com"
+
+eureka: # 이전 오류 로그에 eureka가 적용되어있었으므로 삽입, 이후 동작에 문제점이 없다면 삭제
+  client:
+    enabled: false

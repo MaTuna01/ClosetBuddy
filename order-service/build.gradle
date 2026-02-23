@@ -22,7 +22,7 @@ repositories {
     mavenLocal()
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/https://github.com/prgrms-be-adv-devcourse/beadv3_3_CodeBuddy_BE")
+        url = uri("https://maven.pkg.github.com/prgrms-be-adv-devcourse/beadv3_3_CodeBuddy_BE")
         credentials {
             // 로컬에서 빌드할때에는 gradle.properties 에서 gpr.user을 찾아 username으로 사용
             // Github Actions에서 CI 빌드시에는 GitHub Actions가 넣은 GITHUB_ACTOR를 사용
@@ -46,6 +46,7 @@ dependencies {
     //lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
     //validation

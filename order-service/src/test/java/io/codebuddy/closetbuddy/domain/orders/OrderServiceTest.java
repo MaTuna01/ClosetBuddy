@@ -7,6 +7,7 @@ import io.codebuddy.closetbuddy.domain.common.feign.dto.CartProductResponse;
 import io.codebuddy.closetbuddy.domain.common.feign.dto.OrderProductResponse;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderErrorCode;
 import io.codebuddy.closetbuddy.domain.orders.exception.OrderException;
+import io.codebuddy.closetbuddy.domain.orders.kafka.OrderEventProducer;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.request.OrderItemCreateRequestDto;
 import io.codebuddy.closetbuddy.domain.orders.model.dto.response.OrderDetailResponseDto;
@@ -50,6 +51,11 @@ class OrderServiceTest {
 
     @Mock
     private CatalogServiceClient catalogServiceClient;
+
+
+    // orderService에서 사용되는 event 로직에서 nullException 문제로 빈 객체라도 남겨두기 위해 사용
+    @Mock
+    private OrderEventProducer orderEventProducer;
 
 
     @Test

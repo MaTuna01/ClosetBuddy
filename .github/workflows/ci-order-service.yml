@@ -1,0 +1,14 @@
+name: order-service CI 스크립트
+
+on:
+  pull_request:
+    branches: [ main, closetBuddy-MSA-dev ]
+    paths:
+      - "order-service/**"
+      - "common-event/**"
+jobs:
+  execute-test:
+    uses: ./.github/workflows/ci-workflow.yml
+    secrets: inherit
+    with:
+      service-name: order-service
