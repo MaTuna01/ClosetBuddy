@@ -58,3 +58,5 @@ db_data/
 #env
 .env
 .DS_Store
+
+prometheus.yml
