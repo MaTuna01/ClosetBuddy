@@ -43,6 +43,8 @@ dependencies {
     //feign-client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    //추천 이벤트 라이브러리
+    implementation 'io.codebuddy:recommend-event:1.0.0'
 
     //lombok
     compileOnly 'org.projectlombok:lombok'
