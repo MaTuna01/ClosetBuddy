@@ -22,7 +22,7 @@ public class CacheConfig {
 
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration
                 .defaultCacheConfig()
-                .entryTtl(Duration.ofDays(30))
+                .entryTtl(Duration.ofDays(14))
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair
                                 .fromSerializer(new StringRedisSerializer()))
@@ -31,13 +31,13 @@ public class CacheConfig {
                                 .fromSerializer(new GenericJackson2JsonRedisSerializer())
                 );
 
-        Map<String, RedisCacheConfiguration> cachConfigs = new HashMap<>();
+        Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
 
-        cachConfigs.put("cart", defaultConfig.entryTtl(Duration.ofDays(30)));
+        cacheConfigs.put("cart", defaultConfig.entryTtl(Duration.ofDays(14)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
-                .withInitialCacheConfigurations(cachConfigs)
+                .withInitialCacheConfigurations(cacheConfigs)
                 .build();
     }
 
