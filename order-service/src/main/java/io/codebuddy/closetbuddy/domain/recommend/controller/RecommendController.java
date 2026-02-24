@@ -6,7 +6,7 @@ import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
 import io.codebuddy.closetbuddy.domain.recommend.dto.response.RecommendPollingResponse;
 import io.codebuddy.closetbuddy.domain.recommend.kafka.RecommendEventProducer;
 import io.codebuddy.closetbuddy.recommend.evnet.RecommendItem;
-import io.codebuddy.closetbuddy.recommend.evnet.RecommendRequest;
+import io.codebuddy.closetbuddy.recommend.evnet.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
