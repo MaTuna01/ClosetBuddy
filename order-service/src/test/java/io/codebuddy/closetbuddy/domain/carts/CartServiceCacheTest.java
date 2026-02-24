@@ -112,7 +112,7 @@ class CartServiceCacheTest {
 
     @Test
     @DisplayName("캐싱: 장바구니 상품 조회 성공 테스트")
-    void success_getCart_cache(){
+    void success_getCartList_cache(){
 
         // when - 같은 memberId로 두 번 조회했을 때
         List<CartGetResponseDto> responseDtoList1 = cartService.getCartList(memberId);
