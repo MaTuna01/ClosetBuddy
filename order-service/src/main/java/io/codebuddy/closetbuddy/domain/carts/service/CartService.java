@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
+import feign.FeignException;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
@@ -13,6 +14,8 @@ import io.codebuddy.closetbuddy.domain.carts.model.entity.Cart;
 import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartItemRepository;
 import io.codebuddy.closetbuddy.domain.carts.repository.CartRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,15 +42,18 @@ public class CartService {
 
         Cart cart = Cart.builder().memberId(memberId).build();
 
-        Long cartId = cartRepository.saveAndFlush(cart).getCartId();
-
-        return cartId;
+        return cartRepository.saveAndFlush(cart).getCartId();
     }
 
+    @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
     public Long addCartItemToCart(CartItemAddRequest request, Long memberId){
-        // Feign 호출을 통한 최신 정보 조회
-        CartProductResponse product = catalogServiceClient.getCartProductInfo(request.productId());
+
+        try{
+            catalogServiceClient.getCartProductInfo(request.productId());
+        }catch (FeignException e){
+            throw new CartException(CartErrorCode.PRODUCT_NOT_FOUND);
+        }
 
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseGet(() -> cartRepository.save(
@@ -79,6 +85,7 @@ public class CartService {
      * @param memberId
      * @return
      */
+    @Cacheable(value = "cart", key = "#memberId")
     public List<CartGetResponseDto> getCartList(Long memberId) {
 
         Cart cart = cartRepository.findByMemberId(memberId)
@@ -86,6 +93,10 @@ public class CartService {
 
         List<CartItem> cartItems = cart.getCartItems();
         List<CartGetResponseDto> cartGetResponseDto = new ArrayList<>();
+
+        if(cartItems.isEmpty()){
+            return List.of();
+        }
 
         for(CartItem cartItem : cartItems) {
             // 외부 API 호출을 통해 장바구니가 최신 상품 정보를 반영하도록 합니다.
@@ -112,6 +123,7 @@ public class CartService {
      * @param memberId
      * @param request
      */
+    @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
     public void updateCart(Long memberId, CartUpdateRequest request) {
         // 회원의 장바구니가 존재하는지 확인
@@ -138,10 +150,15 @@ public class CartService {
      * @param memberId
      * @param request
      */
+    @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
     public void deleteCartItem(Long memberId, CartDeleteRequest request) {
+
+        Cart cart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+
         // 장바구니 상품 리스트가 비어있을 경우, 예외를 반환한다.
-        if(request.cartItemList() == null || request.cartItemList().isEmpty()){
+        if(cart.getCartItems() == null || cart.getCartItems().isEmpty()){
             throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
         }
         cartItemRepository.deleteCartItem(memberId, request.cartItemList());
@@ -153,6 +170,7 @@ public class CartService {
      *
      * @param memberId
      */
+    @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
     public void deleteCart(Long memberId) {
         cartRepository.deleteById(memberId);
