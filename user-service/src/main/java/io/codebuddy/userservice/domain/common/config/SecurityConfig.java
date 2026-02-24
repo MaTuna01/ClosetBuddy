@@ -55,6 +55,12 @@ public class SecurityConfig {
                                                 // 내부 서비스 간 통신용 API - 인증 불필요
                                                 .requestMatchers("/internal/**").permitAll()
 
+
+                                                // swagger 허용범위 설정
+                                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                                                .requestMatchers("/closetbuddy-user/v3/api-docs").permitAll()
+                                                .requestMatchers("/closetbuddy-main/v3/api-docs").permitAll()
+
                                                 .requestMatchers("/api/v1/members/**")
                                                 .hasAnyAuthority("MEMBER", "SELLER")
                                                 .requestMatchers("/api/v1/payments/**")
@@ -94,10 +100,6 @@ public class SecurityConfig {
                                  * )
                                  */
 
-                                // 인증/인가 예외 처리
-                                .exceptionHandling(handling -> handling
-                                                .authenticationEntryPoint(customAuthenticationEntryPoint)
-                                                .accessDeniedHandler(customAccessDeniedHandler))
 
                                 // OAuth2 로그인 활성화
                                 .oauth2Login(oauth2 -> oauth2 // formLogin 후 위치 유지
@@ -105,6 +107,7 @@ public class SecurityConfig {
                                                 .failureUrl("/api/v1/auth/error") // 백엔드 경로로 변경
                                 )
 
+                                // 인증/인가 예외 처리
                                 .exceptionHandling(handling -> handling
                                                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                                                 .accessDeniedHandler(customAccessDeniedHandler))
