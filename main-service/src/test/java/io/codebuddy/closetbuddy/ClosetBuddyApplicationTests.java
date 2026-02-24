@@ -26,7 +26,7 @@ class ClosetBuddyApplicationTests {
         @Container
         @ServiceConnection
         static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:latest"))
-                .withExposedPorts(6379);
+                .withExposedPorts(16379);
 
         // kafka 컨테이너
         @Container
