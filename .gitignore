@@ -59,4 +59,5 @@ db_data/
 .env
 .DS_Store
 
+# monitoring
 prometheus.yml
