@@ -1,7 +1,7 @@
 package io.codebuddy.closetbuddy.domain.recommend.kafka;
 
 import io.codebuddy.closetbuddy.domain.carts.service.RecommendResultCacheService;
-import io.codebuddy.closetbuddy.recommend.evnet.RecommendResult;
+import io.codebuddy.closetbuddy.recommend.evnet.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
