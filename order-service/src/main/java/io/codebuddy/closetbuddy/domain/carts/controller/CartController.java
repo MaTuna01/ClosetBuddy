@@ -106,9 +106,15 @@ public class CartController {
     ) {
         List<CartGetResponseDto> cartList = cartService.getCartList(Long.parseLong(currentUser.userId()));
 
+        if(cartList.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(CartResult.success("장바구니가 비어있습니다.", cartList));
+        }
+
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(CartResult.success("장바구니 조회 성공", cartList));
+                .body(CartResult.success("장바구니 리스트 조회 성공", cartList));
     }
 
 

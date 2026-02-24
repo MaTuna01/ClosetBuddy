@@ -95,8 +95,9 @@ public class CartService {
         List<CartGetResponseDto> cartGetResponseDto = new ArrayList<>();
 
         if(cartItems.isEmpty()){
-            throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
+            return List.of();
         }
+
         for(CartItem cartItem : cartItems) {
             // 외부 API 호출을 통해 장바구니가 최신 상품 정보를 반영하도록 합니다.
             CartProductResponse product = catalogServiceClient.getCartProductInfo(cartItem.getProductId());
