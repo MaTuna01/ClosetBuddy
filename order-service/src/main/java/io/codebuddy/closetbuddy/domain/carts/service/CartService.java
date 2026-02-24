@@ -94,6 +94,9 @@ public class CartService {
         List<CartItem> cartItems = cart.getCartItems();
         List<CartGetResponseDto> cartGetResponseDto = new ArrayList<>();
 
+        if(cartItems.isEmpty()){
+            throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
+        }
         for(CartItem cartItem : cartItems) {
             // 외부 API 호출을 통해 장바구니가 최신 상품 정보를 반영하도록 합니다.
             CartProductResponse product = catalogServiceClient.getCartProductInfo(cartItem.getProductId());
@@ -149,8 +152,12 @@ public class CartService {
     @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
     public void deleteCartItem(Long memberId, CartDeleteRequest request) {
+
+        Cart cart = cartRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+
         // 장바구니 상품 리스트가 비어있을 경우, 예외를 반환한다.
-        if(request.cartItemList() == null || request.cartItemList().isEmpty()){
+        if(cart.getCartItems() == null || cart.getCartItems().isEmpty()){
             throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
         }
         cartItemRepository.deleteCartItem(memberId, request.cartItemList());
