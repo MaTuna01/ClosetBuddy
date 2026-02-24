@@ -1,12 +1,10 @@
 package io.codebuddy.closetbuddy.domain.recommend.controller;
 
 import io.codebuddy.closetbuddy.domain.carts.service.RecommendResultCacheService;
-import io.codebuddy.closetbuddy.domain.common.dto.RecommendProductInfoResponse;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
-import io.codebuddy.closetbuddy.domain.common.web.dto.RecommendResult;
+import io.codebuddy.closetbuddy.domain.recommend.dto.response.RecommendPollingResponse;
 import io.codebuddy.closetbuddy.domain.recommend.kafka.RecommendEventProducer;
-import io.codebuddy.closetbuddy.domain.recommend.service.RecommendService;
 import io.codebuddy.closetbuddy.recommend.evnet.RecommendItem;
 import io.codebuddy.closetbuddy.recommend.evnet.RecommendRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +29,7 @@ public class RecommendController {
     /**
      * 추천 요청 (kafka 비동기)
      * Kafka로 이벤트를 발행하고, 클라이언트에게 202 accepted 응답 코드와 함께
-     * requestId를 즉시 반환합니다.
+     * requestId를 즉시 반환
      */
     @Operation(
             summary = "AI 상품 추천 요청",
@@ -77,24 +75,20 @@ public class RecommendController {
             @ApiResponse(responseCode = "500", description = "추천 처리 실패")
     })
     @GetMapping("/{requestId}")
-    public ResponseEntity<?> getRecommendResult(
+    public ResponseEntity<RecommendPollingResponse> getRecommendResult(
             @PathVariable String requestId
     ) {
         return cacheService.getResult(requestId)
                 .map(result -> {
                     if (result.success()) {
-                        // 성공 -> 추천 결과 반환
-                        return ResponseEntity.ok(result);
+                        return ResponseEntity.ok(
+                                RecommendPollingResponse.completed(result.result()));
                     } else {
-                        // 실패 -> 에러 사유 반환
-                        return ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(Map.of("error", result.failReason()));
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(RecommendPollingResponse.failed(result.failReason()));
                     }
                 })
-                // Redis에 결과가 없음 -> 아직 AI추천 연산 진행중(실패했다면 실패 결과가 redis에 존재)
-                .orElse(ResponseEntity
-                        .status(HttpStatus.ACCEPTED)
-                        .body(Map.of("status", "PROCESSING")));
+                .orElse(ResponseEntity.status(HttpStatus.ACCEPTED)
+                        .body(RecommendPollingResponse.processing()));
     }
 }

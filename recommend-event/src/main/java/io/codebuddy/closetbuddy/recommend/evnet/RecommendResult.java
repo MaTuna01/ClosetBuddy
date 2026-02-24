@@ -8,5 +8,4 @@ public record RecommendResult(
         boolean success,
         String failReason,
         List<RecommendResultItem> result
-) {
-}
+) { }
