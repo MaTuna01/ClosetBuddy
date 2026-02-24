@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.carts.service;
 
+import feign.FeignException;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartDeleteRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartItemAddRequest;
 import io.codebuddy.closetbuddy.domain.carts.model.dto.request.CartUpdateRequest;
@@ -47,6 +48,12 @@ public class CartService {
     @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
     public Long addCartItemToCart(CartItemAddRequest request, Long memberId){
+
+        try{
+            catalogServiceClient.getCartProductInfo(request.productId());
+        }catch (FeignException e){
+            throw new CartException(CartErrorCode.PRODUCT_NOT_FOUND);
+        }
 
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseGet(() -> cartRepository.save(
