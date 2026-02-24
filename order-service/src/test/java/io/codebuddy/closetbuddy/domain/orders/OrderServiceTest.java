@@ -128,7 +128,7 @@ class OrderServiceTest {
 
         CartProductResponse productResponse = new CartProductResponse(
                 productId, "네모바지", 10L, "판매자 1",
-                1L, "뉴발란스", 10000L, "square.png");
+                1L, "뉴발란스", 10000L, "PANTS", "square.png");
 
         given(cartService.getCartList(memberId)).willReturn(cartDtoList);
         given(catalogServiceClient.getCartProductInfo(productId)).willReturn(productResponse);

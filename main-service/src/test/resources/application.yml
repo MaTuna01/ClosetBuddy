@@ -1,51 +1,61 @@
 spring:
-  config:
-    activate:
-      on-profile: test
+  main:
+    allow-bean-definition-overriding: true
+
+  application:
+    name: closetBuddy-test
 
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=MySQL;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1 # MySQL의 문법과 동작 방식을 위해 설정
-    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
+    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create-drop # 애플리케이션이 시작될 때 생성 후 삭제
+      ddl-auto: create
+    defer-datasource-initialization: true
     show-sql: true
 
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
-    defer-datasource-initialization: true # 초기 데이터 삽입
 
   sql:
     init:
       mode: always
-      continue-on-error: true
 
   data:
     redis:
       host: localhost
-      port: 6379
+      port: 16379
 
-  kafka:
-    bootstrap-servers: localhost:9092
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
 
-custom: # main-service에서 사용하고 있는 환경 변수
+# Eureka 비활성화
+eureka:
+  client:
+    enabled: false
+
+custom:
   jwt:
     validation:
       access: "dummy-access-key"
       refresh: "dummy-refresh-key"
-
     secrets:
       origin-key: "dummy-origin-key"
       app-key: "dummy-app-key"
-
     redirection:
-      base: "https://dummy-redirection.com"
+      base: redirect
+  payments:
+    toss:
+      url: "https://api.tosspayments.com/v1/payments"
+      secrets: test_sk
+  settlement:
+    fee-rate: 3.0
 
-eureka: # 이전 오류 로그에 eureka가 적용되어있었으므로 삽입, 이후 동작에 문제점이 없다면 삭제
-  client:
-    enabled: false
+logging:
+  level:
+    org.springframework: WARN
+    io.codebuddy: DEBUG
