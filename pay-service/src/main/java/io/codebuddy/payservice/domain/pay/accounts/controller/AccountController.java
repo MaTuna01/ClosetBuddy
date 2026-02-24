@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Account", description = "예치금 조회, 충전 및 결제 내역 관리 API")
+@Tag(name = "Account", description = "예치금 조회, 충전 및 예치금 변동 내역 관리 API")
 @RestController
 @RequestMapping("/api/v1/account")
 @RequiredArgsConstructor
