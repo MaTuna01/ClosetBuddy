@@ -90,7 +90,7 @@ class CartServiceCacheTest {
     }
 
     @Test
-    @DisplayName("캐싱: 장바구니 상품 넣기 성공 테스트 - 캐시 무효화")
+    @DisplayName("캐싱: 장바구니 상품 넣기 성공 테스트")
     void success_addCartItem_cache(){
 
         // given
