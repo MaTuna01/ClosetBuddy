@@ -1,0 +1,41 @@
+name: pay-service CD 스크립트
+
+concurrency:
+  group: pay-service-deploy
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'pay-service/**'
+  workflow_dispatch:
+    inputs:
+      service-name:
+        description: 'Service name for deployment'
+        required: false
+        default: 'pay-service'
+      force-deploy:
+        description: 'Force deployment even without changes'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  releasing:
+    uses: ./.github/workflows/release.yml
+    secrets: inherit
+    with:
+      context-path: .
+      service-dir: pay-service
+      service-name: codebuddy-pay-service
+      file-name: Dockerfile
+
+  deploying:
+    needs: releasing
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      service-name: codebuddy-pay-service
+      image-tag: ${{ needs.releasing.outputs.tag_name }}
