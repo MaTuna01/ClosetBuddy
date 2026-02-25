@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,6 +26,13 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
 
     public AuthHeaderInjectFilter(TokenVerifier tokenVerifier) {
         this.tokenVerifier = tokenVerifier;
+    }
+
+    // Oauth 경로는 인증 전 단계이므로 JWT 검증 필터를 건너뛰도록 설정
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/oauth2/") || path.startsWith("/login/oauth2/");
     }
 
     @Override
@@ -63,8 +71,7 @@ public class AuthHeaderInjectFilter extends OncePerRequestFilter {
                 response.getWriter().write(e.getResponseBodyAsString());
 
                 return; // 필터 체인 중단
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 // 그 외 예상치 못한 에러 처리
                 ex.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
