@@ -1,5 +1,6 @@
 package io.codebuddy.closetbuddy.domain.recommend.kafka;
 
+import io.codebuddy.closetbuddy.recommend.event.RecommendRequest;
 import io.codebuddy.closetbuddy.recommend.evnet.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

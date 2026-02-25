@@ -2,6 +2,7 @@ package io.codebuddy.closetbuddy.domain.carts.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.codebuddy.closetbuddy.recommend.event.RecommendResult;
 import io.codebuddy.closetbuddy.recommend.evnet.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

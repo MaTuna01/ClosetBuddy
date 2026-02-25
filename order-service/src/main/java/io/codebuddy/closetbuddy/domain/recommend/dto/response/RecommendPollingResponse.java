@@ -1,6 +1,6 @@
 package io.codebuddy.closetbuddy.domain.recommend.dto.response;
 
-import io.codebuddy.closetbuddy.recommend.evnet.RecommendResultItem;
+import io.codebuddy.closetbuddy.recommend.event.RecommendResultItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
