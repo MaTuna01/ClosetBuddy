@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum OrderErrorCode {
+    // 주문이 사용자 주문이 아닐 경우 (403 Forbidden)
+    NOT_OWNER(HttpStatus.FORBIDDEN, "사용자의 주문이 아닙니다."),
 
     // 주문 내역을 찾을 수 없을 경우(404 Not Found)
     NOT_MEMBER(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),

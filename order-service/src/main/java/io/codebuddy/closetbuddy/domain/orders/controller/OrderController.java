@@ -114,6 +114,10 @@ public class OrderController {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "사용자의 주문이 아닙니다."
             )
     })
     @GetMapping("/{orderId}")
