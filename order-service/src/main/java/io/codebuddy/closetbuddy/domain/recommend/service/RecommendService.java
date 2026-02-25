@@ -29,7 +29,7 @@ public class RecommendService {
     public List<RecommendProductInfoResponse> getCartListForRecommend(Long memberId) {
 
         Cart cart = cartRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new RecommendException(RecommendErrorCode.NOT_OWNER));
+                .orElseThrow(() -> new RecommendException(RecommendErrorCode.RECOMMEND_NOT_FOUND));
 
         List<CartItem> cartItems = cart.getCartItems();
 
