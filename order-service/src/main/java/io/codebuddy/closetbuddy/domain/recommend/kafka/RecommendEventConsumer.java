@@ -16,7 +16,14 @@ public class RecommendEventConsumer {
      * AI 서비스로부터 추천 결과 수신
      * 수신된 결과를 Redis에 캐싱하여 클라이언트 폴링 시 조회 가능하도록 저장
      */
-    @KafkaListener(topics = "recommend.result", groupId = "order-service-group")
+    @KafkaListener(
+            topics = "recommend.result",
+            groupId = "order-service-group",
+            properties = {
+                    "spring.json.value.default.type=io.codebuddy.closetbuddy.recommend.evnet.RecommendResult",
+                    "spring.json.use.type.headers=false"
+            }
+    )
     public void saveRecommendResult(RecommendResult result) {
         log.info("추천 결과 수신: requestId={}, success={}",
                 result.requestId(), result.success());
