@@ -67,6 +67,9 @@ dependencies {
     // kafka 비동기 통신
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // Redis 캐싱
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 
     // monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
