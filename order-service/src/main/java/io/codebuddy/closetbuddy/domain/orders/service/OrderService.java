@@ -56,6 +56,10 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         List<StockItem> stockItems = new ArrayList<>();
 
+        if(stockItems.isEmpty()){
+            throw new OrderException(OrderErrorCode.PRODUCT_NOT_FOUND);
+        }
+
         // 요청 받은 Dto의 orderItems 를 꺼내 주문 생성 Dto에 옮겨 담습니다.
         for (OrderItemCreateRequestDto itemDto : requestDto.orderItems()) {
 

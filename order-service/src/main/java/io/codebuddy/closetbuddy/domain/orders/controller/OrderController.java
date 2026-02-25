@@ -43,7 +43,7 @@ public class OrderController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청"
+                    description = "요청 값이 유효하지 않습니다."
             ),
             @ApiResponse(
                     responseCode = "409",
