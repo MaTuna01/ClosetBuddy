@@ -38,7 +38,7 @@ public class OrderController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "201",
+                    responseCode = "202",
                     description = "주문 생성 성공"
             ),
             @ApiResponse(
@@ -47,11 +47,7 @@ public class OrderController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "상품을 찾을 수 없습니다."
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 주문 데이터"
+                    description = "주문을 찾을 수 없습니다."
             )
     })
     @PostMapping
@@ -113,10 +109,6 @@ public class OrderController {
             @ApiResponse(
                     responseCode = "400",
                     description = "잘못된 요청"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 상품 데이터"
             )
     })
     @GetMapping("/{orderId}")
@@ -141,7 +133,7 @@ public class OrderController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204",
+                    responseCode = "200",
                     description = "주문 취소 성공"
             ),
             @ApiResponse(
@@ -151,6 +143,10 @@ public class OrderController {
             @ApiResponse(
                     responseCode = "404",
                     description = "대상을 찾을 수 없음"
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "CANCEL_NOT_ALLOWED"
             )
     })
     @PatchMapping("/{orderId}/status")

@@ -29,7 +29,6 @@ public class CartController {
         this.cartService = cartService;
     }
 
-
     /**
      * 장바구니에 상품을 추가합니다.
      * @param currentUser
@@ -46,18 +45,18 @@ public class CartController {
                     description = "장바구니 상품 추가 성공"
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
+                    responseCode = "404",
+                    description = "해당 상품을 찾을 수 없습니다."
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "존재하지 않는 사용자 또는 찾을 수 없는 상품"
+                    responseCode = "400",
+                    description = "요청 값이 유효하지 않습니다."
             )
     })
     @PostMapping("/items")
     public ResponseEntity<CartResult<Long>> addItemToCart(
             @CurrentUser CurrentUserInfo currentUser,
-            @RequestBody CartItemAddRequest request
+            @Valid @RequestBody CartItemAddRequest request
     ) {
         // 유효성 검사
         if (request.productId() == null || request.productId() <= 0) {
@@ -89,15 +88,11 @@ public class CartController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "장바구니 조회 성공"
+                    description = "장바구니 리스트 조회 성공"
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "조회할 장바구니 없음"
+                    responseCode = "200",
+                    description = "장바구니가 비어있습니다"
             )
     })
     @GetMapping
@@ -130,16 +125,16 @@ public class CartController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204",
+                    responseCode = "200",
                     description = "상품 수량 수정 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청"
+                    description = "요청 값이 유효하지 않습니다."
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "수정할 장바구니 상품 없음"
+                    description = "장바구니 안에 상품이 없습니다."
             )
     })
     @PatchMapping("/items")
@@ -166,12 +161,12 @@ public class CartController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204",
+                    responseCode = "200",
                     description = "장바구니 상품 삭제 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청"
+                    description = "요청 값이 유효하지 않습니다."
             ),
             @ApiResponse(
                     responseCode = "404",
