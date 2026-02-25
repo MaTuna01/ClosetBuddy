@@ -30,9 +30,9 @@ public class TokenVerifyController {
     @Schema(description = "JWT 토큰 검증 성공 응답")
     public record VerifyResponse(
             @Schema(description = "사용자 ID", example = "user1234")
-            Long userId,
+            Long memberId,
 
-            @Schema(description = "사용자 역할", example = "USER")
+            @Schema(description = "사용자 역할", example = "MEMBER")
             String role
     ) {}
 
