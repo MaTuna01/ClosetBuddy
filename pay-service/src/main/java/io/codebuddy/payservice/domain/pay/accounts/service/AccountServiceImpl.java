@@ -111,6 +111,7 @@ public class AccountServiceImpl implements AccountService{
                 .pgPaymentKey(paymentSuccessDto.getPaymentKey())
                 .pgOrderId(command.getOrderId())
                 .chargeAmount(command.getAmount())
+                .approvedAt(approvedAt)
                 .status(ChargeStatus.DONE)
                 .build();
         depositChargeRepository.save(charge);
