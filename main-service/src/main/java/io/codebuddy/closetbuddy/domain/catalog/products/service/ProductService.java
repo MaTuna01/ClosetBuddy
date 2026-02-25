@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -51,14 +50,14 @@ public class ProductService {
     private final CategoryJpaRepository categoryJpaRepository;
     private final ProductElasticRepository productElasticRepository;
 
-    //상품 등록
-    @CacheEvict(value = {"product:all, product:store"}, allEntries = true)
+    // 상품 등록
+    @CacheEvict(value = { "product:all, product:store" }, allEntries = true)
     @Transactional
     public void createProduct(Long memberId, Long storeId, ProductCreateRequest request) {
         Store store = storeJpaRepository.findById(storeId)
                 .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
 
-        //검증 로직(로그인 한 사람이 이 상품을 올릴 상점 주인이 맞는지?
+        // 검증 로직(로그인 한 사람이 이 상품을 올릴 상점 주인이 맞는지?
         validateStoreOwner(memberId, store);
 
         // 서비스에서 Category 조회
@@ -70,20 +69,20 @@ public class ProductService {
         Product product = request.toEntity(store, category);
         productJpaRepository.save(product);
 
-        //ELS 상품 등록
-        ProductDocument productDocument= ProductMapper.toProductDocument(product);
+        // ELS 상품 등록
+        ProductDocument productDocument = ProductMapper.toProductDocument(product);
         productElasticRepository.save(productDocument);
     }
 
-    //상품 수정
+    // 상품 수정
     @Caching(evict = {
             @CacheEvict(value = "product", key = "#productId"),
-            @CacheEvict(value = {"products:all", "products:store"}, allEntries = true)
+            @CacheEvict(value = { "products:all", "products:store" }, allEntries = true)
     })
     @Transactional
     public void updateProduct(Long memberId, Long productId, UpdateProductRequest request) {
         Product product = productJpaRepository.findById(productId)
-                .orElseThrow( () -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         // 서비스에서 Category 조회
         Category category = categoryJpaRepository.findByCode(request.categoryCode())
@@ -97,27 +96,26 @@ public class ProductService {
                 request.productStock(),
                 product.getStore(),
                 request.imageUrl(),
-                category
-        );
+                category);
 
-        //ELS 수정
-        ProductDocument productDocument=ProductMapper.toProductDocument(product);
+        // ELS 수정
+        ProductDocument productDocument = ProductMapper.toProductDocument(product);
 
-        //ELS의 save : 없으면 create, 있으면 update
+        // ELS의 save : 없으면 create, 있으면 update
         productElasticRepository.save(productDocument);
     }
 
-    //상품 상세조회(단건)
+    // 상품 상세조회(단건)
     @Cacheable(value = "product", key = "#productId")
     @Transactional(readOnly = true)
     public ProductResponse getProduct(Long productId) {
         Product product = productJpaRepository.findById(productId)
-                .orElseThrow( () -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         return ProductResponse.from(product);
     }
 
-    //특정 가게의 상품 목록 조회 (상점 페이지)
+    // 특정 가게의 상품 목록 조회 (상점 페이지)
     @Cacheable(value = "products:store", key = "#storeId")
     @Transactional(readOnly = true)
     public List<ProductResponse> getProductByStoreId(Long storeId) {
@@ -126,38 +124,38 @@ public class ProductService {
         }
         return productJpaRepository.findByStoreId(storeId).stream()
                 .map(ProductResponse::from)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    //전체 상품목록 조회
+    // 전체 상품목록 조회
     @Cacheable(value = "products:all")
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts() {
         return productJpaRepository.findAll().stream()
                 .map(ProductResponse::from)
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    //상품 삭제
+    // 상품 삭제
     @Caching(evict = {
             @CacheEvict(value = "product", key = "#productId"),
-            @CacheEvict(value = {"products:all", "products:store"}, allEntries = true)
+            @CacheEvict(value = { "products:all", "products:store" }, allEntries = true)
     })
     @Transactional
     public void deleteProduct(Long memberId, Long productId) {
         Product product = productJpaRepository.findById(productId)
                 .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
-        //상품을 삭제할 권한이 있는 회원인지 검증
+        // 상품을 삭제할 권한이 있는 회원인지 검증
         validateProductOwner(memberId, product);
         productJpaRepository.delete(product);
 
-        //ELS 데이터 삭제
-        ProductDocument productDocument=ProductMapper.toProductDocument(product);
+        // ELS 데이터 삭제
+        ProductDocument productDocument = ProductMapper.toProductDocument(product);
         productElasticRepository.delete(productDocument);
     }
 
-    //검색 자동 완성
+    // 검색 자동 완성
     public List<String> getSuggestions(String prefix, Integer limit) {
 
         // Pageable로 개수 제한
@@ -179,7 +177,7 @@ public class ProductService {
             // 중복 제거 로직 (Set에 없으면 추가)
             if (!uniqueChecker.contains(name)) {
                 uniqueChecker.add(name); // Set에 등록
-                resultList.add(name);    // 결과 리스트에 추가
+                resultList.add(name); // 결과 리스트에 추가
             }
         }
 
@@ -192,11 +190,12 @@ public class ProductService {
         // ELS에서 검색 결과 가져오기
         SearchPage<ProductDocument> searchPage = productElasticRepository.searchByKeyword(keyword, pageable);
 
-        return searchToPage(searchPage,pageable);
+        return searchToPage(searchPage, pageable);
     }
 
     // 하위 카테고리 내에서 검색
-    public Page<ProductSearchResponse> searchProductsByCategoryAndKeyword(String category, String keyword, Pageable pageable) {
+    public Page<ProductSearchResponse> searchProductsByCategoryAndKeyword(String category, String keyword,
+            Pageable pageable) {
 
         SearchPage<ProductDocument> searchPage;
 
@@ -208,7 +207,7 @@ public class ProductService {
             // 카테고리만 선택한 경우 (해당 카테고리의 전체 상품 조회)
             searchPage = productElasticRepository.searchByCategory(category, pageable);
         }
-        return searchToPage(searchPage,pageable);
+        return searchToPage(searchPage, pageable);
     }
 
     // searchPage -> Response 변환
@@ -247,7 +246,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public InternalProductResponse getInternalProduct(Long productId) {
         Product product = productJpaRepository.findById(productId)
-                .orElseThrow( () -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new ProductException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         return InternalProductResponse.from(product);
     }
