@@ -123,6 +123,7 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         // 삭제할 장바구니 아이템 ID를 담을 리스트를 생성합니다.
         List<Long> cartItemIds = new ArrayList<>();
+        List<StockItem> stockItems = new ArrayList<>();
 
         // cartList에 있는 상품들을 주문 목록에 옮겨 담습니다.
         for (CartGetResponseDto cartDto : cartList) {
@@ -145,11 +146,24 @@ public class OrderService {
 
             // cartItemId를 담습니다.
             cartItemIds.add(cartDto.cartItemId());
+
+            stockItems.add(new StockItem(
+                    cartDto.productId(),
+                    cartDto.cartCount()
+            ));
         }
 
         // 새로운 주문 객체를 만들어 회원 정보와 함께 주문 내역을 생성합니다.
         Order order = Order.createOrder(memberId, orderItems);
         orderRepository.save(order);
+
+        StockCheckRequest stockCheckRequest = new StockCheckRequest(
+                order.getOrderId(),
+                memberId,
+                stockItems
+        );
+
+        orderEventProducer.sendStockCheckRequest(stockCheckRequest);
 
         // 주문이 생성되었다면, 장바구니에 있는 주문한 내역을 조회하여 삭제합니다.
         CartDeleteRequest request = new CartDeleteRequest(cartItemIds);
@@ -215,6 +229,9 @@ public class OrderService {
                 .orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
         // 주문이 사용자의 주문인지 확인합니다.
+        if(!order.getMemberId().equals(memberId)){
+            throw new OrderException(OrderErrorCode.NOT_OWNER);
+        }
 
         // OrderItemDto에 주문 상품들의 상세 내역을 넣어 반환해줍니다.
         List<OrderItemDto> itemDto = order.getOrderItem().stream()
