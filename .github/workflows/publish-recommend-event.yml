@@ -5,7 +5,8 @@ on:
     branches: [ main, closetBuddy-MSA-dev ]
     paths:
       - 'recommend-event/**'          # recommend-event 디렉토리가 변경될 때 실행
-
+  workflow_dispatch:
+  
 jobs:
   publish:
     runs-on: ubuntu-latest
