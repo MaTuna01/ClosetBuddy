@@ -78,6 +78,7 @@ public class RecommendController {
     public ResponseEntity<RecommendPollingResponse> getRecommendResult(
             @PathVariable String requestId
     ) {
+        // redis에서 결과 조회
         return cacheService.getResult(requestId)
                 .map(result -> {
                     if (result.success()) {
