@@ -1,0 +1,41 @@
+name: order-service CD 스크립트
+
+concurrency:
+  group: order-service-deploy
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'order-service/**'
+  workflow_dispatch:
+    inputs:
+      service-name:
+        description: 'Service name for deployment'
+        required: false
+        default: 'order-service'
+      force-deploy:
+        description: 'Force deployment even without changes'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  releasing:
+    uses: ./.github/workflows/cd-release.yml
+    secrets: inherit
+    with:
+      context-path: .
+      service-dir: order-service
+      service-name: codebuddy-order-service
+      file-name: Dockerfile
+
+  deploying:
+    needs: releasing
+    uses: ./.github/workflows/cd-deploy.yml
+    secrets: inherit
+    with:
+      service-name: codebuddy-order-service
+      image-tag: ${{ needs.releasing.outputs.tag_name }}
