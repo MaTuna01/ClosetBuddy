@@ -24,6 +24,7 @@ public class RecommendEventConsumer {
                     "spring.json.use.type.headers=false"
             }
     )
+    // 결과 수신시 redis로 캐싱
     public void saveRecommendResult(RecommendResult result) {
         log.info("추천 결과 수신: requestId={}, success={}",
                 result.requestId(), result.success());
