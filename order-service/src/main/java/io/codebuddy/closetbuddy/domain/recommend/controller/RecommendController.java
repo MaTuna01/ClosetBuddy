@@ -7,7 +7,7 @@ import io.codebuddy.closetbuddy.domain.recommend.dto.response.RecommendPollingRe
 import io.codebuddy.closetbuddy.domain.recommend.kafka.RecommendEventProducer;
 import io.codebuddy.closetbuddy.recommend.event.RecommendItem;
 import io.codebuddy.closetbuddy.recommend.event.RecommendRequest;
-import io.codebuddy.closetbuddy.recommend.evnet.*;
+import io.codebuddy.closetbuddy.recommend.event.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
