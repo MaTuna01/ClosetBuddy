@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.recommend.evnet;
+package io.codebuddy.closetbuddy.recommend.event;
 
 public record RecommendItem(
         // fast api 서버 또한 camelCase 사용
