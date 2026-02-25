@@ -46,6 +46,10 @@ public class OrderController {
                     description = "요청 값이 유효하지 않습니다."
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "상품을 찾을 수 없습니다."
+            ),
+            @ApiResponse(
                     responseCode = "409",
                     description = "중복된 주문 데이터"
             )
@@ -77,12 +81,8 @@ public class OrderController {
                     description = "주문 조회 성공"
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
-            ),
-            @ApiResponse(
                     responseCode = "404",
-                    description = "주문 내역을 찾을 수 없음"
+                    description = "해당 주문 내역을 찾을 수 없습니다."
             )
     })
     @GetMapping("/orderList")

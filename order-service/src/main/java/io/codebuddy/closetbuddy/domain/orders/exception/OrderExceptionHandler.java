@@ -1,7 +1,6 @@
 package io.codebuddy.closetbuddy.domain.orders.exception;
 
 import io.codebuddy.closetbuddy.domain.orders.controller.OrderController;
-import io.codebuddy.closetbuddy.domain.orders.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,22 +11,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
-@RestControllerAdvice(assignableTypes =  {OrderController.class, OrderService.class})
+@RestControllerAdvice(assignableTypes = { OrderController.class })
 
 public class OrderExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OrderExceptionHandler.class);
+
     // Order 서비스 로직에서 발생하는 예외 핸들러
     @ExceptionHandler(OrderException.class)
     public ResponseEntity<OrderErrorResponse> handleOrderException(OrderException e) {
         OrderErrorCode errorCode = e.getErrorCode();
-        //에외를 잡아 서버 로그로 출력
+        // 에외를 잡아 서버 로그로 출력
         log.warn("Order Domain Error: {} - {}", errorCode, e.getMessage());
 
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(new OrderErrorResponse(errorCode.name(), errorCode.getMessage(), Instant.now()));
     }
+
     // 요청 값 검증 실패
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<OrderErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
@@ -37,11 +38,11 @@ public class OrderExceptionHandler {
                 .body(new OrderErrorResponse("INVALID_REQUEST", errorMessage, Instant.now()));
     }
 
-    //그 외 서버에러
+    // 그 외 서버에러
     @ExceptionHandler(Exception.class)
     public ResponseEntity<OrderErrorResponse> handleException(Exception e) {
         String errorMessage = "주문 서비스에 문제가 발생했습니다. 관리자에게 문의하세요.";
-        log.error("Order Service Unhandled Error: ",e);
+        log.error("Order Service Unhandled Error: ", e);
         return ResponseEntity.internalServerError()
                 .body(new OrderErrorResponse(null, errorMessage, Instant.now()));
     }
