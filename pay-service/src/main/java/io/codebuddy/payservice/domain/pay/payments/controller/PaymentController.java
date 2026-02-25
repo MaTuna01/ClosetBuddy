@@ -28,7 +28,7 @@ public class PaymentController {
     // 결제 단건 조회
     @Operation(
             summary = "결제 단건 조회",
-            description = "하나의 결제 내역을 조회합니다."
+            description = "특정 결제 내역을 조회합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -42,18 +42,18 @@ public class PaymentController {
                     content = @Content
             )
     })
-    @GetMapping("/{orderId}")
+    @GetMapping("/{paymentId}")
     public ResponseEntity<PaymentResponse> getPaymentDetail(
             @CurrentUser CurrentUserInfo currentUser,
-            @PathVariable Long orderId
+            @PathVariable Long paymentId
     ) {
-        return ResponseEntity.ok(paymentService.getPayment(Long.parseLong(currentUser.userId()), orderId));
+        return ResponseEntity.ok(paymentService.getPayment(Long.parseLong(currentUser.userId()), paymentId));
     }
 
     // 결제 내역 전체 조회
     @Operation(
             summary = "전체 결제 내역 조회",
-            description = "사용자의 전체 결제 내역을 조회합니다."
+            description = "회원의 전체 결제 내역을 조회합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(
