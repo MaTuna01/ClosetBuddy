@@ -45,17 +45,17 @@ public class RecommendService {
                 .toList();
 
         // 장바구니에서 이미지, 카테고리 가져오기
-        List<RecommendProductInfoResponse> productInfoList = catalogServiceClient.getRecommendProductInfo(productIdsInCart);
+        List<RecommendProductInfoResponse> productInfoList = catalogServiceClient
+                .getRecommendProductInfo(productIdsInCart);
 
         // AI에 보내줄 리스트 조립
         List<RecommendRequest> requests = productInfoList.stream()
                 .map(info -> new RecommendRequest(
                         info.imageUrl(),
-                        info.categoryCode()
-                ))
+                        info.categoryCode()))
                 .toList();
 
-        if(requests.isEmpty()) {
+        if (requests.isEmpty()) {
             log.info("추천에 필요한 유효한 상품이 없습니다.");
             return List.of(); // 빈 리스트 반환
         }
@@ -71,11 +71,11 @@ public class RecommendService {
                 .distinct()
                 .toList();
 
-        log.info("변환된 추천 상품 ID들: {}",  recommendedIds);
+        log.info("변환된 추천 상품 ID들: {}", recommendedIds);
 
         if (recommendedIds.isEmpty()) {
             log.info("추천 상품이 없습니다.");
-            throw new RecommendException(RecommendErrorCode.RECOMMEND_ERROR_CODE);
+            throw new RecommendException(RecommendErrorCode.RECOMMEND_NOT_FOUND);
         }
 
         return catalogServiceClient.getRecommendProductInfo(recommendedIds);
