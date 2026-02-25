@@ -6,6 +6,12 @@ import io.codebuddy.userservice.domain.auth.token.dto.SignReqDTO;
 import io.codebuddy.userservice.domain.auth.token.security.principal.MemberDetails;
 import io.codebuddy.userservice.domain.auth.form.service.LogoutService;
 import io.codebuddy.userservice.domain.auth.form.service.SignService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +27,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "Auth(Form)", description = "폼 로그인/회원가입")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/api/v1")
@@ -36,7 +42,68 @@ public class LoginController {
 
     private final LogoutService logoutService;
 
+
     //회원가입
+    @Operation(
+            summary = "회원가입",
+            description = """
+            **폼 기반 회원가입**
+            
+            **Flow:**
+            1. @Valid 검증 (GlobalExceptionHandler 처리)
+            2. SignService.create() → DB 저장 + BCrypt 암호화
+            3. 201 Created 반환
+            
+            **실패 케이스:**
+            - 400: GlobalExceptionHandler.INVALID_INPUT_VALUE (이메일 형식 등)
+            - 409: DuplicateMemberFieldException → DUPLICATE_VALUE
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "회원가입 성공"),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "GlobalExceptionHandler.INVALID_INPUT_VALUE",
+                    content = @Content(
+                            examples = @ExampleObject(
+                                    value = """
+                    {
+                      "code": "INVALID_INPUT_VALUE",
+                      "message": "입력값이 유효하지 않습니다.",
+                      "errors": [
+                        {
+                          "field": "email",
+                          "value": "wrong-email",
+                          "reason": "올바른 이메일 형식이 아닙니다."
+                        }
+                      ]
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "DuplicateMemberFieldException",
+                    content = @Content(
+                            examples = @ExampleObject(
+                                    value = """
+                    {
+                      "code": "DUPLICATE_VALUE",
+                      "message": "중복된 값이 존재합니다.",
+                      "errors": [
+                        {
+                          "field": "memberId",
+                          "value": "test@example.com",
+                          "reason": "이미 사용중인 이메일입니다."
+                        }
+                      ]
+                    }
+                    """
+                            )
+                    )
+            )
+    })
     @PostMapping("/authc")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> create(@Valid @RequestBody SignReqDTO signReqDTO) {
@@ -47,7 +114,53 @@ public class LoginController {
     }
 
     //로그인
-    // @PostMapping("/auth/login")
+    @Operation(
+            summary = "세션 로그인",
+            description = """
+            **MemberAuthenticationProvider + CustomAuthenticationFailureHandler**
+            
+            **Flow:**
+            1. AuthenticationManager.authenticate()
+            2. MemberPrincipalDetailService.loadUserByUsername()
+            3. BCryptPasswordEncoder.matches() 검증
+            4. 성공 → MemberAuthSuccessHandler
+            5. 실패 → CustomAuthenticationFailureHandler (401 JSON)
+            
+            **실제 로그인 URL: POST /api/v1/auth/login**
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "MemberAuthSuccessHandler → TokenPair 반환",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                    {
+                      "accessToken": "eyJhbGciOiJIUzUxMi...",
+                      "refreshToken": "eyJhbGciOiJIUzI1Ni..."
+                    }
+                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "CustomAuthenticationFailureHandler.INVALID_CREDENTIALS",
+                    content = @Content(
+                            examples = @ExampleObject(
+                                    value = """
+                    {
+                      "code": "INVALID_CREDENTIALS",
+                      "message": "아이디 또는 비밀번호가 올바르지 않습니다."
+                    }
+                    """
+                            )
+                    )
+            )
+    })
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(HttpSession session, @Valid @RequestBody LoginReqDTO loginReqDTO) {
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -78,6 +191,24 @@ public class LoginController {
         }
     }
 
+    @Operation(
+            summary = "세션 로그아웃",
+            description = """
+            **LogoutService.signOut() 호출**
+            
+            **헤더:**
+            - X-USER-ID: 로그아웃할 사용자 ID
+            
+            **처리:**
+            1. 세션 무효화
+            2. 204 No Content
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "로그아웃 완료"),
+            @ApiResponse(responseCode = "400", description = "X-USER-ID 형식 오류"),
+            @ApiResponse(responseCode = "404", description = "사용자 없음")
+    })
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout(
             @RequestHeader("X-USER-ID") String memberId
