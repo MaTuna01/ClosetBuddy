@@ -1,0 +1,41 @@
+name: gateway-service CD 스크립트
+
+concurrency:
+  group: gateway-service-deploy
+  cancel-in-progress: false
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'gateway-service/**'
+  workflow_dispatch:
+    inputs:
+      service-name:
+        description: 'Service name for deployment'
+        required: false
+        default: 'gateway-service'
+      force-deploy:
+        description: 'Force deployment even without changes'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  releasing:
+    uses: ./.github/workflows/cd-release.yml
+    secrets: inherit
+    with:
+      context-path: .
+      service-dir: gateway-service
+      service-name: codebuddy-gateway-service
+      file-name: Dockerfile
+
+  deploying:
+    needs: releasing
+    uses: ./.github/workflows/cd-deploy.yml
+    secrets: inherit
+    with:
+      service-name: codebuddy-gateway-service
+      image-tag: ${{ needs.releasing.outputs.tag_name }}
