@@ -47,23 +47,22 @@ public class CartService {
 
     @CacheEvict(value = "cart", key = "#memberId")
     @Transactional
-    public Long addCartItemToCart(CartItemAddRequest request, Long memberId){
+    public Long addCartItemToCart(CartItemAddRequest request, Long memberId) {
 
-        try{
+        try {
             catalogServiceClient.getCartProductInfo(request.productId());
-        }catch (FeignException e){
+        } catch (FeignException e) {
             throw new CartException(CartErrorCode.PRODUCT_NOT_FOUND);
         }
 
         Cart cart = cartRepository.findByMemberId(memberId)
                 .orElseGet(() -> cartRepository.save(
-                        Cart.builder().memberId(memberId).build()
-                ));
+                        Cart.builder().memberId(memberId).build()));
 
         Optional<CartItem> existingItem = cartItemRepository
                 .findByCartIdAndProductId(cart.getCartId(), request.productId());
 
-        if(existingItem.isPresent()){
+        if (existingItem.isPresent()) {
             // 이미 있으면 수량만 추가
             existingItem.get().addCount(request.productCount());
             return existingItem.get().getId();
@@ -77,7 +76,6 @@ public class CartService {
             return cartItemRepository.save(cartItem).getId();
         }
     }
-
 
     /**
      * 회원 아이디로 장바구니를 조회합니다.
@@ -94,11 +92,11 @@ public class CartService {
         List<CartItem> cartItems = cart.getCartItems();
         List<CartGetResponseDto> cartGetResponseDto = new ArrayList<>();
 
-        if(cartItems.isEmpty()){
+        if (cartItems.isEmpty()) {
             return List.of();
         }
 
-        for(CartItem cartItem : cartItems) {
+        for (CartItem cartItem : cartItems) {
             // 외부 API 호출을 통해 장바구니가 최신 상품 정보를 반영하도록 합니다.
             CartProductResponse product = catalogServiceClient.getCartProductInfo(cartItem.getProductId());
 
@@ -115,7 +113,6 @@ public class CartService {
         }
         return cartGetResponseDto;
     }
-
 
     /**
      * 장바구니를 수량을 수정합니다.
@@ -135,14 +132,13 @@ public class CartService {
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_ITEM_NOT_FOUND));
 
         // cartId와 cartItem이 가지고 있는 cartId가 같은지 확인
-        if(!cart.getCartId().equals(cartItem.getCart().getCartId())) {
-            throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
+        if (!cart.getCartId().equals(cartItem.getCart().getCartId())) {
+            throw new CartException(CartErrorCode.NOT_OWNER);
         }
 
         // requestDto 를 받아와서 장바구니 수량을 수정합니다.
         cartItem.updateCount(request.cartCount());
     }
-
 
     /**
      * 장바구니 상품을 삭제합니다.
@@ -158,12 +154,11 @@ public class CartService {
                 .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 
         // 장바구니 상품 리스트가 비어있을 경우, 예외를 반환한다.
-        if(cart.getCartItems() == null || cart.getCartItems().isEmpty()){
+        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
             throw new CartException(CartErrorCode.CART_ITEM_NOT_FOUND);
         }
         cartItemRepository.deleteCartItem(memberId, request.cartItemList());
     }
-
 
     /**
      * 회원 탈퇴 시 사용하는 삭제 메서드
