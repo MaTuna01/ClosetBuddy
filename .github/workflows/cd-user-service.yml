@@ -24,7 +24,7 @@ on:
 
 jobs:
   releasing:
-    uses: ./.github/workflows/release.yml
+    uses: ./.github/workflows/cd-release.yml
     secrets: inherit
     with:
       context-path: .
@@ -34,7 +34,7 @@ jobs:
 
   deploying:
     needs: releasing
-    uses: ./.github/workflows/deploy.yml
+    uses: ./.github/workflows/cd-deploy.yml
     secrets: inherit
     with:
       service-name: codebuddy-user-service
