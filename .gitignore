@@ -61,3 +61,4 @@ db_data/
 
 # monitoring
 prometheus.yml
+order-service/src/test/java/io/codebuddy/closetbuddy/domain/recommend/RecommendServiceTest.java

@@ -81,7 +81,7 @@ class CartServiceCacheTest {
 
         // 장바구니를 memberId로 조회하면 mockCart를 반환한다.
         given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(mockCart));
-        // 카탈로그 Feign에 1L의 장바구니 정보를 요청했을 때, 상품 정보 (mockProduct)를 반환한다.
+        // 카탈로그 Feign에 1L의 장바구니 정보를 요청했을 때, 상품 정보 mockProduct를 반환한다.
         given(catalogServiceClient.getCartProductInfo(1L)).willReturn(mockProduct);
 
     }
@@ -90,7 +90,7 @@ class CartServiceCacheTest {
     @DisplayName("캐싱: 장바구니 상품 넣기 성공 테스트")
     void success_addCartItem_cache() {
 
-        // given - getCachedCartItems를 통해 캐시에 저장 (getCartList가 내부적으로 호출)
+        // given - getCachedCartItems를 통해 캐시에 저장
         cartService.getCartList(memberId);
 
         given(cartItemRepository.findByCartIdAndProductId(anyLong(), anyLong()))
@@ -122,9 +122,7 @@ class CartServiceCacheTest {
         assertThat(responseDtoList1).hasSize(1);
         assertThat(responseDtoList2).hasSize(1);
 
-        // 장바구니 구조(DB)는 첫 번째 조회에서만 1회 호출
         verify(cartRepository, times(1)).findByMemberId(memberId);
-        // 상품 정보는 캐싱하지 않으므로 2번 모두 호출
         verify(catalogServiceClient, times(2)).getCartProductInfo(1L);
 
     }
@@ -133,7 +131,7 @@ class CartServiceCacheTest {
     @DisplayName("캐싱: 장바구니 수정 테스트")
     void success_updateCart_cache() {
 
-        // given - 선 조회하여 캐시에 저장
+        // given
         cartService.getCartList(memberId);
 
         given(cartItemRepository.findById(100L))
@@ -151,7 +149,7 @@ class CartServiceCacheTest {
     @DisplayName("캐싱: 장바구니 개별 상품 삭제 테스트")
     void success_deleteCartItem_cache() {
 
-        // given - 선 조회하여 캐시에 저장
+        // given
         cartService.getCartList(memberId);
 
         // when - 삭제 시 @CacheEvict 동작
@@ -165,10 +163,10 @@ class CartServiceCacheTest {
     @DisplayName("캐싱: 장바구니 삭제 테스트")
     void success_deleteCart_cache() {
 
-        // given - 선 조회하여 캐시에 저장
+        // given
         cartService.getCartList(memberId);
 
-        // when - deleteCart 시 @CacheEvict → 다음 getCartList에서 DB 재조회
+        // when
         cartService.deleteCart(memberId);
         cartService.getCartList(memberId);
 
