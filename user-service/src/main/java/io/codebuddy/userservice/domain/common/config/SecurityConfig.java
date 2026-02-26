@@ -50,7 +50,8 @@ public class SecurityConfig {
                 return http
                                 .cors(cors -> cors.configurationSource(request -> {
                                         CorsConfiguration config = new CorsConfiguration();
-                                        config.setAllowedOrigins(Collections.singletonList("http://localhost:8090")); // Swagger 주소
+                                        config.setAllowedOrigins(java.util.List.of("http://localhost:8090",
+                                                        "http://localhost:5173")); // Swagger 및 Frontend 허용
                                         config.setAllowedMethods(Collections.singletonList("*"));
                                         config.setAllowedHeaders(Collections.singletonList("*"));
                                         config.setAllowCredentials(true);
@@ -59,20 +60,22 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests((request) -> request
                                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                                                .requestMatchers( "/login-success").permitAll()
+                                                .requestMatchers("/login-success").permitAll()
                                                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                                 .requestMatchers("/api/v1/authc/**").permitAll()
                                                 // 내부 서비스 간 통신용 API - 인증 불필요
                                                 .requestMatchers("/internal/**").permitAll()
                                                 // Prometheus 테스트를 위해 인가, 배포 시 주석 처리된 부분 활용
-                                                //.requestMatchers("/actuator/prometheus", "/actuator/health", "/actuator/info").permitAll()
-                                                //.requestMatchers("/actuator/**").denyAll()
+                                                // .requestMatchers("/actuator/prometheus", "/actuator/health",
+                                                // "/actuator/info").permitAll()
+                                                // .requestMatchers("/actuator/**").denyAll()
                                                 .requestMatchers("/actuator/**").permitAll()
 
-
                                                 // swagger 허용범위 설정
-                                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
+                                                                "/swagger-ui.html")
+                                                .permitAll()
                                                 .requestMatchers("/closetbuddy-user/v3/api-docs").permitAll()
                                                 .requestMatchers("/closetbuddy-main/v3/api-docs").permitAll()
 
@@ -112,7 +115,6 @@ public class SecurityConfig {
                                  * .logoutSuccessHandler(apiLogoutSuccessHandler)
                                  * )
                                  */
-
 
                                 // OAuth2 로그인 활성화
                                 .oauth2Login(oauth2 -> oauth2 // formLogin 후 위치 유지

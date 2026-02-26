@@ -32,7 +32,7 @@ public class JwtTokenVerifier implements TokenVerifier {
         String userServiceUrl = instances.get(0).getUri().toString();
 
         VerifiedUserResponse response = restClient.post()
-                .uri(userServiceUrl + "/api/v1/auth/verify") //verify 주소로 요청
+                .uri(userServiceUrl + "/api/v1/auth/verify") // verify 주소로 요청
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .retrieve()
                 .body(VerifiedUserResponse.class);
@@ -41,9 +41,9 @@ public class JwtTokenVerifier implements TokenVerifier {
             throw new IllegalStateException("Empty verification response from user-service");
         }
 
-        return new VerifiedUser(response.userId().toString(), response.role());
+        return new VerifiedUser(response.memberId().toString(), response.role());
     }
 
-    private record VerifiedUserResponse(Long userId, String role) {
+    private record VerifiedUserResponse(Long memberId, String role) {
     }
 }
