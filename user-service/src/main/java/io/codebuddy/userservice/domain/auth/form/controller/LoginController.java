@@ -7,6 +7,7 @@ import io.codebuddy.userservice.domain.auth.token.security.principal.MemberDetai
 import io.codebuddy.userservice.domain.auth.form.service.LogoutService;
 import io.codebuddy.userservice.domain.auth.form.service.SignService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -115,7 +116,7 @@ public class LoginController {
 
     //로그인
     @Operation(
-            summary = "세션 로그인",
+            summary = "폼 로그인",
             description = """
             **MemberAuthenticationProvider + CustomAuthenticationFailureHandler**
             
@@ -161,7 +162,7 @@ public class LoginController {
             )
     })
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(HttpSession session, @Valid @RequestBody LoginReqDTO loginReqDTO) {
+    public ResponseEntity<?> login(HttpSession session, @Parameter(description = "Form Data 형식으로 입력") @ModelAttribute LoginReqDTO loginReqDTO) {
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginReqDTO.getMemberId(), loginReqDTO.getPassword())
