@@ -1,9 +1,11 @@
 package io.codebuddy.closetbuddy.domain.orders.controller;
 
+import io.codebuddy.closetbuddy.domain.common.web.dto.OrderResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
 import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
@@ -37,28 +39,30 @@ public class OrderController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "201",
+                    responseCode = "202",
                     description = "주문 생성 성공"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "잘못된 요청"
+                    description = "요청 값이 유효하지 않습니다."
             ),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 주문 데이터"
+                    responseCode = "404",
+                    description = "주문을 찾을 수 없습니다."
             )
     })
     @PostMapping
-    public ResponseEntity<Long> createOrder(
+    public ResponseEntity<OrderResult<Long>> createOrder(
             @CurrentUser CurrentUserInfo currentUser,
-            @RequestBody OrderCreateRequestDto request
+            @Valid @RequestBody OrderCreateRequestDto request
     ){
 
         Long memberId = Long.parseLong(currentUser.userId());
         Long orderId = orderService.createOrder(memberId, request);
         // 비동기 처리이므로 ACCEPTED로 상태 변경
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(orderId);
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(OrderResult.withData("주문 생성 성공",  orderId));
     }
 
     /**
@@ -76,21 +80,19 @@ public class OrderController {
                     description = "주문 조회 성공"
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "잘못된 요청"
-            ),
-            @ApiResponse(
                     responseCode = "404",
-                    description = "주문 내역을 찾을 수 없음"
+                    description = "해당 주문 내역을 찾을 수 없습니다."
             )
     })
     @GetMapping("/orderList")
-    public ResponseEntity<List<OrderResponseDto>> getOrder(
+    public ResponseEntity<OrderResult<List<OrderResponseDto>>> getOrder(
             @CurrentUser CurrentUserInfo currentUser
     ){
         List<OrderResponseDto> orderResponseDto = orderService.getOrder(Long.parseLong(currentUser.userId()));
 
-        return ResponseEntity.ok(orderResponseDto);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(OrderResult.withData("주문 조회 성공",  orderResponseDto));
     }
 
 
@@ -114,18 +116,20 @@ public class OrderController {
                     description = "잘못된 요청"
             ),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "중복된 상품 데이터"
+                    responseCode = "403",
+                    description = "사용자의 주문이 아닙니다."
             )
     })
     @GetMapping("/{orderId}")
-    public OrderDetailResponseDto getDetailOrder(
+    public ResponseEntity<OrderResult<OrderDetailResponseDto>> getDetailOrder(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long orderId
     ){
         OrderDetailResponseDto response = orderService.getDetailOrder(Long.parseLong(currentUser.userId()), orderId);
 
-        return response;
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(OrderResult.withData("주문 상세 조회 성공", response));
     }
 
 
@@ -140,7 +144,7 @@ public class OrderController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "204",
+                    responseCode = "200",
                     description = "주문 취소 성공"
             ),
             @ApiResponse(
@@ -150,15 +154,22 @@ public class OrderController {
             @ApiResponse(
                     responseCode = "404",
                     description = "대상을 찾을 수 없음"
+            ),
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "현재 주문 상태에서는 취소할 수 없습니다."
             )
     })
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<Void> canceledOrder(
+    public ResponseEntity<OrderResult<Void>> canceledOrder(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long orderId
     ){
         orderService.cancelOrder(Long.parseLong(currentUser.userId()), orderId);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(OrderResult.messageOnly("주문 취소 성공"));
     }
 
     /**
@@ -168,7 +179,7 @@ public class OrderController {
      * @return
      */
     @PostMapping("/cart/{orderId}")
-    public ResponseEntity<Long> createOrderFromCart(
+    public ResponseEntity<OrderResult<Long>> createOrderFromCart(
             @CurrentUser CurrentUserInfo currentUser,
             @PathVariable Long orderId
     ){
@@ -176,6 +187,8 @@ public class OrderController {
 
         orderService.createOrderFromCart(memberId);
 
-        return ResponseEntity.ok(orderId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(OrderResult.withData("장바구니 상품 주문 성공",  orderId));
     }
 }

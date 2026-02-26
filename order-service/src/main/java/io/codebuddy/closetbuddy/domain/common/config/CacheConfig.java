@@ -17,28 +17,24 @@ import java.util.Map;
 @Configuration
 public class CacheConfig {
 
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        @Bean
+        public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+                RedisCacheConfiguration defaultConfig = RedisCacheConfiguration
+                        .defaultCacheConfig()
+                        .entryTtl(Duration.ofHours(1))
+                        .serializeKeysWith(
+                                RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration
-                .defaultCacheConfig()
-                .entryTtl(Duration.ofDays(14))
-                .serializeKeysWith(
-                        RedisSerializationContext.SerializationPair
-                                .fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair
-                                .fromSerializer(new GenericJackson2JsonRedisSerializer())
-                );
+                Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
 
-        Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
+                // 캐싱 처리 1시간으로 설정
+                cacheConfigs.put("cart", defaultConfig.entryTtl(Duration.ofHours(1)));
 
-        cacheConfigs.put("cart", defaultConfig.entryTtl(Duration.ofDays(14)));
-
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaultConfig)
-                .withInitialCacheConfigurations(cacheConfigs)
-                .build();
-    }
+                return RedisCacheManager.builder(connectionFactory)
+                                .cacheDefaults(defaultConfig)
+                                .withInitialCacheConfigurations(cacheConfigs)
+                                .build();
+        }
 
 }
