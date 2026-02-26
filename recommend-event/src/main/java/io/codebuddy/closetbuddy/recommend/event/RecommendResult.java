@@ -1,4 +1,4 @@
-package io.codebuddy.closetbuddy.recommend.evnet;
+package io.codebuddy.closetbuddy.recommend.event;
 
 import java.util.List;
 

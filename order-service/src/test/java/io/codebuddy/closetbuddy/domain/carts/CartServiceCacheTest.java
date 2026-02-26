@@ -31,7 +31,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-
 @SpringBootTest
 @ActiveProfiles("test")
 class CartServiceCacheTest {
@@ -50,7 +49,6 @@ class CartServiceCacheTest {
 
     @MockitoBean
     CatalogServiceClient catalogServiceClient;
-
 
     // 공통 테스트 데이터
     private final Long memberId = 1L;
@@ -79,56 +77,59 @@ class CartServiceCacheTest {
 
         mockProduct = new CartProductResponse(
                 1L, "네모바지", 10L, "판매자 1",
-                1L, "뉴발란스", 10000L, "PANTS", "square.png"
-        );
+                1L, "뉴발란스", 10000L, "PANTS", "square.png");
 
         // 장바구니를 memberId로 조회하면 mockCart를 반환한다.
         given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(mockCart));
-        // 카탈로그 Feign에 1L의 장바구니 정보를 요청했을 때, 상품 정보 (mockProduct)를 반환한다.
+        // 카탈로그 Feign에 1L의 장바구니 정보를 요청했을 때, 상품 정보 mockProduct를 반환한다.
         given(catalogServiceClient.getCartProductInfo(1L)).willReturn(mockProduct);
 
     }
 
     @Test
     @DisplayName("캐싱: 장바구니 상품 넣기 성공 테스트")
-    void success_addCartItem_cache(){
+    void success_addCartItem_cache() {
 
-        // given
+        // given - getCachedCartItems를 통해 캐시에 저장
         cartService.getCartList(memberId);
 
         given(cartItemRepository.findByCartIdAndProductId(anyLong(), anyLong()))
-                        .willReturn(Optional.empty());
+                .willReturn(Optional.empty());
 
         given(cartItemRepository.save(any(CartItem.class)))
                 .willReturn(mockCartItem);
 
-        // when
+        // when - 상품 추가 시 @CacheEvict 동작
         cartService.addCartItemToCart(new CartItemAddRequest(2L, 1), memberId);
-        cartService.getCartList(memberId);
+        cartService.getCartList(memberId); // 캐시 무효화 후 재조회 → DB 재호출
 
-        // then
+        // then - 1(첫 getCartList) + 1(addCartItemToCart 내부) + 1(두 번째 getCartList) = 3회
         verify(cartRepository, times(3)).findByMemberId(memberId);
     }
 
     @Test
     @DisplayName("캐싱: 장바구니 상품 조회 성공 테스트")
-    void success_getCartList_cache(){
+    void success_getCartList_cache() {
 
         // when - 같은 memberId로 두 번 조회했을 때
+        // getCartList 내부에서 getCachedCartItems를 호출
+        // 첫 번째: 캐시 미스 → DB 조회 → Redis 캐싱
+        // 두 번째: 캐시 히트 → DB 미조회
         List<CartGetResponseDto> responseDtoList1 = cartService.getCartList(memberId);
         List<CartGetResponseDto> responseDtoList2 = cartService.getCartList(memberId);
 
-        // then
+        // then - 상품 정보는 매번 catalog-service에서 조회하므로 catalogServiceClient는 2회 호출
         assertThat(responseDtoList1).hasSize(1);
         assertThat(responseDtoList2).hasSize(1);
 
-        verify(cartRepository, times(1)).findByMemberId(memberId);
+        verify(cartRepository, times(2)).findByMemberId(memberId);
+        verify(catalogServiceClient, times(2)).getCartProductInfo(1L);
 
     }
 
     @Test
     @DisplayName("캐싱: 장바구니 수정 테스트")
-    void success_updateCart_cache(){
+    void success_updateCart_cache() {
 
         // given
         cartService.getCartList(memberId);
@@ -136,39 +137,40 @@ class CartServiceCacheTest {
         given(cartItemRepository.findById(100L))
                 .willReturn(Optional.of(mockCartItem));
 
-        // when
+        // when - 수정 시 @CacheEvict 동작
         cartService.updateCart(memberId, new CartUpdateRequest(100L, 5));
-        cartService.getCartList(memberId);
+        cartService.getCartList(memberId); // 캐시 무효화 후 재조회 → DB 재호출
 
-        // then - 캐시가 지워졌으므로 Repository 재호출
+        // then - 1(첫 getCartList) + 1(updateCart 내부) + 1(두 번째 getCartList) = 3회
         verify(cartRepository, times(3)).findByMemberId(memberId);
     }
 
     @Test
     @DisplayName("캐싱: 장바구니 개별 상품 삭제 테스트")
-    void success_deleteCartItem_cache(){
+    void success_deleteCartItem_cache() {
 
-        // given - 선 조회하여 캐시에 저장
+        // given
         cartService.getCartList(memberId);
 
-        // when
+        // when - 삭제 시 @CacheEvict 동작
         cartService.deleteCartItem(memberId, new CartDeleteRequest(List.of(100L)));
 
-        // then - 캐시가 지워졌으므로 Repository 재호출
+        // then - 1(첫 getCartList) + 1(deleteCartItem 내부) = 2회
         verify(cartRepository, times(2)).findByMemberId(memberId);
     }
 
     @Test
     @DisplayName("캐싱: 장바구니 삭제 테스트")
-    void success_deleteCart_cache(){
+    void success_deleteCart_cache() {
 
-        // given - 선 조회하여 캐시에 저장
+        // given
         cartService.getCartList(memberId);
 
-        // then
+        // when
         cartService.deleteCart(memberId);
         cartService.getCartList(memberId);
 
+        // then - 1(첫 getCartList) + 1(두 번째 getCartList, 캐시 무효화 후) = 2회
         verify(cartRepository, times(2)).findByMemberId(memberId);
 
     }

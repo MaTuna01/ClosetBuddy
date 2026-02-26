@@ -1,6 +1,5 @@
 package io.codebuddy.closetbuddy.domain.carts.model.dto.response;
 
-
 import io.codebuddy.closetbuddy.domain.carts.model.entity.CartItem;
 import io.codebuddy.closetbuddy.domain.common.feign.dto.CartProductResponse;
 

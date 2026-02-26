@@ -1,7 +1,8 @@
 package io.codebuddy.closetbuddy.domain.recommend.kafka;
 
 import io.codebuddy.closetbuddy.domain.carts.service.RecommendResultCacheService;
-import io.codebuddy.closetbuddy.recommend.evnet.*;
+import io.codebuddy.closetbuddy.recommend.event.RecommendResult;
+import io.codebuddy.closetbuddy.recommend.event.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -20,7 +21,7 @@ public class RecommendEventConsumer {
             topics = "recommend.result",
             groupId = "order-service-group",
             properties = {
-                    "spring.json.value.default.type=io.codebuddy.closetbuddy.recommend.evnet.RecommendResult",
+                    "spring.json.value.default.type=io.codebuddy.closetbuddy.recommend.event.RecommendResult",
                     "spring.json.use.type.headers=false"
             }
     )

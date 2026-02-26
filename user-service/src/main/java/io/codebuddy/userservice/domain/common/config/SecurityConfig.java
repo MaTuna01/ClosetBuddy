@@ -16,7 +16,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
+
+import java.util.Collections;
 
 //Spring Security의 보안 필터 체인을 정의하는 설정 클래스
 @Configuration
@@ -45,10 +48,18 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
                 return http
-                                // .securityMatcher("/oauth2/**","/login/oauth2/**", "/api/**","/api/v1/**")
+                                .cors(cors -> cors.configurationSource(request -> {
+                                        CorsConfiguration config = new CorsConfiguration();
+                                        config.setAllowedOrigins(Collections.singletonList("http://localhost:8090")); // Swagger 주소
+                                        config.setAllowedMethods(Collections.singletonList("*"));
+                                        config.setAllowedHeaders(Collections.singletonList("*"));
+                                        config.setAllowCredentials(true);
+                                        return config;
+                                }))
+                                .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests((request) -> request
                                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                                                .requestMatchers("/login-success").permitAll()
+                                                .requestMatchers( "/login-success").permitAll()
                                                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                                 .requestMatchers("/api/v1/authc/**").permitAll()
@@ -82,8 +93,6 @@ public class SecurityConfig {
                                 )
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .csrf(csrf -> csrf.disable())
-                                .cors(cors -> cors.disable())
                                 .httpBasic(httpB -> httpB.disable())
 
                                 // 로그인
