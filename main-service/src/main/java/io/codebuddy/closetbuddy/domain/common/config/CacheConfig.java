@@ -24,7 +24,7 @@ public class CacheConfig {
         // 기본 캐시 설정 (TTl 시간 설정)
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration
                 .defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30))
+                .entryTtl(Duration.ofMinutes(10))
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair
                                 .fromSerializer(new StringRedisSerializer()))
@@ -36,11 +36,11 @@ public class CacheConfig {
         // 캐시별 TTL 설정
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
         // 개별 상품 TTL 설정: 30분
-        cacheConfigs.put("product", defaultConfig.entryTtl(Duration.ofMinutes(30)));
+        cacheConfigs.put("product", defaultConfig.entryTtl(Duration.ofMinutes(2)));
         // 전체 상품 TTL 설정: 10분
-        cacheConfigs.put("products:all", defaultConfig.entryTtl(Duration.ofMinutes(10)));
+        cacheConfigs.put("products:all", defaultConfig.entryTtl(Duration.ofMinutes(2)));
         // 상점 상품 TTL 설정: 15분
-        cacheConfigs.put("products:store", defaultConfig.entryTtl(Duration.ofMinutes(15)));
+        cacheConfigs.put("products:store", defaultConfig.entryTtl(Duration.ofMinutes(2)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)

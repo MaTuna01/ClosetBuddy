@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
  * 내부 API (MemberInternalController) 호출
  * Gateway를 거치지 않는 서비스 간 직접 통신
  */
-@FeignClient(name = "user-service")
+
+// url은 k8s 환경변수로 관리
+// 환경변수가 없는 로컬에서는 eureka를 통해 연결
+@FeignClient(name = "user-service", url = "${USER_SERVICE_URL:http://localhost:8085}")
 public interface UserServiceClient {
 
     /**

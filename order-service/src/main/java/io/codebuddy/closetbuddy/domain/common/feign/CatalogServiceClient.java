@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "closetBuddy")
+// url은 k8s 환경변수로 관리
+// 환경변수가 없는 로컬에서는 eureka를 통해 연결
+@FeignClient(name = "closetBuddy", url = "${MAIN_SERVICE_URL:http://localhost:8080}")
 public interface CatalogServiceClient {
 
     // 상품 Id를 얻어오는 Feign 호출 내부 컨트롤러
