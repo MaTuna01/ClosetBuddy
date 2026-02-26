@@ -122,7 +122,7 @@ class CartServiceCacheTest {
         assertThat(responseDtoList1).hasSize(1);
         assertThat(responseDtoList2).hasSize(1);
 
-        verify(cartRepository, times(1)).findByMemberId(memberId);
+        verify(cartRepository, times(2)).findByMemberId(memberId);
         verify(catalogServiceClient, times(2)).getCartProductInfo(1L);
 
     }
