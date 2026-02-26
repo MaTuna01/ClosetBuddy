@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class GoogleOAuth2Test {
+public class GoogleOAuth2Test extends TestSupport{
 
     @Autowired MockMvc mockMvc;
 
