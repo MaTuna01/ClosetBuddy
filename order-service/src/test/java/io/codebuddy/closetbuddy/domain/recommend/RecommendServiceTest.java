@@ -30,32 +30,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 class RecommendServiceTest {
 
-    @InjectMocks
-    private RecommendService recommendService;
         @InjectMocks
         private RecommendService recommendService;
 
-    @Mock
-    private CartRepository cartRepository;
         @Mock
         private CartRepository cartRepository;
 
-    @Mock
-    private AIClientService aiClientService;
         @Mock
         private AIClientService aiClientService;
 
-    @Mock
-    CatalogServiceClient catalogServiceClient;
         @Mock
         CatalogServiceClient catalogServiceClient;
 
-    @Test
-    @DisplayName("장바구니 기반 추천 시스템 - 성공")
-    void recommend_success() {
-        Long memberId = 1L;
-        Cart mockCart = mock(Cart.class);
-        CartItem mockCartItem = mock(CartItem.class);
         @Test
         @DisplayName("장바구니 기반 추천 시스템 - 성공")
         void recommend_success() {
@@ -63,63 +49,37 @@ class RecommendServiceTest {
                 Cart mockCart = mock(Cart.class);
                 CartItem mockCartItem = mock(CartItem.class);
 
-        // 장바구니에 100번 옷이 있다고 가정
-        when(mockCartItem.getProductId()).thenReturn(100L);
-        when(mockCart.getCartItems()).thenReturn(List.of(mockCartItem));
-        when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.of(mockCart));
-                // 장바구니에 100번 옷이 있다고 가정
                 when(mockCartItem.getProductId()).thenReturn(100L);
                 when(mockCart.getCartItems()).thenReturn(List.of(mockCartItem));
                 when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.of(mockCart));
 
-                RecommendProductInfoResponse cartProductInfo = new RecommendProductInfoResponse(2L, "빨간 티셔츠",
-                                100L, "s3://dummy/cart_100.jpg", "뉴발란스", "TOP");
+                RecommendProductInfoResponse cartProductInfo = new RecommendProductInfoResponse(
+                                2L, "빨간 티셔츠", 100L, "s3://dummy/cart_100.jpg", "뉴발란스", "TOP");
 
-        RecommendResponse recommendResponse =
-                new RecommendResponse("s3://dummy/cart_100.jpg", "TOP", List.of("6227", "2754", "5000", "23300"));
-                RecommendResponse recommendResponse = new RecommendResponse("s3://dummy/cart_100.jpg", "TOP",
-                                List.of("6227", "2754", "5000", "23300"));
+                RecommendResponse recommendResponse = new RecommendResponse(
+                                "s3://dummy/cart_100.jpg", "TOP", List.of("6227", "2754", "5000", "23300"));
 
-        when(aiClientService.getRecommendation(anyList()))
-                .thenReturn(List.of(recommendResponse));
                 when(aiClientService.getRecommendation(anyList()))
                                 .thenReturn(List.of(recommendResponse));
 
-        RecommendProductInfoResponse finalProduct1 =
-                new RecommendProductInfoResponse(6227L, "파란 티셔츠",
-                        90L, "s3://dummy/cart_6227.jpg", "나이키", "TOP");
-                RecommendProductInfoResponse finalProduct1 = new RecommendProductInfoResponse(6227L, "파란 티셔츠",
-                                90L, "s3://dummy/cart_6227.jpg", "나이키", "TOP");
+                RecommendProductInfoResponse finalProduct1 = new RecommendProductInfoResponse(
+                                6227L, "파란 티셔츠", 90L, "s3://dummy/cart_6227.jpg", "나이키", "TOP");
 
-        RecommendProductInfoResponse finalProduct2 =
-                new RecommendProductInfoResponse(2754L, "보라 티셔츠",
-                        1000L, "s3://dummy/cart_2754.jpg", "반스", "TOP");
-                RecommendProductInfoResponse finalProduct2 = new RecommendProductInfoResponse(2754L, "보라 티셔츠",
-                                1000L, "s3://dummy/cart_2754.jpg", "반스", "TOP");
+                RecommendProductInfoResponse finalProduct2 = new RecommendProductInfoResponse(
+                                2754L, "초록 자켓", 1200L, "s3://dummy/cart_2754.jpg", "아디다스", "OUTER");
 
-        RecommendProductInfoResponse finalProduct3 =
-                new RecommendProductInfoResponse(5000L, "보라 티셔츠",
-                        1000L, "s3://dummy/cart_5000.jpg", "반스", "TOP");
-                RecommendProductInfoResponse finalProduct3 = new RecommendProductInfoResponse(5000L, "보라 티셔츠",
-                                1000L, "s3://dummy/cart_5000.jpg", "반스", "TOP");
+                RecommendProductInfoResponse finalProduct3 = new RecommendProductInfoResponse(
+                                5000L, "검정 팬츠", 800L, "s3://dummy/cart_5000.jpg", "자라", "PANTS");
 
-                RecommendProductInfoResponse finalProduct4 = new RecommendProductInfoResponse(23300L, "보라 티셔츠",
-                                1000L, "s3://dummy/cart_23300.jpg", "반스", "TOP");
+                RecommendProductInfoResponse finalProduct4 = new RecommendProductInfoResponse(
+                                23300L, "흰색 스니커즈", 1500L, "s3://dummy/cart_23300.jpg", "컨버스", "SHOES");
 
-        RecommendProductInfoResponse finalProduct4 =
-                new RecommendProductInfoResponse(23300L, "보라 티셔츠",
-                        1000L, "s3://dummy/cart_23300.jpg", "반스", "TOP");
                 when(catalogServiceClient.getRecommendProductInfo(anyList()))
                                 .thenReturn(List.of(cartProductInfo))
                                 .thenReturn(List.of(finalProduct1, finalProduct2, finalProduct3, finalProduct4));
 
-                // when
                 List<RecommendProductInfoResponse> result = recommendService.getCartListForRecommend(memberId);
 
-        when(catalogServiceClient.getRecommendProductInfo(anyList()))
-                .thenReturn(List.of(cartProductInfo))
-                .thenReturn(List.of(finalProduct1, finalProduct2, finalProduct3, finalProduct4));
-                // then
                 assertThat(result).isNotNull();
                 assertThat(result.get(0)).isEqualTo(finalProduct1);
                 assertThat(result.get(1)).isEqualTo(finalProduct2);
@@ -130,59 +90,24 @@ class RecommendServiceTest {
         @Test
         @DisplayName("장바구니 기반 추천 시스템 실패 - 장바구니 주인이 아닐 경우")
         void recommend_fail_NotOwner() {
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.get(0)).isEqualTo(finalProduct1);
-        assertThat(result.get(1)).isEqualTo(finalProduct2);
-        assertThat(result.get(2)).isEqualTo(finalProduct3);
-        assertThat(result.get(3)).isEqualTo(finalProduct4);
-    }
                 Long memberId = 1L;
 
-    @Test
-    @DisplayName("장바구니 기반 추천 시스템 실패 - 장바구니 주인이 아닐 경우")
-    void recommend_fail_NotOwner() {
-                // given
                 when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.empty());
 
-        Long memberId = 1L;
-                // when & then
                 assertThatThrownBy(() -> recommendService.getCartListForRecommend(memberId))
                                 .isInstanceOf(RecommendException.class)
                                 .hasMessageContaining("추천 상품을 찾을 수 없습니다.");
         }
 
-        // given
-        when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.empty());
         @Test
         @DisplayName("장바구니 기반 추천 시스템 실패 - 장바구니에 상품이 없을 경우")
         void recommend_fail_emptyCart() {
-
-        // when & then
-        assertThatThrownBy(() -> recommendService.getCartListForRecommend(memberId))
-                .isInstanceOf(RecommendException.class)
-                .hasMessageContaining("사용자의 장바구니가 아닙니다.");
-    }
                 Long memberId = 1L;
                 Cart mockCart = mock(Cart.class);
 
-    @Test
-    @DisplayName("장바구니 기반 추천 시스템 실패 - 장바구니에 상품이 없을 경우")
-    void recommend_fail_emptyCart() {
                 when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.of(mockCart));
                 when(mockCart.getCartItems()).thenReturn(null);
 
-        Long memberId = 1L;
-        Cart mockCart = mock(Cart.class);
-
-        when(cartRepository.findByMemberId(memberId)).thenReturn(Optional.of(mockCart));
-        when(mockCart.getCartItems()).thenReturn(null);
-
-        assertThatThrownBy(() -> recommendService.getCartListForRecommend(memberId))
-                .isInstanceOf(RecommendException.class)
-                .hasMessageContaining("장바구니 안에 상품이 없습니다.");
-    }
                 assertThatThrownBy(() -> recommendService.getCartListForRecommend(memberId))
                                 .isInstanceOf(RecommendException.class)
                                 .hasMessageContaining("장바구니 안에 상품이 없습니다.");
