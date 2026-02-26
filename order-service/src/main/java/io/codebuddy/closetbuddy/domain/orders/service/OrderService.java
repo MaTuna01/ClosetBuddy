@@ -115,7 +115,7 @@ public class OrderService {
         List<CartGetResponseDto> cartList = cartService.getCartList(memberId);
 
         // 만약 장바구니가 비어있는 경우 장바구니가 존재하지 않음을 예외처리합니다.
-        if (cartList.isEmpty()) {
+        if (cartList == null || cartList.isEmpty()) {
             throw new CartException(CartErrorCode.CART_NOT_FOUND);
         }
 
