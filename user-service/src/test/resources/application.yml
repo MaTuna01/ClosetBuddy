@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: user-service
+
+  # --- H2 인메모리 DB 설정 (MySQL 호환 모드) ---
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true # 쿼리 가독성을 위해 추가
+        show_sql: true   # 테스트 중 발생하는 쿼리 확인을 위해 추가
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test.apps.googleusercontent.com
+            client-secret: test-secret
+            redirect-uri: http://localhost:10000/login/oauth2/code/google
+            scope:
+              - email
+              - profile
+
+eureka:
+  client:
+    enabled: false # 테스트 중 불필요한 유레카 서버 연결 시도 및 에러 로그 방지
+
+custom:
+  jwt:
+    validation:
+      access: 3600000
+      refresh: 1209600000
+    secrets:
+      # HS256 알고리즘은 최소 256비트(32바이트) 이상의 길이를 요구하므로 32자 이상으로 설정
+      origin-key: "v3D9rYfL2sQ1mN5pZ8wX4kT7jH6cM0vBtestkey"
+      app-key: "k9F2mV5nB8xP1zL4sQ7wY0cT3jH6rM9vDtestkey"
+    redirection:
+      base: http://test-server
