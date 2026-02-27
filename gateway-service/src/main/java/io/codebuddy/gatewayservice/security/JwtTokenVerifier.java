@@ -22,17 +22,17 @@ public class JwtTokenVerifier implements TokenVerifier {
     @Override
     public VerifiedUser verify(String authHeader) {
         // 유레카에서 "USER-SERVICE"라는 이름으로 등록된 서버 목록을 일기
-        List<ServiceInstance> instances = discoveryClient.getInstances("USER-SERVICE");
-
-        if (instances == null || instances.isEmpty()) {
-            throw new IllegalStateException("USER-SERVICE is not available in Eureka!");
-        }
+//        List<ServiceInstance> instances = discoveryClient.getInstances("USER-SERVICE");
+//
+//        if (instances == null || instances.isEmpty()) {
+//            throw new IllegalStateException("USER-SERVICE is not available in Eureka!");
+//        }
 
         // 서버의 주소(URI) 세팅
-        String userServiceUrl = instances.get(0).getUri().toString();
+//        String userServiceUrl = instances.get(0).getUri().toString();
 
         VerifiedUserResponse response = restClient.post()
-                .uri(userServiceUrl + "/api/v1/auth/verify") // verify 주소로 요청
+                .uri("http://user-service:8080/api/v1/auth/verify") // verify 주소로 요청
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
                 .retrieve()
                 .body(VerifiedUserResponse.class);
