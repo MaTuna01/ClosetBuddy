@@ -48,10 +48,10 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
                 return http
+                                // Gateway에서 CORS를 검증하므로, 내부 서비스에서는 모든 Origin 허용
                                 .cors(cors -> cors.configurationSource(request -> {
                                         CorsConfiguration config = new CorsConfiguration();
-                                        config.setAllowedOrigins(java.util.List.of("http://localhost:8090",
-                                                        "http://localhost:5173")); // Swagger 및 Frontend 허용
+                                        config.setAllowedOriginPatterns(Collections.singletonList("*"));
                                         config.setAllowedMethods(Collections.singletonList("*"));
                                         config.setAllowedHeaders(Collections.singletonList("*"));
                                         config.setAllowCredentials(true);
