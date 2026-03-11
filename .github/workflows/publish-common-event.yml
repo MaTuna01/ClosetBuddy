@@ -1,0 +1,39 @@
+name: Publish common-event
+
+on:
+  push:
+    branches: [ main, closetBuddy-MSA-dev ]
+    paths:
+      - 'common-event/**'          # common-event 디렉토리가 변경될 때 실행
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write #Github pakages에 쓰기권한 부여
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4 #actions version-4
+        with:
+          # 프로젝트 JDK 버전과 동일하게 17버전 사용
+          java-version: '17'
+          distribution: 'temurin'
+
+      # gradlew 실행권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        working-directory: common-event
+
+      # GitHub Pakages에 배포
+      - name: Publish to GitHub Packages
+        run: ./gradlew publish
+        working-directory: common-event
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

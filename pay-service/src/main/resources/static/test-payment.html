@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 테스트</title>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+</head>
+<body>
+<button onclick="requestPayment()">결제하기</button>
+
+<script>
+    // 클라이언트 키 설정 (개발자센터에서 발급받은 Client Key)
+    var clientKey = 'test_ck_Poxy1XQL8RP6Awdl0kwLV7nO5Wml';
+    var tossPayments = TossPayments(clientKey);
+
+    function requestPayment() {
+        // 결제 요청
+        tossPayments.requestPayment('카드', {
+            amount: 10000, // 결제 금액
+            orderId: 'TEST-ORDER-' + new Date().getTime(),
+            orderName: '테스트 티셔츠',
+            customerName: '테스트유저',
+            // 결제 성공 시 리다이렉트 될 URL (파라미터 확인용으로)
+            successUrl: window.location.origin + '/success.html',
+            failUrl: window.location.origin + '/fail.html',
+        });
+    }
+</script>
+</body>
+</html>

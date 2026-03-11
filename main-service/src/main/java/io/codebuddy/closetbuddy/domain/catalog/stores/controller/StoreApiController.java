@@ -1,0 +1,201 @@
+package io.codebuddy.closetbuddy.domain.catalog.stores.controller;
+
+
+import io.codebuddy.closetbuddy.domain.catalog.web.dto.CatalogResult;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUser;
+import io.codebuddy.closetbuddy.domain.common.web.CurrentUserInfo;
+import io.codebuddy.closetbuddy.domain.catalog.stores.model.dto.StoreResponse;
+import io.codebuddy.closetbuddy.domain.catalog.stores.model.dto.UpdateStoreRequest;
+import io.codebuddy.closetbuddy.domain.catalog.stores.model.dto.UpsertStoreRequest;
+import io.codebuddy.closetbuddy.domain.catalog.stores.service.StoreService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/catalog")
+public class StoreApiController {
+
+    private final StoreService storeService;
+
+    //상점 등록
+    @Operation(
+            summary = "가게 등록",
+            description = "가게를 등록합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "가게 생성 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "중복된 가게 데이터"
+            )
+    })
+    @PostMapping("/stores")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<CatalogResult<Void>> create(
+            @CurrentUser CurrentUserInfo currentUser,
+            @RequestBody @Valid UpsertStoreRequest request
+    ) {
+        storeService.createStore(Long.parseLong(currentUser.userId()), request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(CatalogResult.messageOnly("상점 등록이 완료되었습니다."));
+    }
+
+    //내 가게 조회(단건)
+    @Operation(
+            summary = "가게 조회",
+            description = "가게를 조회합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "가게 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            )
+    })
+    @GetMapping("/stores/{store_id}")
+    public ResponseEntity<StoreResponse> getOneStore(
+            @PathVariable Long store_id
+    ) {
+        if (store_id == null || store_id <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
+
+        StoreResponse response = storeService.getStore(store_id);
+        return ResponseEntity.ok(response);
+    }
+
+    // 내 상점 목록 조회 (로그인 필수)
+    // /stores/me
+    @Operation(
+            summary = "내 가게 목록 조회",
+            description = "가게를 목록들을 리스트로 조회합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "가게 리스트 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "접근 권한 없음"
+            )
+    })
+    @GetMapping("/stores/me")
+    public ResponseEntity<List<StoreResponse>> getMyStores(
+            @CurrentUser CurrentUserInfo currentUser
+    ) {
+        List<StoreResponse> response = storeService.getMyStores(Long.parseLong(currentUser.userId()));
+        return ResponseEntity.ok(response);
+    }
+
+    // 전체 상점 목록 조회 (로그인 불필요)
+    // /stores
+    @Operation(
+            summary = "전체 상품 목록 조회(로그인 불필요)",
+            description = "전체 가게를 목록들을 리스트로 조회합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "가게 리스트 조회 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            )
+    })
+    @GetMapping("/stores")
+    public ResponseEntity<List<StoreResponse>> getAllStores() {
+        List<StoreResponse> response = storeService.getAllStores();
+        return ResponseEntity.ok(response);
+    }
+
+    //내 가게 정보 수정
+    @Operation(
+            summary = "가게 수정",
+            description = "가게 정보를 수정합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "상품 수정 성공"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청"
+            ),
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "가게 수정 성공(반환 데이터 없음)"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            )
+    })
+    @PutMapping("/stores/{store_id}")
+    public ResponseEntity<CatalogResult<Void>> updateStore(
+            @CurrentUser CurrentUserInfo currentUser,
+            @PathVariable Long store_id,
+            @RequestBody @Valid UpdateStoreRequest request
+            ) {
+
+        if (store_id == null || store_id <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
+
+        storeService.updateStore(Long.parseLong(currentUser.userId()), store_id, request);
+        return ResponseEntity.ok(CatalogResult.messageOnly("가게 정보가 수정되었습니다."));
+    }
+
+    //내 가게 삭제(폐점)
+    @Operation(
+            summary = "가게 삭제",
+            description = "가게를 삭제(폐점)합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "가게 삭제 성공(반환 값 없음)"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "가게 데이터 없음"
+            )
+    })
+    @DeleteMapping("stores/{store_id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<CatalogResult<Void>> deleteStore(
+            @CurrentUser CurrentUserInfo currentUser,
+            @PathVariable Long store_id
+    ) {
+        if (store_id == null || store_id <= 0) {
+            throw new IllegalArgumentException("유효하지 않은 상점 ID입니다.");
+        }
+        storeService.deleteStore(Long.parseLong(currentUser.userId()), store_id);
+        return ResponseEntity.ok(CatalogResult.messageOnly("가게가 삭제(폐점)되었습니다."));
+    }
+}

@@ -1,0 +1,61 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  application:
+    name: closetBuddy-test
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    defer-datasource-initialization: true
+    show-sql: true
+
+
+  sql:
+    init:
+      mode: always
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
+# Eureka 비활성화
+eureka:
+  client:
+    enabled: false
+
+custom:
+  jwt:
+    validation:
+      access: "dummy-access-key"
+      refresh: "dummy-refresh-key"
+    secrets:
+      origin-key: "dummy-origin-key"
+      app-key: "dummy-app-key"
+    redirection:
+      base: redirect
+  payments:
+    toss:
+      url: "https://api.tosspayments.com/v1/payments"
+      secrets: test_sk
+  settlement:
+    fee-rate: 3.0
+
+logging:
+  level:
+    org.springframework: WARN
+    io.codebuddy: DEBUG
